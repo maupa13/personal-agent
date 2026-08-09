@@ -1,0 +1,1103 @@
+{
+  "product": "Personal Agent Rus",
+  "version": "0.7.2",
+  "environment": {
+    "platform": "Linux-6.18.35-x86_64-with-glibc2.41",
+    "python": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+    "executable": "/opt/pyvenv/bin/python"
+  },
+  "results": [
+    {
+      "test_id": "FND-STATIC-001",
+      "name": "static",
+      "status": "PASS",
+      "started_at": 1786311557.4022367,
+      "finished_at": 1786311558.531624,
+      "duration_sec": 1.129,
+      "exit_code": 0,
+      "output_file": "FND-STATIC-001.log"
+    },
+    {
+      "test_id": "FND-ASSET-VERSION-001",
+      "name": "static",
+      "status": "PASS",
+      "started_at": 1786311557.4022367,
+      "finished_at": 1786311558.531624,
+      "duration_sec": 1.129,
+      "exit_code": 0,
+      "output_file": "FND-STATIC-001.log"
+    },
+    {
+      "test_id": "CODE-011",
+      "name": "static",
+      "status": "PASS",
+      "started_at": 1786311557.4022367,
+      "finished_at": 1786311558.531624,
+      "duration_sec": 1.129,
+      "exit_code": 0,
+      "output_file": "FND-STATIC-001.log"
+    },
+    {
+      "test_id": "DIST-001",
+      "name": "distribution",
+      "status": "PASS",
+      "started_at": 1786311558.5318294,
+      "finished_at": 1786311559.5048664,
+      "duration_sec": 0.973,
+      "exit_code": 0,
+      "output_file": "DIST-001.log"
+    },
+    {
+      "test_id": "DIST-002",
+      "name": "distribution",
+      "status": "PASS",
+      "started_at": 1786311558.5318294,
+      "finished_at": 1786311559.5048664,
+      "duration_sec": 0.973,
+      "exit_code": 0,
+      "output_file": "DIST-001.log"
+    },
+    {
+      "test_id": "DIST-003",
+      "name": "distribution",
+      "status": "PASS",
+      "started_at": 1786311558.5318294,
+      "finished_at": 1786311559.5048664,
+      "duration_sec": 0.973,
+      "exit_code": 0,
+      "output_file": "DIST-001.log"
+    },
+    {
+      "test_id": "FND-WIN-CONTRACT-001",
+      "name": "windows-contract-static",
+      "status": "PASS",
+      "started_at": 1786311559.5050159,
+      "finished_at": 1786311560.6299546,
+      "duration_sec": 1.125,
+      "exit_code": 0,
+      "output_file": "FND-WIN-CONTRACT-001.log"
+    },
+    {
+      "test_id": "TASK-006",
+      "name": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6325595,
+      "finished_at": 1786311562.6738534,
+      "duration_sec": 2.041,
+      "exit_code": 0,
+      "output_file": "TASK-006.log"
+    },
+    {
+      "test_id": "DEPLOY-001",
+      "name": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6325595,
+      "finished_at": 1786311562.6738534,
+      "duration_sec": 2.041,
+      "exit_code": 0,
+      "output_file": "TASK-006.log"
+    },
+    {
+      "test_id": "DEPLOY-002",
+      "name": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6325595,
+      "finished_at": 1786311562.6738534,
+      "duration_sec": 2.041,
+      "exit_code": 0,
+      "output_file": "TASK-006.log"
+    },
+    {
+      "test_id": "DEPLOY-003",
+      "name": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6325595,
+      "finished_at": 1786311562.6738534,
+      "duration_sec": 2.041,
+      "exit_code": 0,
+      "output_file": "TASK-006.log"
+    },
+    {
+      "test_id": "DEPLOY-004",
+      "name": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6325595,
+      "finished_at": 1786311562.6738534,
+      "duration_sec": 2.041,
+      "exit_code": 0,
+      "output_file": "TASK-006.log"
+    },
+    {
+      "test_id": "DEPLOY-005",
+      "name": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6325595,
+      "finished_at": 1786311562.6738534,
+      "duration_sec": 2.041,
+      "exit_code": 0,
+      "output_file": "TASK-006.log"
+    },
+    {
+      "test_id": "DEPLOY-006",
+      "name": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6325595,
+      "finished_at": 1786311562.6738534,
+      "duration_sec": 2.041,
+      "exit_code": 0,
+      "output_file": "TASK-006.log"
+    },
+    {
+      "test_id": "DEPLOY-007",
+      "name": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6325595,
+      "finished_at": 1786311562.6738534,
+      "duration_sec": 2.041,
+      "exit_code": 0,
+      "output_file": "TASK-006.log"
+    },
+    {
+      "test_id": "DEPLOY-008",
+      "name": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6325595,
+      "finished_at": 1786311562.6738534,
+      "duration_sec": 2.041,
+      "exit_code": 0,
+      "output_file": "TASK-006.log"
+    },
+    {
+      "test_id": "DEPLOY-009",
+      "name": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6325595,
+      "finished_at": 1786311562.6738534,
+      "duration_sec": 2.041,
+      "exit_code": 0,
+      "output_file": "TASK-006.log"
+    },
+    {
+      "test_id": "LAN-001",
+      "name": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6325595,
+      "finished_at": 1786311562.6738534,
+      "duration_sec": 2.041,
+      "exit_code": 0,
+      "output_file": "TASK-006.log"
+    },
+    {
+      "test_id": "FND-BROWSER-OFFLINE-001",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786311560.6332314,
+      "finished_at": 1786311575.499812,
+      "duration_sec": 14.867,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "FND-PRODUCT-SHELL-001",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786311560.6332314,
+      "finished_at": 1786311575.499812,
+      "duration_sec": 14.867,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "FND-PRODUCT-SHELL-V2-001",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786311560.6332314,
+      "finished_at": 1786311575.499812,
+      "duration_sec": 14.867,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "FND-PRESET-001",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786311560.6332314,
+      "finished_at": 1786311575.499812,
+      "duration_sec": 14.867,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "PRV-001",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786311560.6332314,
+      "finished_at": 1786311575.499812,
+      "duration_sec": 14.867,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "PRV-005",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786311560.6332314,
+      "finished_at": 1786311575.499812,
+      "duration_sec": 14.867,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "AUTH-003",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786311560.6332314,
+      "finished_at": 1786311575.499812,
+      "duration_sec": 14.867,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "WEB-004",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786311560.6332314,
+      "finished_at": 1786311575.499812,
+      "duration_sec": 14.867,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "WEB-006",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786311560.6332314,
+      "finished_at": 1786311575.499812,
+      "duration_sec": 14.867,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "FILE-017",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786311560.6332314,
+      "finished_at": 1786311575.499812,
+      "duration_sec": 14.867,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "CODE-012",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786311560.6332314,
+      "finished_at": 1786311575.499812,
+      "duration_sec": 14.867,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "BILL-006",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786311560.6332314,
+      "finished_at": 1786311575.499812,
+      "duration_sec": 14.867,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "BILL-011",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786311560.6332314,
+      "finished_at": 1786311575.499812,
+      "duration_sec": 14.867,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "TASK-001",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786311560.6332314,
+      "finished_at": 1786311575.499812,
+      "duration_sec": 14.867,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "TASK-003",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786311560.6332314,
+      "finished_at": 1786311575.499812,
+      "duration_sec": 14.867,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "DEPLOY-006",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786311560.6332314,
+      "finished_at": 1786311575.499812,
+      "duration_sec": 14.867,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "OBS-001",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786311560.6332314,
+      "finished_at": 1786311575.499812,
+      "duration_sec": 14.867,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "FND-API-001",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FND-CAPABILITY-HONESTY-001",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FND-PRESET-001",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "PRV-001",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "PRV-002",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "PRV-003",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "PRV-004",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "PRV-005",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "PRV-006",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "PRV-008",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "PRV-009",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "AUTH-001",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "AUTH-002",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "AUTH-003",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "AUTH-CSRF-001",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "WEB-001",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "WEB-002",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "WEB-003",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "WEB-004",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "WEB-005",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "WEB-006",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "WEB-007",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "WEB-008",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "WEB-009",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "WEB-010",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-001",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-002",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-003",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-004",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-005",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-006",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-007",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-008",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-009",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-010",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-011",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-012",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-013",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-014",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-015",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-016",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "CODE-001",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "CODE-002",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "CODE-003",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "CODE-004",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "CODE-005",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "CODE-006",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "TASK-001",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "TASK-002",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "TASK-003",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "TASK-004",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "TASK-005",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "TASK-007",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "DEPLOY-006",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "OBS-001",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786311560.6358366,
+      "finished_at": 1786311584.0049622,
+      "duration_sec": 23.369,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "BILL-001",
+      "name": "billing-acceptance",
+      "status": "PASS",
+      "started_at": 1786311562.674039,
+      "finished_at": 1786311568.4725354,
+      "duration_sec": 5.798,
+      "exit_code": 0,
+      "output_file": "BILL-001.log"
+    },
+    {
+      "test_id": "BILL-002",
+      "name": "billing-acceptance",
+      "status": "PASS",
+      "started_at": 1786311562.674039,
+      "finished_at": 1786311568.4725354,
+      "duration_sec": 5.798,
+      "exit_code": 0,
+      "output_file": "BILL-001.log"
+    },
+    {
+      "test_id": "BILL-003",
+      "name": "billing-acceptance",
+      "status": "PASS",
+      "started_at": 1786311562.674039,
+      "finished_at": 1786311568.4725354,
+      "duration_sec": 5.798,
+      "exit_code": 0,
+      "output_file": "BILL-001.log"
+    },
+    {
+      "test_id": "BILL-004",
+      "name": "billing-acceptance",
+      "status": "PASS",
+      "started_at": 1786311562.674039,
+      "finished_at": 1786311568.4725354,
+      "duration_sec": 5.798,
+      "exit_code": 0,
+      "output_file": "BILL-001.log"
+    },
+    {
+      "test_id": "BILL-005",
+      "name": "billing-acceptance",
+      "status": "PASS",
+      "started_at": 1786311562.674039,
+      "finished_at": 1786311568.4725354,
+      "duration_sec": 5.798,
+      "exit_code": 0,
+      "output_file": "BILL-001.log"
+    },
+    {
+      "test_id": "BILL-007",
+      "name": "billing-acceptance",
+      "status": "PASS",
+      "started_at": 1786311562.674039,
+      "finished_at": 1786311568.4725354,
+      "duration_sec": 5.798,
+      "exit_code": 0,
+      "output_file": "BILL-001.log"
+    },
+    {
+      "test_id": "BILL-008",
+      "name": "billing-acceptance",
+      "status": "PASS",
+      "started_at": 1786311562.674039,
+      "finished_at": 1786311568.4725354,
+      "duration_sec": 5.798,
+      "exit_code": 0,
+      "output_file": "BILL-001.log"
+    },
+    {
+      "test_id": "BILL-009",
+      "name": "billing-acceptance",
+      "status": "PASS",
+      "started_at": 1786311562.674039,
+      "finished_at": 1786311568.4725354,
+      "duration_sec": 5.798,
+      "exit_code": 0,
+      "output_file": "BILL-001.log"
+    },
+    {
+      "test_id": "BILL-010",
+      "name": "billing-acceptance",
+      "status": "PASS",
+      "started_at": 1786311562.674039,
+      "finished_at": 1786311568.4725354,
+      "duration_sec": 5.798,
+      "exit_code": 0,
+      "output_file": "BILL-001.log"
+    },
+    {
+      "test_id": "CODE-007",
+      "name": "code-worker-acceptance",
+      "status": "PASS",
+      "started_at": 1786311568.4727213,
+      "finished_at": 1786311579.9158401,
+      "duration_sec": 11.443,
+      "exit_code": 0,
+      "output_file": "CODE-007.log"
+    },
+    {
+      "test_id": "CODE-008",
+      "name": "code-worker-acceptance",
+      "status": "PASS",
+      "started_at": 1786311568.4727213,
+      "finished_at": 1786311579.9158401,
+      "duration_sec": 11.443,
+      "exit_code": 0,
+      "output_file": "CODE-007.log"
+    },
+    {
+      "test_id": "CODE-009",
+      "name": "code-worker-acceptance",
+      "status": "PASS",
+      "started_at": 1786311568.4727213,
+      "finished_at": 1786311579.9158401,
+      "duration_sec": 11.443,
+      "exit_code": 0,
+      "output_file": "CODE-007.log"
+    },
+    {
+      "test_id": "CODE-010",
+      "name": "code-worker-acceptance",
+      "status": "PASS",
+      "started_at": 1786311568.4727213,
+      "finished_at": 1786311579.9158401,
+      "duration_sec": 11.443,
+      "exit_code": 0,
+      "output_file": "CODE-007.log"
+    }
+  ],
+  "counts": {
+    "PASS": 103,
+    "FAIL": 0
+  },
+  "environment_bound": [
+    {
+      "test_id": "FND-BROWSER-LIVE-REAL-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "authoritative on reference Windows runtime"
+    },
+    {
+      "test_id": "FND-BROWSER-LIVE-SECURITY-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "authoritative on reference Windows Docker runtime"
+    },
+    {
+      "test_id": "FND-RUS-LANGUAGE-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "stochastic real-model language behavior is authoritative on reference Windows runtime"
+    },
+    {
+      "test_id": "FND-REFERENCE-SEQUENCE-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "runs RELEASE-ACCEPTANCE.cmd on reference Windows Docker runtime"
+    },
+    {
+      "test_id": "FND-REBOOT-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "requires real Windows reboot"
+    },
+    {
+      "test_id": "WEB-011",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "live DTF canary is authoritative on reference Windows with external internet"
+    },
+    {
+      "test_id": "WEB-012",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "live Web diagnostics are captured by WEB-ACCEPTANCE.cmd on reference Windows"
+    },
+    {
+      "test_id": "CODE-LIVE-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "real Docker code-worker image with Python/Java/PowerShell is authoritative on reference Windows Docker runtime"
+    },
+    {
+      "test_id": "BILL-LIVE-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "requires real YooKassa merchant credentials plus public HTTPS callback/webhook endpoint"
+    },
+    {
+      "test_id": "DEPLOY-LIVE-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "requires a real Linux VPS, SSH credential, DNS and public HTTPS"
+    },
+    {
+      "test_id": "LAN-LIVE-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "requires a physical second LAN device and Windows Private-network firewall"
+    }
+  ],
+  "note": "Live CSP browser, real Windows lifecycle/reboot and clean-machine gates are separate environment-bound gates and are not promoted to PASS by this local release gate."
+}

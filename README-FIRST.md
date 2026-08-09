@@ -1,0 +1,72 @@
+# Personal Agent Rus 0.7.2 — Windows canonical distribution
+
+## Windows: one first-run action
+
+1. Extract this ZIP anywhere, for example `C:\AI\RusPersonalAgent\package`.
+2. Run **`RUN-FIRST.cmd`**.
+3. The installer verifies the signed payload, installs/updates the application at:
+
+```text
+C:\AI\RusPersonalAgent\app
+```
+
+and keeps stable user entrypoints directly under:
+
+```text
+C:\AI\RusPersonalAgent\
+```
+
+You no longer work from version-named release folders.
+
+The canonical root is prepared as:
+
+```text
+C:\AI\RusPersonalAgent\
+├── app\
+├── config\
+├── data\
+├── workspace\
+├── artifacts\
+├── logs\
+├── backups\
+├── packages\
+├── diagnostics\
+└── temp\
+```
+
+Existing `.env` is preserved/migrated when found. Docker named volumes are not deleted. The previous `app` directory is moved to a timestamped backup before staged replacement.
+
+## Daily commands after installation
+
+Run from `C:\AI\RusPersonalAgent`:
+
+```powershell
+.\START.cmd
+.\STOP.cmd
+.\RESTART.cmd
+.\STATUS.cmd
+.\VERIFY.cmd
+.\REPAIR.cmd
+.\ADMIN.cmd
+```
+
+Acceptance:
+
+```powershell
+.\WEB-ACCEPTANCE.cmd
+.\CODE-ACCEPTANCE.cmd
+.\FULL-ACCEPTANCE.cmd
+.\RELEASE-ACCEPTANCE.cmd
+```
+
+LAN mode remains available:
+
+```powershell
+.\LAN-ENABLE.cmd
+.\LAN-STATUS.cmd
+.\LAN-DISABLE.cmd
+```
+
+## Release truth
+
+0.7.2 fixes Windows distribution/first-run UX. It is **not v1.0**. v1.0 is reserved for the mandatory MASTER-SPEC acceptance matrix, including remaining context/memory, full coding-agent, media, automation/connectors, public/server operations and the required reference Windows/VPS/payment/reboot/clean-machine gates.
