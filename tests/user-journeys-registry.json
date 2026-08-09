@@ -2,7 +2,7 @@
   "schema_version": 1,
   "product": "Personal Agent Rus",
   "canonical_spec": "docs/specification/MASTER-SPEC.md",
-  "version": "0.7.2",
+  "version": "1.0.0",
   "semantics": {
     "PASS": "implemented and verified by listed automated test(s)",
     "BLOCKED_ENVIRONMENT": "implementation present but authoritative environment test outstanding",
@@ -1224,7 +1224,7 @@
       "capability": "orchestrator",
       "title": "User cancels a running/recoverable task",
       "status": "PASS",
-      "mandatory_from": "0.7.2",
+      "mandatory_from": "0.7.3",
       "test_ids": [
         "TASK-006"
       ]
@@ -1234,7 +1234,7 @@
       "capability": "deployment",
       "title": "Admin saves VPS target with trusted SSH fingerprint and no persisted credential",
       "status": "PASS",
-      "mandatory_from": "0.7.2",
+      "mandatory_from": "0.7.3",
       "test_ids": [
         "DEPLOY-002",
         "DEPLOY-006"
@@ -1245,7 +1245,7 @@
       "capability": "deployment",
       "title": "Admin preflight recommends server-lite for weak VPS",
       "status": "PASS",
-      "mandatory_from": "0.7.2",
+      "mandatory_from": "0.7.3",
       "test_ids": [
         "DEPLOY-003"
       ]
@@ -1255,7 +1255,7 @@
       "capability": "deployment",
       "title": "Staged VPS deploy keeps current/previous and performs hot verification",
       "status": "PASS",
-      "mandatory_from": "0.7.2",
+      "mandatory_from": "0.7.3",
       "test_ids": [
         "DEPLOY-001",
         "DEPLOY-004"
@@ -1266,7 +1266,7 @@
       "capability": "deployment",
       "title": "Admin rollback switches to previous VPS release",
       "status": "PASS",
-      "mandatory_from": "0.7.2",
+      "mandatory_from": "0.7.3",
       "test_ids": [
         "DEPLOY-005"
       ]
@@ -1276,7 +1276,7 @@
       "capability": "observability",
       "title": "Admin sees lightweight runtime monitoring on weak/local node",
       "status": "PASS",
-      "mandatory_from": "0.7.2",
+      "mandatory_from": "0.7.3",
       "test_ids": [
         "OBS-001"
       ]
@@ -1286,7 +1286,7 @@
       "capability": "lan",
       "title": "Windows owner enables/disables Private-LAN access without deleting data",
       "status": "PASS",
-      "mandatory_from": "0.7.2",
+      "mandatory_from": "0.7.3",
       "test_ids": [
         "LAN-001"
       ]
@@ -1296,7 +1296,7 @@
       "capability": "deployment",
       "title": "Real VPS deploy + DNS/HTTPS + remote provider + browser chat",
       "status": "BLOCKED_ENVIRONMENT",
-      "mandatory_from": "0.7.2",
+      "mandatory_from": "0.7.3",
       "test_ids": [
         "DEPLOY-LIVE-001"
       ]
@@ -1306,7 +1306,7 @@
       "capability": "lan",
       "title": "Physical second device uses local Docker UI over LAN",
       "status": "BLOCKED_ENVIRONMENT",
-      "mandatory_from": "0.7.2",
+      "mandatory_from": "0.7.3",
       "test_ids": [
         "LAN-LIVE-001"
       ]
@@ -1316,7 +1316,7 @@
       "capability": "deployment",
       "title": "Admin prepares a fresh Debian/Ubuntu VPS with Docker/Compose using root SSH",
       "status": "PASS",
-      "mandatory_from": "0.7.2",
+      "mandatory_from": "0.7.3",
       "test_ids": [
         "DEPLOY-007"
       ]
@@ -1326,7 +1326,7 @@
       "capability": "deployment-security",
       "title": "Public server account sessions use Secure cookies and reject state changes without CSRF",
       "status": "PASS",
-      "mandatory_from": "0.7.2",
+      "mandatory_from": "0.7.3",
       "test_ids": [
         "AUTH-CSRF-001"
       ]
@@ -1364,7 +1364,7 @@
       "evidence": [],
       "cleanup_recovery": "previous app backup retained",
       "status": "BLOCKED_ENVIRONMENT",
-      "mandatory_from": "0.7.2"
+      "mandatory_from": "0.7.3"
     },
     {
       "id": "UJ-007",
@@ -1390,7 +1390,46 @@
       "evidence": [],
       "cleanup_recovery": "none",
       "status": "PASS",
-      "mandatory_from": "0.7.2"
+      "mandatory_from": "0.7.3"
+    },
+    {
+      "id": "UJ-008",
+      "persona": "USER",
+      "capability": "runtime.local-start",
+      "title": "Fail-soft local start when Code worker is unavailable",
+      "preconditions": [
+        "Docker Desktop is running",
+        "required images can be built/pulled"
+      ],
+      "input": "RUN-FIRST.cmd or START.cmd",
+      "actions": [
+        "start Ollama/Search/Browser",
+        "prepare bootstrap model",
+        "attempt isolated Code worker",
+        "start Core without Code dependency",
+        "verify Chat/Web/Files baseline"
+      ],
+      "expected_visible_behavior": [
+        "UI opens at http://127.0.0.1:3100/",
+        "Code is shown as degraded if its worker is unavailable",
+        "Chat/Web/Research/Files remain usable"
+      ],
+      "expected_backend_effect": [
+        "Core readiness does not depend on code-worker health",
+        "strict CODE-ACCEPTANCE remains FAIL until worker is healthy"
+      ],
+      "verification": [
+        "LOCAL-START-001",
+        "FND-WIN-CONTRACT-001",
+        "FND-API-001"
+      ],
+      "evidence": [
+        "tests/local_launch_acceptance.py",
+        "tests/release_gate.py"
+      ],
+      "cleanup_recovery": "Run REPAIR.cmd; named data/model volumes are preserved",
+      "status": "PASS",
+      "mandatory_from": "0.7.4-local.1"
     }
   ]
 }

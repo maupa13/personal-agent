@@ -1,0 +1,12 @@
+
+ty
+in
+main
+5 days ago|v0.0.69
+An extremely fast Python type checker and language server, written in Rust.
+github.com/astral-sh/ty
+MIT
+scoop bucket add main
+scoop install main/ty
+
+может через тест сервера через docker - а потом уже на vps ставить.

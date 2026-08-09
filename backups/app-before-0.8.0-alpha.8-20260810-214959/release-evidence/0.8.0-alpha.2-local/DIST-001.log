@@ -1,0 +1,1 @@
+PAR_DISTRIBUTION_ACCEPTANCE PASS: canonical-root run-first staged-update config-preservation stable-launchers powershell51-safety no-destructive-install

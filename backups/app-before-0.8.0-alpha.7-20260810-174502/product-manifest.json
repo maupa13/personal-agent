@@ -1,0 +1,435 @@
+{
+  "product": "Personal Agent Rus",
+  "product_family": "Personal Agent",
+  "core_product": "Personal Agent Core",
+  "edition": "rus",
+  "locale": "ru-RU",
+  "slug": "personal-agent-rus",
+  "version": "0.8.0-alpha.6",
+  "distribution": "docker-first-browser-first",
+  "user_surface": "http://127.0.0.1:3100/",
+  "admin_surface": "http://127.0.0.1:3100/admin",
+  "milestone": "0.8.0-alpha.6-search-integrity-debug-observability-result-cards",
+  "canonical_spec": "docs/specification/MASTER-SPEC.md",
+  "bootstrap_model": {
+    "purpose": "smoke_and_fallback_only",
+    "default": "qwen3:0.6b",
+    "visible_to_user": false,
+    "delivery": "lifecycle_on_first_start"
+  },
+  "model_selection": "admin_only_provider_registry",
+  "persistent_volumes": [
+    "par-rus-data",
+    "par-rus-models",
+    "par-rus-code-ipc"
+  ],
+  "runtime_services": [
+    "ollama",
+    "searxng",
+    "browser",
+    "code-worker",
+    "core"
+  ],
+  "capabilities": {
+    "chat": "ready",
+    "auth": "ready-accounts-session-controls-argon2-migration",
+    "provider_registry": "ready",
+    "web.search": "ready-strict-source-integrity-admin-policy",
+    "web.fetch": "ready",
+    "browser.navigate": "ready",
+    "research.basic": "ready",
+    "files": "ready",
+    "code": "ready-when-worker-healthy-degrades-independently",
+    "image": "planned",
+    "audio": "planned",
+    "video": "planned",
+    "automation": "planned",
+    "file.read": "ready",
+    "file.write": "ready",
+    "artifact.manager": "ready",
+    "billing": "ready-entitlement-integrated-live-payment-config-required",
+    "usage.metering": "ready",
+    "payment.adapter.yookassa": "ready-config-required",
+    "orchestrator": "ready",
+    "task.research_report": "ready",
+    "deployment.vps": "ready-config-required-live-gate",
+    "monitoring": "ready",
+    "lan": "ready-product-status-address-qr-live-device-gate",
+    "deployment.bootstrap": "ready-debian-ubuntu-root",
+    "deployment.provider_bootstrap": "ready-external-provider-only",
+    "security.csrf": "ready-accounts-mode",
+    "conversations.server_side": "ready",
+    "projects.folders": "ready-crud-move-pin-archive",
+    "onboarding.user": "ready",
+    "onboarding.admin": "ready",
+    "observability.structured_logs": "ready",
+    "diagnostics.snapshot": "ready",
+    "rbac.owner_admin_user": "ready-accounts-mode",
+    "entitlements": "ready-backend-enforced",
+    "diagnostics.bundle": "ready-sanitized-zip",
+    "observability.correlation": "ready-internal-service-propagation",
+    "database.local": "ready-sqlite",
+    "database.server.postgresql": "foundation-ready-runtime-switch-not-implemented",
+    "scenario.engine": "ready",
+    "scenario.bounded_clarification": "ready-max-two-rounds",
+    "scenario.gallery": "ready-entitlement-aware",
+    "web.user_preferences": "ready-server-persisted",
+    "web.site_profiles": "ready-scoped-search-and-acquisition-order;egress-region-policy-only",
+    "ui.theme": "ready-dark-light-system",
+    "ui.languages": "ready-ru-en-ui-and-response-preference",
+    "execution.policy": "ready-auto-local-only-prefer-local-remote-allowed-remote-only",
+    "tone.presets": "ready-normal-friendly-ironic-meme-serious-expert-brief-detailed",
+    "conversation.share": "ready-expiring-read-only-snapshot-token-hashed",
+    "feedback": "ready-server-persisted-admin-review",
+    "provider.openai_responses": "ready-config-required-server-side-key",
+    "admin.local_owner_loopback": "ready-personal-profile-loopback-only",
+    "guides.local_setup": "ready",
+    "guides.admin": "ready",
+    "ui.branding": "ready-ru-display-name-and-en-display-name-edition-hidden",
+    "ui.state_matrix": "ready-user-runtime-states",
+    "ui.accessibility": "ready-keyboard-focus-reduced-motion-foundation",
+    "observability": "ready-request-timing-debug-trace",
+    "result.cards": "ready-news-product-real-estate-procurement",
+    "admin.search_policy": "ready-sourcelimits-preferred-blocked-siteprofiles",
+    "payment.setup": "ready-yookassa-readiness-checklist-live-gate-required"
+  },
+  "web": {
+    "search_provider": "searxng",
+    "browser_worker": "playwright",
+    "ssrf_policy": "public_http_https_only",
+    "source_evidence_required": true,
+    "live_canary": "DTF"
+  },
+  "ui_contract": {
+    "asset_cache": "no-store",
+    "asset_version": "0.8.0-alpha.6",
+    "history": "server-side-sqlite",
+    "admin_entry": "authenticated",
+    "source_cards": true,
+    "legacy_history": "one-time-browser-import",
+    "sidebar": "resizable-collapsible",
+    "mode_selector": "compact-composer-adjacent",
+    "help_center": "brand-entry",
+    "guided_onboarding": "user-and-admin-server-persisted",
+    "admin_navigation": "role-aware",
+    "scenario_gallery": "ready",
+    "web_preferences": "ready",
+    "theme": "dark-light-system-server-preference",
+    "languages": "ru-en-ui-response-preference",
+    "execution_selector": "composer-and-settings-policy-aware",
+    "tone_selector": "composer-and-settings",
+    "share": "expiring-read-only-snapshot",
+    "feedback": "help-center-nonintrusive",
+    "collapsed_sidebar": "clean-icon-rail",
+    "forms": "responsive-full-width-textareas-code-editor",
+    "result_cards": "adaptive-structured-evidence-cards-reduced-motion",
+    "message_timing": "duration-source-count-owner-debug-trace"
+  },
+  "package_policy": {
+    "user_verify": "signed manifest files; local generated extras ignored",
+    "release_verify": "generated Python cache artifacts forbidden"
+  },
+  "release_gate": {
+    "required": [
+      "static",
+      "windows-command-contract",
+      "api",
+      "browser-desktop",
+      "browser-mobile",
+      "admin",
+      "providers",
+      "auth",
+      "web-deterministic",
+      "research-deterministic",
+      "ssrf",
+      "prompt-injection-boundary",
+      "persistence",
+      "backend-failure",
+      "concurrency",
+      "xss",
+      "files-eight-formats",
+      "artifact-validation",
+      "file-context",
+      "file-user-isolation",
+      "upload-security",
+      "code-python",
+      "code-java",
+      "code-powershell-contract",
+      "code-timeout",
+      "code-cancel",
+      "code-output-limit",
+      "code-secret-isolation",
+      "code-user-isolation",
+      "code-ui",
+      "orchestrator-task-engine",
+      "research-report-artifacts",
+      "deployment-bundle",
+      "deployment-bootstrap",
+      "deployment-public-hot-verify",
+      "deployment-provider-bootstrap",
+      "csrf-accounts-mode",
+      "monitoring",
+      "lan-contract",
+      "local-start-failsoft-code-worker",
+      "productization-conversations",
+      "productization-onboarding",
+      "productization-role-ui",
+      "productization-structured-logs",
+      "browser-identity",
+      "productization-project-crud",
+      "productization-chat-export",
+      "productization-correlation",
+      "diagnostics-sanitized-bundle",
+      "admin-guide",
+      "accounts-session-management",
+      "registration-policy",
+      "backend-entitlements",
+      "entitlement-ui",
+      "lan-address-qr-contract",
+      "postgresql-server-foundation"
+    ],
+    "environment_bound": [
+      "live-browser-reference-windows",
+      "web-live-canary-DTF",
+      "restart-repair-stopstart-reference-windows",
+      "windows-reboot",
+      "clean-machine",
+      "real-vps-ssh-dns-https-provider-chat",
+      "physical-lan-device"
+    ],
+    "known_external_gates": [
+      "reference-windows-lifecycle",
+      "windows-reboot",
+      "clean-machine",
+      "second-physical-lan-device"
+    ],
+    "deferred_not_implemented": [
+      {
+        "test_id": "PG-RUNTIME-001",
+        "mandatory_from": "0.8.0-beta.1",
+        "reason": "Core persistence adapter/migration/rollback to PostgreSQL is a separate vertical slice"
+      },
+      {
+        "test_id": "UX-009",
+        "mandatory_from": "0.8.0-beta.1",
+        "reason": "complete cross-surface state matrix is a pre-beta product quality gate"
+      }
+    ]
+  },
+  "windows_installer": "planned_thin_wrapper_over_same_runtime",
+  "files": {
+    "formats": [
+      "txt",
+      "md",
+      "json",
+      "csv",
+      "pdf",
+      "docx",
+      "xlsx",
+      "pptx"
+    ],
+    "workspace": "per-user",
+    "artifact_validation": "parser-reopen+sha256",
+    "max_upload_bytes": 20971520,
+    "ocr": "planned",
+    "security": [
+      "path-normalization",
+      "office-container-zip-slip-check",
+      "size-limit",
+      "user-isolation"
+    ]
+  },
+  "runtime": {
+    "code_worker": "isolated-docker-no-network"
+  },
+  "code": {
+    "worker": "isolated",
+    "transport": "unix-domain-socket",
+    "network": "disabled",
+    "languages": [
+      "python",
+      "java",
+      "powershell"
+    ],
+    "security": [
+      "read-only-root",
+      "bounded-cpu",
+      "bounded-memory",
+      "bounded-pids",
+      "bounded-output",
+      "hard-timeout",
+      "process-group-cancel",
+      "secret-env-scrub"
+    ]
+  },
+  "billing": {
+    "plans": {
+      "LIGHT": 0,
+      "MEDIUM": 500,
+      "PRO": 1000
+    },
+    "currency": "RUB",
+    "period": "monthly",
+    "local_inference": "unlimited-monitored",
+    "platform_remote": "quota-and-cost-controlled",
+    "byok": "metered-separately",
+    "admin": "commercially-unrestricted-monitored",
+    "user_token_display": "opt-in",
+    "payment_adapter": "yookassa",
+    "live_configuration_required": true
+  },
+  "deployment": {
+    "profiles": {
+      "local": "full-local-docker",
+      "server-lite": "core+https+remote-api",
+      "server-standard": "core+https+extensible-workers",
+      "edge": "planned-outbound-worker"
+    },
+    "ssh_auth": [
+      "password",
+      "private_key"
+    ],
+    "host_key_verification": "sha256-fingerprint-required",
+    "staged_release": true,
+    "hot_verify": [
+      "internal-core-health",
+      "public-https-exact-version"
+    ],
+    "rollback": true,
+    "credentials_persisted": false,
+    "reverse_proxy": "caddy:2.11.2",
+    "authentication": [
+      "ssh-password-ephemeral",
+      "ssh-private-key-ephemeral"
+    ],
+    "host_key": "sha256-pinned-required",
+    "fresh_vps_bootstrap": "debian-ubuntu-root-distribution-packages",
+    "provider_bootstrap": "optional-existing-external-provider-over-public-https",
+    "release_roots": {
+      "root": "/opt/personal-agent",
+      "non_root": "$HOME/.local/share/personal-agent"
+    }
+  },
+  "orchestrator": {
+    "states": [
+      "CREATED",
+      "PLANNING",
+      "QUEUED",
+      "RUNNING",
+      "VERIFYING",
+      "COMPLETED",
+      "FAILED",
+      "CANCELLED"
+    ],
+    "durable_steps": true,
+    "events": "SSE+JSON",
+    "restart_resume": "idempotent-completed-step-skip",
+    "task_types": [
+      "research_report"
+    ]
+  },
+  "monitoring": {
+    "admin_snapshot": true,
+    "weak_vps_mode": "built-in-lightweight",
+    "prometheus_stack": "planned-optional"
+  },
+  "lan": {
+    "windows_enable_disable": true,
+    "bind": "PA_BIND_IP",
+    "firewall_profile": "Private",
+    "secure_context_note": true
+  },
+  "release_notes": {
+    "0.8.0-alpha.1": [
+      "Server-side SQLite conversation truth with one-time legacy browser import",
+      "Projects/folders CRUD, move, pin, archive and server-side conversation search",
+      "Resizable/collapsible user shell with compact composer-adjacent effort selector",
+      "USER and ADMIN guided onboarding persisted by user and tour version",
+      "OWNER/ADMIN/USER role-aware navigation and Admin session boundary in accounts mode",
+      "Structured JSONL observability with rotation, recursive secret redaction and request/correlation IDs",
+      "Sanitized downloadable diagnostics bundle and Admin log/audit filtering",
+      "Browser application identity with favicon and web manifest",
+      "Windows PowerShell 5.1-safe lifecycle, Web health and Code sandbox hardening retained from 0.7.4 quality line",
+      "Productization execution contract updated to MASTER-IMPLEMENTATION-PROMPT-v5 / spec 8.0",
+      "Server/VPS PostgreSQL, scenario-engine, bounded-clarification and SEO/SaaS requirements tracked as subsequent vertical slices and not falsely marked ready"
+    ],
+    "0.8.0-alpha.2": [
+      "Backend-authoritative Plan Catalog and Entitlement Engine gate modes and capabilities by effective plan",
+      "Argon2id password hashing for new credentials with transparent migration from legacy PBKDF2 after successful login",
+      "Remember-me sessions, persistent login throttling, session list/revoke/revoke-all and Admin session revocation",
+      "Dynamic registration policy (open / approval_required / closed) persisted and manageable from Admin Console",
+      "OWNER/ADMIN/USER role management with audited Admin controls and USER Admin-boundary enforcement retained",
+      "LAN product status with persisted public URL, Admin QR endpoint and explicit secure-context guidance",
+      "PostgreSQL server foundation: pinned server image, server Core image, migration schema and safe configuration parser",
+      "PostgreSQL is intentionally not yet canonical runtime persistence; PG-RUNTIME-001 remains a pre-beta mandatory gate",
+      "SQLite remains canonical for local/offline profile while common repository boundaries are preserved",
+      "Alpha.1 productization, conversations, projects, onboarding, structured logs and diagnostics remain regression-covered"
+    ],
+    "0.8.0-alpha.3": [
+      "Scenario Gallery for beginner-friendly daily-life and work tasks, backed by the same Auto/Core routing",
+      "Bounded clarification: ordinary consumer scenarios ask at most one grouped clarification; complex procurement/real-estate at most two",
+      "Scenario state persists server-side per user/conversation and continues with accumulated user context",
+      "Internal clarification scaffolding is excluded from decision signals and external search queries",
+      "Explicit URL routing has priority over automatic scenario detection",
+      "User Web preferences persist server-side: all internet / prefer Russian / selected sites, region, allow/exclude domains",
+      "Admin site profiles manage technical acquisition order and egress region separately from user-friendly preferences",
+      "Real API and Chromium journeys cover scenario clarification, continuation, site preferences and Admin site profile changes",
+      "PostgreSQL canonical runtime remains intentionally NOT_IMPLEMENTED until PG-RUNTIME-001 migration/rollback/live gate"
+    ],
+    "0.8.0-alpha.5": [
+      "Russian USER display brand is Родной Агент; English USER display brand is Personal Agent while internal edition identity remains Personal Agent Rus / rus",
+      "RU/EN localization now covers shell, account/billing copy, guided USER onboarding, Admin shell/tour, Help links and key dynamic Admin status messages",
+      "UX-009 complete USER runtime-state matrix is mandatory and covered: booting, starting, degraded, offline, quota, permission, error and ready with a recoverable Retry surface",
+      "Keyboard-accessible sidebar resize, visible focus, clean collapse rail and prefers-reduced-motion behavior are mandatory acceptance contracts",
+      "Responsive Web textareas and Code editor use full-width settings layout; project creation remains a visible labeled action",
+      "Light/dark/system theme persists and applies across USER/Auth/Admin surfaces; Admin has independent quick theme and language controls",
+      "Execution policy and humorous response tones from alpha.4 remain regression-covered and are presented without model/provider IDs to USER",
+      "English feedback placeholder and accessibility labels follow the selected UI language",
+      "Historical alpha.4 release notes are preserved independently; alpha.5 no longer rewrites prior release history",
+      "PostgreSQL canonical server persistence, physical LAN device acceptance, real merchant payments and multi-region VPS egress remain separate later gates"
+    ],
+    "0.8.0-alpha.4": [
+      "Dark / light / system themes and RU/EN interface/response language preferences persist server-side",
+      "Execution policy selector enforces Auto / local-only / prefer-local / remote-allowed / remote-only in Core, not only in UI",
+      "Accuracy-first response tone presets include friendly, ironic and meme modes without weakening factual/safety requirements",
+      "Personal-profile local OWNER can enter Admin Console from loopback without break-glass token; emergency token remains separate and whitespace-normalized",
+      "Admin provider/model/routing surfaces support local providers and OpenAI Responses API provider path with server-side secrets",
+      "Expiring read-only Share Chat snapshots use hashed tokens, noindex pages and explicit privacy boundaries",
+      "Non-intrusive feedback is persisted server-side and reviewable from Admin Console",
+      "Collapsed sidebar, project/history rail, textareas and Code editor receive responsive layout hardening",
+      "In-product local setup and Admin guides explain installation, model/routing management and local/hybrid/VPS profiles",
+      "PostgreSQL canonical runtime, real payment merchant, physical LAN device and real VPS/HTTPS remain separate gates and are not falsely marked ready"
+    ],
+    "0.8.0-alpha.6": [
+      "Strict source integrity for explicit domains such as dtf.ru; no silent cross-domain substitution.",
+      "Adaptive result cards for news, products, real estate and procurement with reduced-motion fallback.",
+      "Windows lifecycle HTTP diagnostics include stage, endpoint, status, duration and trace IDs.",
+      "Per-answer timing and owner/admin debug metadata are persisted with conversation messages.",
+      "Admin search policy controls source limits and preferred/blocked domains; only real SearXNG provider is advertised.",
+      "YooKassa remains adapter-ready with a setup guide; live merchant acceptance is still required before public billing."
+    ]
+  },
+  "canonical_execution_spec": "docs/MASTER-IMPLEMENTATION-PROMPT-v5.md",
+  "specification_version": "8.0",
+  "database": {
+    "local": {
+      "engine": "sqlite",
+      "status": "canonical-ready",
+      "purpose": "single-user/local/offline"
+    },
+    "server": {
+      "engine": "postgresql",
+      "status": "foundation-ready-runtime-switch-not-implemented",
+      "migration": "migrations/postgres/0001_productization_foundation.sql",
+      "compose": "deploy/server/compose.postgres-foundation.yaml"
+    }
+  },
+  "display_names": {
+    "ru-RU": "Родной Агент",
+    "en-US": "Personal Agent"
+  },
+  "ui_branding": {
+    "default_locale": "ru-RU",
+    "edition_visible_to_user": false
+  }
+}

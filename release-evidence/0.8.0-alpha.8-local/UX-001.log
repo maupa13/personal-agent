@@ -1,0 +1,37 @@
+[PASS] UX-004 - project/folder create and rename work
+[PASS] CONV-005 - folder membership and messages persist
+[PASS] UX-005 - conversation receives a useful server-side title
+[PASS] UX-004-MOVE - conversation can move out of a project
+[PASS] UX-005-PIN - conversation pin is persisted
+[PASS] UX-005-ARCHIVE - archiving removes pin and persists archive state
+[PASS] UX-005-ARCHIVE-HIDDEN - archived conversation is excluded from normal history
+[PASS] UX-005-ARCHIVE-LIST - archived conversation remains recoverable
+[PASS] UX-006 - server search finds message content
+[PASS] CONV-007 - all-chat export is server-side and includes complete messages
+[PASS] CONV-002 - conversation survives store/process recreation
+[PASS] CONV-004 - ownership boundary rejected cross-user access
+[PASS] CONV-004-MOVE - ownership boundary rejected cross-user access
+[PASS] CONV-004-DELETE - ownership boundary rejected cross-user access
+[PASS] UX-004-DELETE - deleting a project preserves its conversations
+[PASS] CONV-001 - legacy browser history imports once into server storage
+[PASS] ONB-001 - first user has not-started tour state
+[PASS] ONB-004 - tour progress persists server-side
+[PASS] ONB-005 - new tour version can expose only new onboarding
+[PASS] ONB-002 - tour can be skipped
+{"timestamp":"2026-08-10T15:05:36Z","epoch_ms":1786374336733,"level":"INFO","service":"core","version":"0.8.0-alpha.7","event":"auth.test","user_id":"user-a","password":"[REDACTED]","authorization":"[REDACTED]","context":{"api_key":"[REDACTED]","safe":"ok"}}
+[PASS] OBS-003 - structured logger redacts secrets recursively
+[PASS] OBS-001 - structured event retains correlation-friendly fields
+{"timestamp":"2026-08-10T15:05:36Z","epoch_ms":1786374336734,"level":"ERROR","service":"core","version":"0.8.0-alpha.7","event":"trace.test","request_id":"req-filter","correlation_id":"corr-filter"}
+[PASS] OBS-001-FILTER - structured logs support deterministic request/level filtering
+{"timestamp":"2026-08-10T15:05:36Z","epoch_ms":1786374336745,"level":"INFO","service":"core","version":"0.8.0-alpha.7","event":"rotation.test","request_id":"req-1"}
+[PASS] OBS-004 - structured logs rotate instead of growing without bound
+[PASS] CONV-003-CONTRACT - browser cannot use localStorage as canonical conversation store
+[PASS] UX-001 - resizable/collapsible shell and guided USER tour controls ship together
+[PASS] UX-003 - Ctrl+B/Ctrl+N/Ctrl+K contracts are implemented
+[PASS] UX-007 - Admin navigation has a role-controlled UI target
+[PASS] ONB-101 - Admin Console ships a separate guided tour and diagnostics surfaces
+[PASS] UX-010 - browser application identity manifest is localized and complete
+[PASS] UX-010-FAVICON - browser favicon ships with product identity
+[PASS] OBS-002-BROWSER-READY - real Browser worker starts for trace component test
+[PASS] OBS-002-BROWSER - Browser worker preserves request/correlation IDs
+PAR_V080_PRODUCTIZATION_ACCEPTANCE PASS: conversations folders search persistence isolation onboarding logs correlation shell admin-tour browser-identity

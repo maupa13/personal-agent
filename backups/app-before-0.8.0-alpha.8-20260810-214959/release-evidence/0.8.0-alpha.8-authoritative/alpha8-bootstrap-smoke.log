@@ -1,0 +1,6 @@
+[PASS] REL-A8-001 - release version is alpha.8
+[PASS] PERF-A8-001 - bootstrap smoke disables thinking
+[PASS] PERF-A8-002 - bootstrap smoke uses bounded final-answer budget
+[PASS] OBS-A8-001 - logical HTTP-200 failure prints reason and timings
+[PASS] REG-A8-001 - fake Ollama reproduces thinking-only edge case
+PAR_V080_ALPHA8_BOOTSTRAP_SMOKE_ACCEPTANCE PASS: 5 checks

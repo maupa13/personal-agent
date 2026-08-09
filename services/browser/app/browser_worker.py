@@ -2,7 +2,10 @@ from __future__ import annotations
 import ipaddress,json,os,socket,time,urllib.parse
 from http.server import BaseHTTPRequestHandler,ThreadingHTTPServer
 from typing import Any
-from playwright.sync_api import sync_playwright
+try:
+ from playwright.sync_api import sync_playwright
+except Exception:  # pragma: no cover - optional in local release gate
+ sync_playwright=None
 HOST=os.getenv('PA_BROWSER_HOST','0.0.0.0');PORT=int(os.getenv('PA_BROWSER_PORT','8000'));MAX_BODY=131072;TIMEOUT=int(os.getenv('PA_BROWSER_TIMEOUT_MS','30000'))
 def blocked_ip(v):
  try: ip=ipaddress.ip_address(v.split('%',1)[0])
@@ -18,6 +21,7 @@ def validate_url(v):
  return urllib.parse.urlunparse(p._replace(fragment=''))
 def render(url,max_chars):
  target=validate_url(url)
+ if sync_playwright is None: raise RuntimeError('playwright is unavailable')
  with sync_playwright() as pw:
   browser=pw.chromium.launch(headless=True,args=['--no-sandbox','--disable-dev-shm-usage']);ctx=browser.new_context(locale='ru-RU',user_agent='PersonalAgentRusBrowser/0.3');page=ctx.new_page()
   def route_handler(route):
@@ -29,11 +33,26 @@ def render(url,max_chars):
   final=validate_url(page.url);title=page.title().strip()
   try:text=page.locator('body').inner_text(timeout=5000)
   except Exception:text=page.content()
-  text='\n'.join(x.strip() for x in text.splitlines() if x.strip())[:max_chars];ctx.close();browser.close();return {'ok':True,'url':final,'title':title,'text':text,'rendered_at':int(time.time())}
+  links=[]
+  try:
+   raw_links=page.locator('a[href]').evaluate_all("els => els.slice(0, 240).map(a => ({href:a.href, text:(a.innerText||a.textContent||'').trim()}))")
+   seen=set()
+   for item in raw_links:
+    try: href=validate_url(str((item or {}).get('href') or ''))
+    except Exception: continue
+    if href in seen: continue
+    seen.add(href);label=' '.join(str((item or {}).get('text') or '').split())[:240];links.append({'url':href,'text':label})
+    if len(links)>=120: break
+  except Exception: pass
+  text='\n'.join(x.strip() for x in text.splitlines() if x.strip())[:max_chars];ctx.close();browser.close();return {'ok':True,'url':final,'title':title,'text':text,'links':links,'rendered_at':int(time.time())}
 class H(BaseHTTPRequestHandler):
- def log_message(self,fmt,*args):print(f"{time.strftime('%Y-%m-%dT%H:%M:%S')} {fmt%args}",flush=True)
+ def log_message(self,fmt,*args):
+  rid=str(self.headers.get('X-Request-ID') or '')[:128];cid=str(self.headers.get('X-Correlation-ID') or '')[:128];print(f"{time.strftime('%Y-%m-%dT%H:%M:%S')} request_id={rid or '-'} correlation_id={cid or '-'} {fmt%args}",flush=True)
  def sendj(self,status,obj):
-  raw=json.dumps(obj,ensure_ascii=False).encode();self.send_response(status);self.send_header('Content-Type','application/json; charset=utf-8');self.send_header('Content-Length',str(len(raw)));self.send_header('Cache-Control','no-store');self.end_headers();self.wfile.write(raw)
+  raw=json.dumps(obj,ensure_ascii=False).encode();self.send_response(status);self.send_header('Content-Type','application/json; charset=utf-8');self.send_header('Content-Length',str(len(raw)));self.send_header('Cache-Control','no-store');rid=str(self.headers.get('X-Request-ID') or '').strip();cid=str(self.headers.get('X-Correlation-ID') or '').strip() or rid;
+  if rid:self.send_header('X-Request-ID',rid[:128])
+  if cid:self.send_header('X-Correlation-ID',cid[:128])
+  self.end_headers();self.wfile.write(raw)
  def body(self):
   n=int(self.headers.get('Content-Length','0'))
   if n<=0 or n>MAX_BODY:raise ValueError('invalid request size')

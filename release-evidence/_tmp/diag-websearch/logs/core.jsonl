@@ -1,0 +1,3 @@
+{"timestamp":"2026-08-16T20:37:50Z","epoch_ms":1786912670221,"level":"INFO","service":"core","version":"test","event":"core.starting","runtime_profile":"local","auth_mode":"personal","registration_policy":"open"}
+{"timestamp":"2026-08-16T20:37:50Z","epoch_ms":1786912670227,"level":"INFO","service":"core","version":"test","event":"core.ready","host":"127.0.0.1","port":59956,"product":"Personal Agent Rus"}
+{"timestamp":"2026-08-16T20:37:50Z","epoch_ms":1786912670399,"level":"INFO","service":"core","version":"test","event":"http.access","method":"GET","path":"/api/health","remote":"127.0.0.1","message":"\"GET /api/health HTTP/1.1\" 200 -","request_id":"15eedefb8a3d49e99ae504d1b806ed2f","correlation_id":"15eedefb8a3d49e99ae504d1b806ed2f"}

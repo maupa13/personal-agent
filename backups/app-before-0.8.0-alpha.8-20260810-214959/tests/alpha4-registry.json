@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "product": "Personal Agent Rus",
+  "version": "0.8.0-alpha.4",
+  "source_spec": "docs/MASTER-IMPLEMENTATION-PROMPT-v5.md",
+  "tests": [
+    {
+      "test_id": "UX-A4-001",
+      "capability": "experience.preferences",
+      "release_gate": "C",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.4",
+      "environment": "any",
+      "persona": "USER",
+      "status": "PASS",
+      "evidence": "tests/ux_admin_hardening_acceptance.py + tests/run_acceptance.py"
+    },
+    {
+      "test_id": "UX-A4-002",
+      "capability": "experience.validation",
+      "release_gate": "C",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.4",
+      "environment": "any",
+      "persona": "USER",
+      "status": "PASS",
+      "evidence": "tests/ux_admin_hardening_acceptance.py"
+    },
+    {
+      "test_id": "FEEDBACK-A4-001",
+      "capability": "feedback",
+      "release_gate": "C/D",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.4",
+      "environment": "browser+api",
+      "persona": "USER",
+      "status": "PASS",
+      "evidence": "tests/ux_admin_hardening_acceptance.py + tests/browser_journeys.py"
+    },
+    {
+      "test_id": "SHARE-A4-001",
+      "capability": "conversation.share",
+      "release_gate": "C/D",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.4",
+      "environment": "browser+api",
+      "persona": "USER",
+      "status": "PASS",
+      "evidence": "tests/ux_admin_hardening_acceptance.py + tests/run_acceptance.py + tests/browser_journeys.py"
+    },
+    {
+      "test_id": "EXEC-A4-001",
+      "capability": "execution.policy",
+      "release_gate": "C/D",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.4",
+      "environment": "browser+api",
+      "persona": "USER",
+      "status": "PASS",
+      "evidence": "tests/ux_admin_hardening_acceptance.py + tests/run_acceptance.py"
+    },
+    {
+      "test_id": "TONE-A4-001",
+      "capability": "tone.presets",
+      "release_gate": "C/D",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.4",
+      "environment": "browser+api",
+      "persona": "USER",
+      "status": "PASS",
+      "evidence": "tests/ux_admin_hardening_acceptance.py + tests/run_acceptance.py + tests/browser_journeys.py"
+    },
+    {
+      "test_id": "ADMIN-A4-001",
+      "capability": "admin.local-owner",
+      "release_gate": "C/D",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.4",
+      "environment": "browser+api",
+      "persona": "OWNER",
+      "status": "PASS",
+      "evidence": "tests/ux_admin_hardening_acceptance.py + tests/run_acceptance.py + tests/browser_journeys.py"
+    },
+    {
+      "test_id": "ADMIN-A4-002",
+      "capability": "admin.ai-routing",
+      "release_gate": "C/D",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.4",
+      "environment": "browser+api",
+      "persona": "ADMIN",
+      "status": "PASS",
+      "evidence": "tests/ux_admin_hardening_acceptance.py + tests/run_acceptance.py + tests/browser_journeys.py"
+    },
+    {
+      "test_id": "UI-A4-001",
+      "capability": "ui.theme-layout",
+      "release_gate": "D",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.4",
+      "environment": "browser+api",
+      "persona": "USER",
+      "status": "PASS",
+      "evidence": "tests/ux_admin_hardening_acceptance.py + tests/browser_journeys.py"
+    },
+    {
+      "test_id": "GUIDE-A4-001",
+      "capability": "guide.local-admin",
+      "release_gate": "H/D",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.4",
+      "environment": "browser+api",
+      "persona": "USER/ADMIN",
+      "status": "PASS",
+      "evidence": "tests/ux_admin_hardening_acceptance.py"
+    },
+    {
+      "test_id": "PRIV-A4-001",
+      "capability": "privacy.share-feedback",
+      "release_gate": "C/D",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.4",
+      "environment": "browser+api",
+      "persona": "USER",
+      "status": "PASS",
+      "evidence": "tests/ux_admin_hardening_acceptance.py + tests/browser_journeys.py"
+    }
+  ]
+}

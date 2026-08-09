@@ -1,0 +1,176 @@
+=== RELEASE GATE: static ===
+[PASS] Static package checks
+=== RELEASE GATE: distribution ===
+PAR_DISTRIBUTION_ACCEPTANCE PASS: canonical-root run-first staged-update config-preservation stable-launchers powershell51-safety no-destructive-install
+=== RELEASE GATE: windows-contract-static ===
+[PASS] Windows launcher static contract
+=== RELEASE GATE: local-launch-contract ===
+PAR_LOCAL_LAUNCH_ACCEPTANCE PASS: required-runtime code-failsoft live-capability IPC-gid manager-runner-permissions
+=== RELEASE GATE: accounts-entitlements-acceptance ===
+[PASS] PLAN-001 - Light keeps useful chat/web baseline
+[PASS] PLAN-003 - Light does not expose paid smart/code capabilities
+[PASS] PLAN-001-MEDIUM - Medium enables research/code
+[PASS] PLAN-001-PRO - Pro carries advanced entitlements
+[PASS] PLAN-ADMIN-001 - Admin entitlement override persists in DB
+[PASS] PLAN-PERSIST-001 - Entitlement override survives process recreation
+[PASS] PG-FOUNDATION-001 - PostgreSQL config is recognized without leaking credentials
+[PASS] PG-FOUNDATION-002 - Server foundation pins PostgreSQL major/minor profile and named volume
+[PASS] PG-FOUNDATION-003 - PostgreSQL migration contains identity, conversation and entitlement indexes
+[PASS] PLAN-001-BACKEND - Backend enforces capability and mode entitlements
+[PASS] PLAN-002 - USER mode selector derives from effective entitlements
+[PASS] AUTH-005 - Account UI manages device sessions
+[PASS] AUTH-006 - Auth includes remember-me, persisted throttling and Argon2 migration
+[PASS] ADMIN-002 - Admin UI controls registration and sessions
+[PASS] LAN-001 - LAN lifecycle persists product-visible state
+[PASS] LAN-002 - Admin exposes LAN address and QR contract
+PAR_V080_ALPHA2_ACCOUNTS_ENTITLEMENTS_ACCEPTANCE PASS
+=== RELEASE GATE: scenario-site-preferences-acceptance ===
+[PASS] SCN-001 - Scenario Gallery exposes daily-life and work journeys
+[PASS] SCN-002 - Scenario Gallery follows backend entitlements
+[PASS] SCN-003 - Auto detects clothing without a scenario-card click
+[PASS] SCN-004 - Ordinary chat is not hijacked by Scenario Engine
+[PASS] SCN-004A - Explicit URL routing has priority over Auto Scenario detection
+[PASS] SCN-005 - Consumer scenario asks one grouped high-value clarification
+[PASS] SCN-006 - Scenario continues after clarification with accumulated context
+[PASS] SCN-006A - Execution/search text contains user context without internal scaffolding
+[PASS] SCN-007 - Complex procurement scenario is bounded to at most two clarification rounds
+[PASS] SCN-007A - Internal clarification scaffolding never counts as user evidence
+[PASS] SITE-001 - User Web/site preferences persist server-side
+[PASS] SITE-002 - Invalid site preference is rejected
+[PASS] SITE-003 - Known site profiles are seeded as Admin data
+[PASS] SITE-004 - Admin can persist technical site strategy
+[PASS] SCN-008 - Core exposes Scenario/Preferences/Admin site contracts
+[PASS] SCN-009 - USER UI includes scenario-first flow and Web preferences
+[PASS] SITE-005 - USER Web settings are understandable instead of technical site profiles
+[PASS] SITE-006 - Admin UI exposes technical site profiles separately from USER preferences
+PAR_V080_ALPHA3_SCENARIO_ACCEPTANCE PASS
+=== RELEASE GATE: ux-admin-hardening-acceptance ===
+[PASS] UX-A4-001 - theme/language/execution/tone preferences persist server-side
+[PASS] UX-A4-002 - experience preferences reject unknown values
+[PASS] FEEDBACK-A4-001 - unobtrusive feedback persists for Admin review
+[PASS] SHARE-A4-001 - share links store token hashes, expire and can be revoked
+[PASS] EXEC-A4-001 - local/remote execution policy is enforced by Core
+[PASS] TONE-A4-001 - humorous tone exists with accuracy-first invariant
+[PASS] ADMIN-A4-001 - local OWNER can administer on loopback; break-glass token is normalized and independent
+[PASS] ADMIN-A4-002 - Admin provider/model/routing UI includes OpenAI Responses VPS test path
+[PASS] UI-A4-001 - light/dark/system, clean collapsed rail and full-width textarea/code editor contracts ship
+[PASS] GUIDE-A4-001 - local user setup and Admin model/routing guides ship in-product
+[PASS] PRIV-A4-001 - share/feedback UI contains explicit privacy boundaries
+PAR_V080_ALPHA4_UX_ADMIN_HARDENING_ACCEPTANCE PASS
+=== RELEASE GATE: ux-complete-acceptance ===
+[PASS] BRAND-A5-001 - edition identity is separate from RU/EN user-facing brand
+[PASS] BRAND-A5-002 - browser manifest uses the localized RU display name
+[PASS] BRAND-A5-003 - USER HTML does not expose the internal rus edition label
+[PASS] I18N-A5-001 - RU/EN shell brand dictionaries ship
+[PASS] I18N-A5-002 - language preference covers shell and guided onboarding
+[PASS] I18N-A5-003 - authentication/account surfaces support RU/EN
+[PASS] I18N-A5-004 - Admin shell and Admin guided tour support RU/EN
+[PASS] UX-009-THEME-A11Y - light theme, reduced-motion and visible keyboard focus contracts ship
+[PASS] UX-009-STATE-SURFACE - runtime state has a non-color-only accessible surface and retry action
+[PASS] UX-009-BOOTING - booting state is represented in USER runtime state matrix
+[PASS] UX-009-STARTING - starting state is represented in USER runtime state matrix
+[PASS] UX-009-DEGRADED - degraded state is represented in USER runtime state matrix
+[PASS] UX-009-OFFLINE - offline state is represented in USER runtime state matrix
+[PASS] UX-009-QUOTA - quota state is represented in USER runtime state matrix
+[PASS] UX-009-PERMISSION - permission state is represented in USER runtime state matrix
+[PASS] UX-009-ERROR - error state is represented in USER runtime state matrix
+[PASS] UX-009-READY - ready state is represented in USER runtime state matrix
+[PASS] UX-009-ERROR-COPY - controlled failures map to user-facing recoverable states
+[PASS] A11Y-A5-001 - sidebar resizer exposes keyboard/ARIA separator semantics
+[PASS] A11Y-A5-002 - sidebar can be resized by keyboard
+[PASS] UX-A5-001 - collapsed sidebar is a clean rail rather than a broken compressed layout
+[PASS] UX-A5-002 - project creation is a visible labeled action
+[PASS] UX-A5-003 - Web textarea and code editor use full-width responsive forms
+[PASS] UX-A5-004 - theme, language, execution and response style are first-class USER settings
+[PASS] UX-A5-005 - local/remote execution choices remain explicit in USER UX
+[PASS] UX-A5-006 - humorous response modes remain available without exposing model IDs
+[PASS] ADMIN-A5-001 - Admin has quick language and theme controls
+[PASS] ADMIN-A5-002 - Admin control-plane sections remain present
+[PASS] ADMIN-A5-003 - Admin can manage provider/model/routing flows
+[PASS] BRAND-A5-004 - internal edition identity remains stable for packaging and future editions
+PAR_V080_ALPHA5_UX_COMPLETE_ACCEPTANCE PASS
+=== RELEASE GATE: ux-complete-browser ===
+[PASS] BRAND-A5-BROWSER-RU - RU shell uses Родной Агент
+[PASS] A11Y-A5-BROWSER-RESIZE - sidebar resizer responds to keyboard
+[PASS] UX-A5-BROWSER-COLLAPSE - collapsed rail does not compress project/chat rows
+[PASS] I18N-A5-BROWSER-SHELL - EN switch updates shell title and brand
+[PASS] THEME-A5-BROWSER - light theme applies immediately
+[PASS] EXEC-A5-BROWSER - local-only selection persists through backend preference flow
+[PASS] I18N-A5-BROWSER-FEEDBACK - feedback placeholder follows UI language
+[PASS] A11Y-A5-BROWSER-I18N - sidebar accessibility label follows UI language
+[PASS] I18N-A5-TOUR-01 - USER tour step 1 is English
+[PASS] I18N-A5-TOUR-02 - USER tour step 2 is English
+[PASS] I18N-A5-TOUR-03 - USER tour step 3 is English
+[PASS] I18N-A5-TOUR-04 - USER tour step 4 is English
+[PASS] I18N-A5-TOUR-05 - USER tour step 5 is English
+[PASS] I18N-A5-TOUR-06 - USER tour step 6 is English
+[PASS] I18N-A5-TOUR-07 - USER tour step 7 is English
+[PASS] I18N-A5-TOUR-08 - USER tour step 8 is English
+[PASS] I18N-A5-TOUR-09 - USER tour step 9 is English
+[PASS] UX-009-BROWSER-STATE - offline state is accessible and offers Retry
+[PASS] UX-A5-BROWSER-WEB-FORM - Web domain textarea uses the content width
+[PASS] UX-A5-BROWSER-CODE-FORM - code editor uses the content width
+[PASS] I18N-A5-BROWSER-ACCOUNT - account billing details are localized to English
+[PASS] ADMIN-A5-BROWSER-DYNAMIC-I18N - Admin overview dynamic product copy is localized to English
+[PASS] ADMIN-A5-BROWSER-THEME - Admin theme toggle applies
+[PASS] ADMIN-A5-BROWSER-I18N - Admin title is localized
+PAR_V080_ALPHA5_UX_COMPLETE_BROWSER PASS
+=== RELEASE GATE: orchestrator-deployment-acceptance ===
+PAR_V080_ORCHESTRATOR_DEPLOYMENT_ACCEPTANCE PASS: task-store events cancel isolation recovery server-lite bundle preflight staged-deploy internal/public-hot-verify rollback host-key no-secret-persistence LAN-contract
+=== RELEASE GATE: browser-user-journeys ===
+[BROWSER] shell/help ready
+[BROWSER] scenarios/site-preferences ready
+[BROWSER] chat/web/export ready
+[BROWSER] files ready
+[BROWSER] code ready
+[BROWSER] history/projects ready
+[BROWSER] mobile ready
+[BROWSER] account ready
+[BROWSER] admin ready
+[BROWSER] role boundary ready
+PAR_V080_BROWSER_ACCEPTANCE PASS: shell scenarios-site-preferences chat-export presets web-research files code-sandbox tasks history mobile role-boundary admin providers routing users billing deployment monitoring xss
+=== RELEASE GATE: api-acceptance ===
+PAR_V080_API_ACCEPTANCE PASS: public-boundary presets providers auth web-research tasks files code-execution validation isolation routing persistence concurrency
+=== RELEASE GATE: productization-acceptance ===
+[PASS] UX-004 - project/folder create and rename work
+[PASS] CONV-005 - folder membership and messages persist
+[PASS] UX-005 - conversation receives a useful server-side title
+[PASS] UX-004-MOVE - conversation can move out of a project
+[PASS] UX-005-PIN - conversation pin is persisted
+[PASS] UX-005-ARCHIVE - archiving removes pin and persists archive state
+[PASS] UX-005-ARCHIVE-HIDDEN - archived conversation is excluded from normal history
+[PASS] UX-005-ARCHIVE-LIST - archived conversation remains recoverable
+[PASS] UX-006 - server search finds message content
+[PASS] CONV-007 - all-chat export is server-side and includes complete messages
+[PASS] CONV-002 - conversation survives store/process recreation
+[PASS] CONV-004 - ownership boundary rejected cross-user access
+[PASS] CONV-004-MOVE - ownership boundary rejected cross-user access
+[PASS] CONV-004-DELETE - ownership boundary rejected cross-user access
+[PASS] UX-004-DELETE - deleting a project preserves its conversations
+[PASS] CONV-001 - legacy browser history imports once into server storage
+[PASS] ONB-001 - first user has not-started tour state
+[PASS] ONB-004 - tour progress persists server-side
+[PASS] ONB-005 - new tour version can expose only new onboarding
+[PASS] ONB-002 - tour can be skipped
+{"timestamp":"2026-08-10T11:27:29Z","epoch_ms":1786361249760,"level":"INFO","service":"core","version":"0.8.0-alpha.5","event":"auth.test","user_id":"user-a","password":"[REDACTED]","authorization":"[REDACTED]","context":{"api_key":"[REDACTED]","safe":"ok"}}
+[PASS] OBS-003 - structured logger redacts secrets recursively
+[PASS] OBS-001 - structured event retains correlation-friendly fields
+{"timestamp":"2026-08-10T11:27:29Z","epoch_ms":1786361249761,"level":"ERROR","service":"core","version":"0.8.0-alpha.5","event":"trace.test","request_id":"req-filter","correlation_id":"corr-filter"}
+[PASS] OBS-001-FILTER - structured logs support deterministic request/level filtering
+{"timestamp":"2026-08-10T11:27:29Z","epoch_ms":1786361249769,"level":"INFO","service":"core","version":"0.8.0-alpha.5","event":"rotation.test","request_id":"req-1"}
+[PASS] OBS-004 - structured logs rotate instead of growing without bound
+[PASS] CONV-003-CONTRACT - browser cannot use localStorage as canonical conversation store
+[PASS] UX-001 - resizable/collapsible shell and guided USER tour controls ship together
+[PASS] UX-003 - Ctrl+B/Ctrl+N/Ctrl+K contracts are implemented
+[PASS] UX-007 - Admin navigation has a role-controlled UI target
+[PASS] ONB-101 - Admin Console ships a separate guided tour and diagnostics surfaces
+[PASS] UX-010 - browser application identity manifest is localized and complete
+[PASS] UX-010-FAVICON - browser favicon ships with product identity
+[PASS] OBS-002-BROWSER-READY - real Browser worker starts for trace component test
+[PASS] OBS-002-BROWSER - Browser worker preserves request/correlation IDs
+PAR_V080_PRODUCTIZATION_ACCEPTANCE PASS: conversations folders search persistence isolation onboarding logs correlation shell admin-tour browser-identity
+=== RELEASE GATE: billing-acceptance ===
+PAR_V080_BILLING_ACCEPTANCE PASS: plans local-unlimited token-display remote-quota local-fallback byok-separation payment-adapter verified-webhook idempotency cancel-period-end admin-usage
+=== RELEASE GATE: code-worker-acceptance ===
+PAR_CODE_WORKER_ACCEPTANCE PASS: python java powershell-contract compile-failure timeout cancel output-limit secret-isolation validation docker-desktop-permission-regression
+PAR_RELEASE_GATE PASS: static asset-version windows-contract api presets provider-registry auth web-research files-workspace-artifacts code-sandbox accounts-entitlements billing-foundation orchestrator task-engine deployment monitoring lan browser product-shell-v2 productization-conversations-onboarding-rbac-observability scenario-engine-bounded-clarification-site-preferences ux-admin-hardening-execution-policy-share-feedback ux-complete-localization-state-matrix-accessibility; evidence=/mnt/data/rpa_a5/Personal-Agent-Rus-0.8.0-alpha.5/release-evidence/0.8.0-alpha.5-local

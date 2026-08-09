@@ -1,7 +1,22 @@
 from __future__ import annotations
 import io, json, pathlib, sys, tarfile, tempfile
+import os
+import shutil
+import time
+from contextlib import contextmanager
 
 ROOT=pathlib.Path(__file__).resolve().parents[1]
+TMP_ROOT = ROOT / 'release-evidence' / '_tmp' / 'orchestrator-deployment'
+TMP_ROOT.mkdir(parents=True, exist_ok=True)
+@contextmanager
+def repo_tmp(prefix: str):
+    td = TMP_ROOT / f"{prefix}-{os.getpid()}-{int(time.time() * 1000)}"
+    td.mkdir(parents=True, exist_ok=True)
+    try:
+        yield td
+    finally:
+        shutil.rmtree(td, ignore_errors=True)
+
 sys.path.insert(0,str(ROOT/'services'/'core'/'app'))
 from orchestrator_service import TaskStore
 from deployment_service import server_bundle,add_core_to_bundle,preflight,deploy,rollback,host_key_sha256,DeploymentError,resolve_remote_root,public_hot_verify,bootstrap_runtime
@@ -23,7 +38,7 @@ class FakeSession:
 
 def main():
     # TASK-STORE: durable schema, event ordering, cancellation and recovery discovery.
-    with tempfile.TemporaryDirectory(prefix='par-task-store-') as tmp:
+    with repo_tmp("orchestrator") as tmp:
         store=TaskStore(pathlib.Path(tmp)/'state.db');store.init_schema()
         task=store.create('u1','research_report','Test',{'question':'q','formats':['md']},[{'capability':'web.research','title':'web'},{'capability':'artifact.verify','title':'verify'}])
         assert task['status']=='CREATED' and len(task['steps'])==2
@@ -36,11 +51,11 @@ def main():
         assert store.get('u2',task['id']) is None
 
     # DEPLOY bundle: server-lite never requires local Ollama/GPU/browser/code worker.
-    bundle=server_bundle('0.7.2','server-lite','agent.example.test','ADMIN_TOKEN_TEST')
+    bundle=server_bundle('0.8.0-alpha.7','server-lite','agent.example.test','ADMIN_TOKEN_TEST')
     full=add_core_to_bundle(bundle,ROOT/'services'/'core')
     with tarfile.open(fileobj=io.BytesIO(full),mode='r:gz') as tf:
-        names=set(tf.getnames());assert {'compose.yaml','.env.server','Caddyfile','core/app/main.py','core/Dockerfile'}<=names
-        compose=tf.extractfile('compose.yaml').read().decode();env=tf.extractfile('.env.server').read().decode();caddy=tf.extractfile('Caddyfile').read().decode()
+        names=set(tf.getnames());assert {'docker-compose-main.yaml','.env.server','Caddyfile','core/app/main.py','core/Dockerfile'}<=names
+        compose=tf.extractfile('docker-compose-main.yaml').read().decode();env=tf.extractfile('.env.server').read().decode();caddy=tf.extractfile('Caddyfile').read().decode()
         assert 'caddy:2.11.2' in compose and 'ollama:' not in compose and 'code-worker:' not in compose and 'browser:' not in compose
         assert 'PA_RUNTIME_PROFILE=server' in env and 'PA_AUTH_MODE=accounts' in env and 'PA_SECURE_COOKIES=1' in env and 'PA_OLLAMA_URL=' in env
         assert 'agent.example.test' in caddy and 'reverse_proxy core:8080' in caddy
@@ -62,7 +77,7 @@ def main():
 
 
     # Staged deploy/hot-verify/rollback contract with no destructive volume commands.
-    result=deploy(session,full,'0.7.2');assert result['hot_verify']=='PASS' and len(session.uploads)==1
+    result=deploy(session,full,'0.8.0-alpha.7');assert result['hot_verify']=='PASS' and len(session.uploads)==1
     joined='\n'.join(session.commands);assert 'ln -sfn' in joined and ' current' in joined and 'previous' in joined and 'docker compose' in joined and '/api/health' in joined
     for forbidden in ('down -v','volume prune','system prune'):assert forbidden not in joined.lower()
     rb=rollback(session);assert rb['status']=='ROLLED_BACK';joined='\n'.join(session.commands);assert 'readlink -f previous' in joined
@@ -74,12 +89,16 @@ def main():
         status=200
         def __enter__(self):return self
         def __exit__(self,*_):return False
-        def read(self):return json.dumps({'product':'Personal Agent Rus','version':'0.7.2'}).encode()
-    verify=public_hot_verify('agent.example.test','0.7.2',timeout_seconds=5,opener=lambda *_a,**_k:FakeResponse())
+        def read(self):return json.dumps({'product':'Personal Agent Rus','version':'0.8.0-alpha.7'}).encode()
+    verify=public_hot_verify('agent.example.test','0.8.0-alpha.7',timeout_seconds=5,opener=lambda *_a,**_k:FakeResponse())
     assert verify['ok'] and verify['https'] and verify['url']=='https://agent.example.test/api/system'
 
 
     # Optional remote provider bootstrap makes server-lite usable without re-entering the API key on the VPS.
+    os.environ['PA_DB'] = str(pathlib.Path(tmp) / 'import.db')
+    os.environ['PA_WORKSPACE_ROOT'] = str(pathlib.Path(tmp) / 'workspaces')
+    os.environ['PA_SECRETS_DIR'] = str(pathlib.Path(tmp) / 'secrets')
+    os.environ['PA_LOG_DIR'] = str(pathlib.Path(tmp) / 'logs')
     import importlib
     core_main=importlib.import_module('main')
     original=(core_main.get_provider,core_main.read_provider_secret,core_main.routing,core_main.public_admin_json)
@@ -111,6 +130,6 @@ def main():
     assert 'PA_BIND_IP' in lan and 'New-NetFirewallRule' in lan and '-Profile Private' in lan
     for forbidden in ('down -v','volume prune','system prune'):assert forbidden not in lan.lower()
 
-    print('PAR_V072_ORCHESTRATOR_DEPLOYMENT_ACCEPTANCE PASS: task-store events cancel isolation recovery server-lite bundle preflight staged-deploy internal/public-hot-verify rollback host-key no-secret-persistence LAN-contract')
+    print('PAR_V080_ORCHESTRATOR_DEPLOYMENT_ACCEPTANCE PASS: task-store events cancel isolation recovery server-lite bundle preflight staged-deploy internal/public-hot-verify rollback host-key no-secret-persistence LAN-contract')
     return 0
 if __name__=='__main__':raise SystemExit(main())

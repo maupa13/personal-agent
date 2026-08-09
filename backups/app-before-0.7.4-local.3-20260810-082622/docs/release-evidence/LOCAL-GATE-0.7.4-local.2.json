@@ -1,0 +1,701 @@
+{
+  "product": "Personal Agent Rus",
+  "version": "0.7.4-local.2",
+  "milestone": "windows-powershell51-native-stderr-failsoft-hotfix",
+  "deterministic": {
+    "status": "PASS",
+    "pass": 104,
+    "fail": 0,
+    "unique_test_ids": 93
+  },
+  "results": [
+    {
+      "test_id": "FND-STATIC-001",
+      "suite": "static",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/static.log"
+    },
+    {
+      "test_id": "FND-ASSET-VERSION-001",
+      "suite": "static",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/static.log"
+    },
+    {
+      "test_id": "CODE-011",
+      "suite": "static",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/static.log"
+    },
+    {
+      "test_id": "DIST-001",
+      "suite": "distribution",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/distribution.log"
+    },
+    {
+      "test_id": "DIST-002",
+      "suite": "distribution",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/distribution.log"
+    },
+    {
+      "test_id": "DIST-003",
+      "suite": "distribution",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/distribution.log"
+    },
+    {
+      "test_id": "FND-WIN-CONTRACT-001",
+      "suite": "windows-contract-static",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/windows.log"
+    },
+    {
+      "test_id": "LOCAL-START-001",
+      "suite": "local-launch-contract",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/local-start.log"
+    },
+    {
+      "test_id": "TASK-006",
+      "suite": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/orchestrator.log"
+    },
+    {
+      "test_id": "DEPLOY-001",
+      "suite": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/orchestrator.log"
+    },
+    {
+      "test_id": "DEPLOY-002",
+      "suite": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/orchestrator.log"
+    },
+    {
+      "test_id": "DEPLOY-003",
+      "suite": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/orchestrator.log"
+    },
+    {
+      "test_id": "DEPLOY-004",
+      "suite": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/orchestrator.log"
+    },
+    {
+      "test_id": "DEPLOY-005",
+      "suite": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/orchestrator.log"
+    },
+    {
+      "test_id": "DEPLOY-006",
+      "suite": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/orchestrator.log"
+    },
+    {
+      "test_id": "DEPLOY-007",
+      "suite": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/orchestrator.log"
+    },
+    {
+      "test_id": "DEPLOY-008",
+      "suite": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/orchestrator.log"
+    },
+    {
+      "test_id": "DEPLOY-009",
+      "suite": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/orchestrator.log"
+    },
+    {
+      "test_id": "LAN-001",
+      "suite": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/orchestrator.log"
+    },
+    {
+      "test_id": "FND-BROWSER-OFFLINE-001",
+      "suite": "browser-user-journeys",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/browser.log"
+    },
+    {
+      "test_id": "FND-PRODUCT-SHELL-001",
+      "suite": "browser-user-journeys",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/browser.log"
+    },
+    {
+      "test_id": "FND-PRODUCT-SHELL-V2-001",
+      "suite": "browser-user-journeys",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/browser.log"
+    },
+    {
+      "test_id": "FND-PRESET-001",
+      "suite": "browser-user-journeys",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/browser.log"
+    },
+    {
+      "test_id": "PRV-001",
+      "suite": "browser-user-journeys",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/browser.log"
+    },
+    {
+      "test_id": "PRV-005",
+      "suite": "browser-user-journeys",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/browser.log"
+    },
+    {
+      "test_id": "AUTH-003",
+      "suite": "browser-user-journeys",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/browser.log"
+    },
+    {
+      "test_id": "WEB-004",
+      "suite": "browser-user-journeys",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/browser.log"
+    },
+    {
+      "test_id": "WEB-006",
+      "suite": "browser-user-journeys",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/browser.log"
+    },
+    {
+      "test_id": "FILE-017",
+      "suite": "browser-user-journeys",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/browser.log"
+    },
+    {
+      "test_id": "CODE-012",
+      "suite": "browser-user-journeys",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/browser.log"
+    },
+    {
+      "test_id": "BILL-006",
+      "suite": "browser-user-journeys",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/browser.log"
+    },
+    {
+      "test_id": "BILL-011",
+      "suite": "browser-user-journeys",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/browser.log"
+    },
+    {
+      "test_id": "TASK-001",
+      "suite": "browser-user-journeys",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/browser.log"
+    },
+    {
+      "test_id": "TASK-003",
+      "suite": "browser-user-journeys",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/browser.log"
+    },
+    {
+      "test_id": "DEPLOY-006",
+      "suite": "browser-user-journeys",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/browser.log"
+    },
+    {
+      "test_id": "OBS-001",
+      "suite": "browser-user-journeys",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/browser.log"
+    },
+    {
+      "test_id": "FND-API-001",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "FND-CAPABILITY-HONESTY-001",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "FND-PRESET-001",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "PRV-001",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "PRV-002",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "PRV-003",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "PRV-004",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "PRV-005",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "PRV-006",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "PRV-008",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "PRV-009",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "AUTH-001",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "AUTH-002",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "AUTH-003",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "AUTH-CSRF-001",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "WEB-001",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "WEB-002",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "WEB-003",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "WEB-004",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "WEB-005",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "WEB-006",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "WEB-007",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "WEB-008",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "WEB-009",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "WEB-010",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "FILE-001",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "FILE-002",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "FILE-003",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "FILE-004",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "FILE-005",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "FILE-006",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "FILE-007",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "FILE-008",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "FILE-009",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "FILE-010",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "FILE-011",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "FILE-012",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "FILE-013",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "FILE-014",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "FILE-015",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "FILE-016",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "CODE-001",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "CODE-002",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "CODE-003",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "CODE-004",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "CODE-005",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "CODE-006",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "TASK-001",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "TASK-002",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "TASK-003",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "TASK-004",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "TASK-005",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "TASK-007",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "DEPLOY-006",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "OBS-001",
+      "suite": "api-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/api.log"
+    },
+    {
+      "test_id": "BILL-001",
+      "suite": "billing-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/billing.log"
+    },
+    {
+      "test_id": "BILL-002",
+      "suite": "billing-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/billing.log"
+    },
+    {
+      "test_id": "BILL-003",
+      "suite": "billing-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/billing.log"
+    },
+    {
+      "test_id": "BILL-004",
+      "suite": "billing-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/billing.log"
+    },
+    {
+      "test_id": "BILL-005",
+      "suite": "billing-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/billing.log"
+    },
+    {
+      "test_id": "BILL-007",
+      "suite": "billing-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/billing.log"
+    },
+    {
+      "test_id": "BILL-008",
+      "suite": "billing-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/billing.log"
+    },
+    {
+      "test_id": "BILL-009",
+      "suite": "billing-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/billing.log"
+    },
+    {
+      "test_id": "BILL-010",
+      "suite": "billing-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/billing.log"
+    },
+    {
+      "test_id": "CODE-007",
+      "suite": "code-worker-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/code-worker.log"
+    },
+    {
+      "test_id": "CODE-008",
+      "suite": "code-worker-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/code-worker.log"
+    },
+    {
+      "test_id": "CODE-009",
+      "suite": "code-worker-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/code-worker.log"
+    },
+    {
+      "test_id": "CODE-010",
+      "suite": "code-worker-acceptance",
+      "status": "PASS",
+      "output_file": "0.7.4-local.2/code-worker.log"
+    }
+  ],
+  "environment_bound": [
+    {
+      "test_id": "FND-BROWSER-LIVE-REAL-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "authoritative on reference Windows runtime"
+    },
+    {
+      "test_id": "FND-BROWSER-LIVE-SECURITY-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "authoritative on reference Windows Docker runtime"
+    },
+    {
+      "test_id": "FND-RUS-LANGUAGE-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "stochastic real-model language behavior is authoritative on reference Windows runtime"
+    },
+    {
+      "test_id": "FND-REFERENCE-SEQUENCE-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "runs RELEASE-ACCEPTANCE.cmd on reference Windows Docker runtime"
+    },
+    {
+      "test_id": "FND-REBOOT-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "requires real Windows reboot"
+    },
+    {
+      "test_id": "WEB-011",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "live DTF canary is authoritative on reference Windows with external internet"
+    },
+    {
+      "test_id": "WEB-012",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "live Web diagnostics are captured by WEB-ACCEPTANCE.cmd on reference Windows"
+    },
+    {
+      "test_id": "CODE-LIVE-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "real Docker code-worker image with Python/Java/PowerShell is authoritative on reference Windows Docker runtime"
+    },
+    {
+      "test_id": "BILL-LIVE-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "requires real YooKassa merchant credentials plus public HTTPS callback/webhook endpoint"
+    },
+    {
+      "test_id": "DEPLOY-LIVE-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "requires a real Linux VPS, SSH credential, DNS and public HTTPS"
+    },
+    {
+      "test_id": "LAN-LIVE-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "requires a physical second LAN device and Windows Private-network firewall"
+    }
+  ],
+  "reference_windows_observation": {
+    "source": "user-provided PERSONAL-AGENT-LAST.log, 2026-08-10",
+    "previous_build": "0.7.4-local.1",
+    "failure": "RemoteException while Docker Compose emitted normal code-worker build progress to stderr",
+    "fix_status": "implemented_in_0.7.4-local.2_pending_reference_windows_retest"
+  },
+  "note": "Deterministic suites were run sequentially to avoid host-load-dependent false timeouts from concurrent Playwright/JVM/code-worker test execution. Product-level concurrency remains covered inside targeted suites."
+}

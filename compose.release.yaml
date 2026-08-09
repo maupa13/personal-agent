@@ -1,5 +1,23 @@
 name: personal-agent-rus
 services:
+  postgres:
+    image: ${PA_POSTGRES_IMAGE:-postgres:18.4-bookworm}
+    container_name: par-rus-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${PA_POSTGRES_DB:-personal_agent}
+      POSTGRES_USER: ${PA_POSTGRES_USER:-personal_agent}
+      POSTGRES_PASSWORD: ${PA_POSTGRES_PASSWORD:?PA_POSTGRES_PASSWORD must be set in .env}
+    volumes:
+    - par-rus-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - pg_isready -U ${PA_POSTGRES_USER:-personal_agent} -d ${PA_POSTGRES_DB:-personal_agent}
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
   searxng:
     image: ${PA_SEARXNG_IMAGE:-searxng/searxng:2026.8.5-1689cb1b5}
     container_name: par-rus-searxng
@@ -9,7 +27,7 @@ services:
     volumes:
     - ./searxng/settings.yml:/etc/searxng/settings.yml:ro
   browser:
-    image: ${PA_BROWSER_IMAGE:-personal-agent-browser:0.7.2}
+    image: ${PA_BROWSER_IMAGE:-personal-agent-browser:0.8.0-alpha.8}
     container_name: par-rus-browser
     restart: unless-stopped
     environment:
@@ -28,7 +46,7 @@ services:
       retries: 20
       start_period: 10s
   code-worker:
-    image: ${PA_CODE_WORKER_IMAGE:-personal-agent-code-worker:0.7.2}
+    image: ${PA_CODE_WORKER_IMAGE:-personal-agent-code-worker:0.8.0-alpha.8}
     container_name: par-rus-code-worker
     restart: unless-stopped
     network_mode: none
@@ -88,7 +106,7 @@ services:
       retries: 60
       start_period: 10s
   core:
-    image: ${PA_CORE_IMAGE:-personal-agent-core:0.7.2}
+    image: ${PA_CORE_IMAGE:-personal-agent-core:0.8.0-alpha.8}
     container_name: par-rus-core
     restart: unless-stopped
     environment:
@@ -96,18 +114,38 @@ services:
       PA_PRODUCT_NAME: Personal Agent Rus
       PA_EDITION: rus
       PA_LOCALE: ru-RU
-      PA_VERSION: 0.7.2
-      PA_RUNTIME_PROFILE: local
+      PA_VERSION: ${PA_VERSION:-0.8.0-alpha.8}
+      PA_RUNTIME_PROFILE: ${PA_RUNTIME_PROFILE:-server}
       PA_HOST: 0.0.0.0
       PA_PORT: 8080
-      PA_OLLAMA_URL: http://ollama:11434
-      PA_SEARXNG_URL: http://searxng:8080
-      PA_BROWSER_URL: http://browser:8000
+      PA_OLLAMA_URL: ${PA_OLLAMA_URL:-http://ollama:11434}
+      PA_SEARXNG_URL: ${PA_SEARXNG_URL:-http://searxng:8080}
+      PA_BROWSER_URL: ${PA_BROWSER_URL:-http://browser:8000}
       PA_BOOTSTRAP_MODEL: ${PA_BOOTSTRAP_MODEL:-qwen3:0.6b}
       PA_ADMIN_TOKEN: ${PA_ADMIN_TOKEN:?PA_ADMIN_TOKEN must be set in .env}
       PA_AUTH_MODE: ${PA_AUTH_MODE:-personal}
       PA_REGISTRATION_POLICY: ${PA_REGISTRATION_POLICY:-open}
+      PA_SECURE_COOKIES: ${PA_SECURE_COOKIES:-0}
+      PA_PUBLIC_URL: ${PA_PUBLIC_URL:-}
+      PA_DATABASE_URL: ${PA_DATABASE_URL:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      PA_OPENAI_API_KEY: ${PA_OPENAI_API_KEY:-}
+      PA_OPENAI_BASE_URL: ${PA_OPENAI_BASE_URL:-https://api.openai.com/v1}
+      PA_OPENAI_PROVIDER_TYPE: ${PA_OPENAI_PROVIDER_TYPE:-openai_responses}
+      PA_OPENAI_PROVIDER_ID: ${PA_OPENAI_PROVIDER_ID:-openai}
+      PA_OPENAI_PROVIDER_NAME: ${PA_OPENAI_PROVIDER_NAME:-OpenAI}
+      PA_VPN_ROUTING_ENABLED: ${PA_VPN_ROUTING_ENABLED:-0}
+      PA_VPN_ROUTING_MODE: ${PA_VPN_ROUTING_MODE:-}
+      PA_VPN_PREFERENCE_ID: ${PA_VPN_PREFERENCE_ID:-}
+      PA_VPN_VPS2_HOST: ${PA_VPN_VPS2_HOST:-}
+      PA_VPN_UPSTREAM_HOST: ${PA_VPN_UPSTREAM_HOST:-}
+      PA_VPN_UPSTREAM_IP: ${PA_VPN_UPSTREAM_IP:-}
+      PA_VPN_ALLOWED_IPS: ${PA_VPN_ALLOWED_IPS:-}
+      PA_VPN_PROFILE_FILE: ${PA_VPN_PROFILE_FILE:-}
       PA_SECRETS_DIR: /data/secrets
+      PA_LOG_DIR: /data/logs
+      PA_USER_TOUR_VERSION: 1
+      PA_ADMIN_TOUR_VERSION: 1
       PA_DB: /data/personal-agent-rus.db
       PA_CODE_SOCKET: /run/personal-agent-code/code-worker.sock
     volumes:
@@ -116,6 +154,8 @@ services:
     ports:
     - ${PA_BIND_IP:-127.0.0.1}:${PA_UI_PORT:-3100}:8080
     depends_on:
+      postgres:
+        condition: service_healthy
       ollama:
         condition: service_healthy
       searxng:
@@ -125,6 +165,8 @@ services:
       code-worker:
         condition: service_healthy
 volumes:
+  par-rus-postgres:
+    name: par-rus-postgres
   par-rus-data:
     name: par-rus-data
   par-rus-models:

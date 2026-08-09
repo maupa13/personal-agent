@@ -1,0 +1,1 @@
+PAR_CODE_WORKER_ACCEPTANCE PASS: python java powershell-contract compile-failure timeout cancel output-limit secret-isolation validation docker-desktop-permission-regression

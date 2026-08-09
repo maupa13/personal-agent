@@ -39,8 +39,8 @@ def main():
     bundle=server_bundle('0.7.0','server-lite','agent.example.test','ADMIN_TOKEN_TEST')
     full=add_core_to_bundle(bundle,ROOT/'services'/'core')
     with tarfile.open(fileobj=io.BytesIO(full),mode='r:gz') as tf:
-        names=set(tf.getnames());assert {'compose.yaml','.env.server','Caddyfile','core/app/main.py','core/Dockerfile'}<=names
-        compose=tf.extractfile('compose.yaml').read().decode();env=tf.extractfile('.env.server').read().decode();caddy=tf.extractfile('Caddyfile').read().decode()
+        names=set(tf.getnames());assert {'docker-compose-main.yaml','.env.server','Caddyfile','core/app/main.py','core/Dockerfile'}<=names
+        compose=tf.extractfile('docker-compose-main.yaml').read().decode();env=tf.extractfile('.env.server').read().decode();caddy=tf.extractfile('Caddyfile').read().decode()
         assert 'caddy:2.11.2' in compose and 'ollama:' not in compose and 'code-worker:' not in compose and 'browser:' not in compose
         assert 'PA_RUNTIME_PROFILE=server' in env and 'PA_AUTH_MODE=accounts' in env and 'PA_SECURE_COOKIES=1' in env and 'PA_OLLAMA_URL=' in env
         assert 'agent.example.test' in caddy and 'reverse_proxy core:8080' in caddy

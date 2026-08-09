@@ -3,16 +3,17 @@ import json, os, pathlib, shutil, subprocess, sys, tempfile, time, urllib.reques
 from run_acceptance import free_port, req, wait, cookie_from, base_env, start_core
 
 ROOT=pathlib.Path(__file__).resolve().parents[1]
+TMP_ROOT = ROOT / 'release-evidence' / '_tmp' / 'billing'
+TMP_ROOT.mkdir(parents=True, exist_ok=True)
 
 def main():
-    tmp=tempfile.mkdtemp(prefix='par-billing-test-');fake_port,web_port,pay_port,core_port=free_port(),free_port(),free_port(),free_port();token='billing-admin-token-123'
-    pathlib.Path(tmp).chmod(0o755)
+    tmp=TMP_ROOT / f"par-billing-test-{os.getpid()}-{int(time.time()*1000)}";tmp.mkdir(parents=True, exist_ok=True);fake_port,web_port,pay_port,core_port=free_port(),free_port(),free_port(),free_port();token='billing-admin-token-123'
     fake=subprocess.Popen([sys.executable,str(ROOT/'tests'/'fake_ollama.py'),str(fake_port)])
     fake_web=subprocess.Popen([sys.executable,str(ROOT/'tests'/'fake_web.py'),str(web_port)])
     fake_pay=subprocess.Popen([sys.executable,str(ROOT/'tests'/'fake_payment.py'),str(pay_port)])
     env=base_env(tmp,fake_port,web_port,core_port,token,pathlib.Path(tmp)/'no-code.sock','billing.db','accounts')
     env['PA_PAYMENT_API_BASE']=f'http://127.0.0.1:{pay_port}/v3'
-    env['PA_VERSION']='0.7.2-test'
+    env['PA_VERSION']='0.8.0-alpha.7-test'
     core=start_core(env);base=f'http://127.0.0.1:{core_port}'
     try:
         wait(base+'/api/health')
@@ -23,7 +24,8 @@ def main():
         assert all(p['remote_token_limit']==0 for p in plans['plans'])
 
         _,registered,headers=req(base+'/api/auth/register',method='POST',body={'email':'bill@example.test','display_name':'Billing User','password':'strong-pass-123'},expect=201);cookie=cookie_from(headers);csrf=registered['csrf_token']
-        _,snap,_=req(base+'/api/billing/me',headers={'Cookie':cookie,'X-CSRF-Token':csrf},expect=200);assert snap['plan']['id']=='LIGHT' and snap['quota']['platform_remote_tokens_limit']==0
+        _,me,_=req(base+'/api/auth/me',headers={'Cookie':cookie},expect=200);assert me['user']['role']=='OWNER'
+        _,snap,_=req(base+'/api/billing/me',headers={'Cookie':cookie,'X-CSRF-Token':csrf},expect=200);assert snap['plan']['id']=='LIGHT' and snap['quota']['platform_remote_tokens_limit']==0  # RBAC role != commercial plan
 
         # Local inference is always allowed and is metered only for monitoring.
         req(base+'/api/billing/preferences',method='POST',body={'show_token_usage':True},headers={'Cookie':cookie,'X-CSRF-Token':csrf},expect=200)
@@ -69,7 +71,7 @@ def main():
         assert {p['id']:p['price_rub'] for p in admin['plans']}=={'LIGHT':0,'MEDIUM':500,'PRO':1000}
         assert any(x['billing_class']=='LOCAL' for x in admin['usage']) and any(x['billing_class']=='PLATFORM_REMOTE' for x in admin['usage']) and any(x['billing_class']=='BYOK' for x in admin['usage'])
 
-        print('PAR_V072_BILLING_ACCEPTANCE PASS: plans local-unlimited token-display remote-quota local-fallback byok-separation payment-adapter verified-webhook idempotency cancel-period-end admin-usage')
+        print('PAR_V080_BILLING_ACCEPTANCE PASS: plans local-unlimited token-display remote-quota local-fallback byok-separation payment-adapter verified-webhook idempotency cancel-period-end admin-usage')
         return 0
     finally:
         for p in (core,fake,fake_web,fake_pay):

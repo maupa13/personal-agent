@@ -1,0 +1,38 @@
+name: personal-agent-rus-server-foundation
+services:
+  postgres:
+    image: postgres:18.4-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${PA_POSTGRES_DB:-personal_agent}
+      POSTGRES_USER: ${PA_POSTGRES_USER:-personal_agent}
+      POSTGRES_PASSWORD: ${PA_POSTGRES_PASSWORD:?PA_POSTGRES_PASSWORD is required}
+    volumes:
+      - par-server-postgres:/var/lib/postgresql/data
+      - ../../migrations/postgres:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PA_POSTGRES_USER:-personal_agent} -d ${PA_POSTGRES_DB:-personal_agent}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+  core:
+    build:
+      context: ../../services/core
+      dockerfile: Dockerfile.server
+    image: personal-agent-core:${PA_VERSION:-0.8.0-alpha.3}-server
+    restart: unless-stopped
+    environment:
+      PA_RUNTIME_PROFILE: server
+      PA_AUTH_MODE: accounts
+      PA_SECURE_COOKIES: "1"
+      PA_DATABASE_URL: postgresql://${PA_POSTGRES_USER:-personal_agent}:${PA_POSTGRES_PASSWORD}@postgres:5432/${PA_POSTGRES_DB:-personal_agent}
+      PA_DB: /data/personal-agent-rus.db
+    volumes:
+      - par-server-data:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    expose: ["8080"]
+volumes:
+  par-server-postgres:
+  par-server-data:

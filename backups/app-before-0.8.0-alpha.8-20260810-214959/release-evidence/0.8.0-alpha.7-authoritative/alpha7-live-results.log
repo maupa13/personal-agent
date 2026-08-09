@@ -1,0 +1,7 @@
+[PASS] RESULT-A7-001 - news/research list target is never configured below seven
+[PASS] RESULT-A7-002 - list text and cards share the same verified evidence set with no padding
+[PASS] NEWS-A7-001 - generic news asks once; Main and saved interests become concise search intent
+[PASS] UX-SELECT-A7-001 - scenario and quick-action selection are mutually exclusive and focus is distinct
+[PASS] UX-LIVE-A7-001 - UI scale and reduced-motion-safe progressive answer reveal ship
+[PASS] NEWS-A7-002 - news interests are editable and localized in USER settings
+PAR_V080_ALPHA7_LIVE_RESULTS_ACCEPTANCE PASS: 6 checks

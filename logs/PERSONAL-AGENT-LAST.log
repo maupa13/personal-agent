@@ -1,0 +1,26 @@
+
+2026-08-11T13:39:57.6168148+03:00 elapsed_ms=81 [PASS] Migrated local environment to the Personal Agent family contract.
+2026-08-11T13:39:58.0628637+03:00 elapsed_ms=556 [PASS] Docker engine and Compose are ready (5.3.1).
+2026-08-11T13:39:58.0643651+03:00 elapsed_ms=558 [INFO] Repairing required runtime without deleting named volumes...
+2026-08-11T13:40:11.0671859+03:00 elapsed_ms=13560 [INFO] Waiting for local AI engine...
+2026-08-11T13:40:14.9609020+03:00 elapsed_ms=17454 [PASS] Local AI engine is ready.
+2026-08-11T13:40:14.9634015+03:00 elapsed_ms=17457 [INFO] Waiting for Web/Search and browser services...
+2026-08-11T13:40:15.2591358+03:00 elapsed_ms=17752 [PASS] Web/Search and browser services are ready.
+2026-08-11T13:40:15.4651693+03:00 elapsed_ms=17958 [PASS] Bootstrap inference model is already available.
+2026-08-11T13:40:15.4671702+03:00 elapsed_ms=17961 [INFO] Starting optional isolated Code sandbox...
+2026-08-11T13:40:29.8665124+03:00 elapsed_ms=32360 [PASS] Code sandbox is ready: Python, Java and PowerShell.
+2026-08-11T13:40:42.6877417+03:00 elapsed_ms=45181 [INFO] Waiting for Personal Agent Rus Core...
+2026-08-11T13:40:44.7901826+03:00 elapsed_ms=47284 [PASS] Personal Agent Rus Core is ready.
+2026-08-11T13:40:44.8937040+03:00 elapsed_ms=47387 [INFO] HTTP stage=health method=GET endpoint=/api/health status=200 duration_ms=27 request_id=0572a6cccbc442e796e2c91c786ef4e9 correlation_id=78fa622f41f64f339c4dcbf3f49c2f49
+2026-08-11T13:40:44.9147115+03:00 elapsed_ms=47408 [INFO] HTTP stage=public-system method=GET endpoint=/api/system status=200 duration_ms=15 request_id=79e4f7e63e684aeaa6d7c18188789391 correlation_id=d9e235d512294674953dfb9cb0707482
+2026-08-11T13:40:44.9417153+03:00 elapsed_ms=47435 [INFO] HTTP stage=public-ui method=GET endpoint=/ status=200 duration_ms=23 request_id=63abc64152e0405b9adb5992ce216978 correlation_id=8d858ced5ad74de2ba9045f26f2e4f4e
+2026-08-11T13:40:45.3563258+03:00 elapsed_ms=47850 [INFO] HTTP stage=admin-boundary method=GET endpoint=/api/admin/status status=200 duration_ms=411 request_id=3d47f812f64c4b9691f93e5c7b897dcd correlation_id=174d0fdad5ae41b693db770d453f96d8
+2026-08-11T13:41:31.9797311+03:00 elapsed_ms=94473 [INFO] HTTP stage=bootstrap-inference method=POST endpoint=/api/admin/inference/smoke status=200 duration_ms=46620 request_id=21a71901ed7044719b917cd8c35f8d3c correlation_id=f68e64c1e230432182ace704ad224931
+2026-08-11T13:41:31.9892326+03:00 elapsed_ms=94483 [INFO] INFERENCE bootstrap model=qwen3:0.6b ok=True reason=ok content_length=6 wall_ms=46600 provider_total_ms=46597 load_ms=23599 prompt_eval_ms=16709 generation_ms=6285 prompt_tokens=22 output_tokens=3 tokens_per_sec=0,48
+2026-08-11T13:41:31.9947291+03:00 elapsed_ms=94488 [WARN] Bootstrap inference is unusually slow (>15s). Check GPU/VRAM/model runtime in Admin -> Diagnostics before judging normal chat performance.
+2026-08-11T13:41:32.0047299+03:00 elapsed_ms=94498 [PASS] Runtime verification passed: health, public boundary, admin boundary and bootstrap inference. verification_duration=47,2s command_elapsed=94,5s
+2026-08-11T13:41:32.0262328+03:00 elapsed_ms=94519 [INFO] HTTP stage=web-capabilities method=GET endpoint=/api/system status=200 duration_ms=16 request_id=2724c824268f4c7a94f01b2a5d8f4ad7 correlation_id=433f178e1217411084ba55043bc1823d
+2026-08-11T13:41:32.0712355+03:00 elapsed_ms=94564 [INFO] HTTP stage=ssrf-policy method=POST endpoint=/api/web/read status=400 duration_ms=8 request_id=65073fb5fa1043dca43f5f110520874d correlation_id=493f5153d4ee4195acd916b58bef28ab
+2026-08-11T13:41:32.0722357+03:00 elapsed_ms=94566 [PASS] Web capability contract and SSRF policy smoke passed.
+2026-08-11T13:41:32.4090644+03:00 elapsed_ms=94903 [PASS] Code sandbox smoke passed: isolated Python execution returned verified output.
+2026-08-11T13:41:32.4105651+03:00 elapsed_ms=94904 [PASS] Repair verification passed. command_elapsed=94,9s

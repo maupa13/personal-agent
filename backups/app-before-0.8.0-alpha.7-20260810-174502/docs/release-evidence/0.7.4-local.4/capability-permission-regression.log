@@ -1,0 +1,1 @@
+PAR_CODE_DAC_REGRESSION PASS: local.3 reproduced PermissionError without CAP_DAC_OVERRIDE; local.4 COMPLETED Python execution under same capability restriction.

@@ -1,0 +1,175 @@
+{
+  "product": "Personal Agent Rus",
+  "display_name_ru": "Родной Агент",
+  "display_name_en": "Personal Agent",
+  "version": "0.8.0-alpha.6",
+  "status": "PASS",
+  "authoritative_suites": [
+    {
+      "suite": "accounts",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "release-evidence/0.8.0-alpha.6-authoritative/logs/accounts.log"
+    },
+    {
+      "suite": "alpha6",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "release-evidence/0.8.0-alpha.6-authoritative/logs/alpha6.log"
+    },
+    {
+      "suite": "api",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "release-evidence/0.8.0-alpha.6-authoritative/logs/api.log"
+    },
+    {
+      "suite": "billing",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "release-evidence/0.8.0-alpha.6-authoritative/logs/billing.log"
+    },
+    {
+      "suite": "browser-admin",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "release-evidence/0.8.0-alpha.6-authoritative/logs/browser-admin.log"
+    },
+    {
+      "suite": "browser-user",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "release-evidence/0.8.0-alpha.6-authoritative/logs/browser-user.log"
+    },
+    {
+      "suite": "code-worker",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "release-evidence/0.8.0-alpha.6-authoritative/logs/code-worker.log"
+    },
+    {
+      "suite": "distribution",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "release-evidence/0.8.0-alpha.6-authoritative/logs/distribution.log"
+    },
+    {
+      "suite": "local-launch",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "release-evidence/0.8.0-alpha.6-authoritative/logs/local-launch.log"
+    },
+    {
+      "suite": "orchestrator",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "release-evidence/0.8.0-alpha.6-authoritative/logs/orchestrator.log"
+    },
+    {
+      "suite": "productization",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "release-evidence/0.8.0-alpha.6-authoritative/logs/productization.log"
+    },
+    {
+      "suite": "scenario",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "release-evidence/0.8.0-alpha.6-authoritative/logs/scenario.log"
+    },
+    {
+      "suite": "static",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "release-evidence/0.8.0-alpha.6-authoritative/logs/static.log"
+    },
+    {
+      "suite": "ux-admin",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "release-evidence/0.8.0-alpha.6-authoritative/logs/ux-admin.log"
+    },
+    {
+      "suite": "ux-browser",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "release-evidence/0.8.0-alpha.6-authoritative/logs/ux-browser.log"
+    },
+    {
+      "suite": "ux-complete",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "release-evidence/0.8.0-alpha.6-authoritative/logs/ux-complete.log"
+    },
+    {
+      "suite": "windows",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "release-evidence/0.8.0-alpha.6-authoritative/logs/windows.log"
+    }
+  ],
+  "suite_counts": {
+    "PASS": 17,
+    "FAIL": 0
+  },
+  "release_gate_records": 210,
+  "release_gate_unique_test_ids": 189,
+  "monolithic_runner": {
+    "status": "INTERRUPTED_EXTERNAL_HARNESS",
+    "reason": "outer tool execution budget interrupted the aggregate run after earlier suites; all 17 authoritative suites were completed independently on the frozen bytes"
+  },
+  "environment_bound": [
+    {
+      "test_id": "FND-REFERENCE-SEQUENCE-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "requires reference Windows Docker runtime"
+    },
+    {
+      "test_id": "FND-REBOOT-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "requires real Windows reboot"
+    },
+    {
+      "test_id": "WEB-011",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "requires live DTF external internet canary on reference runtime"
+    },
+    {
+      "test_id": "BILL-LIVE-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "requires YooKassa merchant/test shop credentials plus public HTTPS callback/webhook"
+    },
+    {
+      "test_id": "DEPLOY-LIVE-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "requires real VPS/DNS/HTTPS"
+    },
+    {
+      "test_id": "LAN-LIVE-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "requires physical second LAN device"
+    }
+  ],
+  "deferred": [
+    {
+      "test_id": "PG-RUNTIME-001",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "0.8.0-beta.1"
+    },
+    {
+      "test_id": "VPS-EGRESS-001",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "0.9.0"
+    },
+    {
+      "test_id": "SEARCH-YANDEX-ADAPTER-001",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "0.9.0"
+    },
+    {
+      "test_id": "SEARCH-GOOGLE-ADAPTER-001",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "0.9.0"
+    }
+  ]
+}

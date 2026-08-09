@@ -1,0 +1,136 @@
+name: personal-agent-rus
+services:
+  searxng:
+    image: ${PA_SEARXNG_IMAGE:-searxng/searxng:2026.8.5-1689cb1b5}
+    container_name: par-rus-searxng
+    restart: unless-stopped
+    environment:
+      SEARXNG_SECRET: ${PA_SEARXNG_SECRET:?PA_SEARXNG_SECRET must be set in .env}
+    volumes:
+    - ./searxng/settings.yml:/etc/searxng/settings.yml:ro
+  browser:
+    image: ${PA_BROWSER_IMAGE:-personal-agent-browser:0.8.0-alpha.5}
+    container_name: par-rus-browser
+    restart: unless-stopped
+    environment:
+      PA_BROWSER_HOST: 0.0.0.0
+      PA_BROWSER_PORT: 8000
+    shm_size: 1gb
+    healthcheck:
+      test:
+      - CMD
+      - python
+      - -c
+      - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health',
+        timeout=3)
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+  code-worker:
+    image: ${PA_CODE_WORKER_IMAGE:-personal-agent-code-worker:0.8.0-alpha.5}
+    container_name: par-rus-code-worker
+    restart: unless-stopped
+    network_mode: none
+    read_only: true
+    tmpfs:
+    - /work:rw,nosuid,nodev,size=256m,mode=0711
+    volumes:
+    - par-rus-code-ipc:/ipc
+    environment:
+      PA_CODE_SOCKET: /ipc/code-worker.sock
+      PA_CODE_WORK_ROOT: /work
+      PA_CODE_MAX_SOURCE_BYTES: ${PA_CODE_MAX_SOURCE_BYTES:-262144}
+      PA_CODE_MAX_OUTPUT_BYTES: ${PA_CODE_MAX_OUTPUT_BYTES:-1048576}
+      PA_CODE_MAX_TIMEOUT_SECONDS: ${PA_CODE_MAX_TIMEOUT_SECONDS:-30}
+    cap_drop:
+    - ALL
+    cap_add:
+    - CHOWN
+    - SETUID
+    - SETGID
+    - KILL
+    security_opt:
+    - no-new-privileges:true
+    pids_limit: 128
+    mem_limit: 1g
+    cpus: 2.0
+    healthcheck:
+      test:
+      - CMD
+      - python3
+      - -c
+      - import os,socket; p='/ipc/code-worker.sock'; assert os.path.exists(p); s=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM);
+        s.settimeout(2); s.connect(p); s.close()
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+  ollama:
+    image: ${PA_OLLAMA_IMAGE:-ollama/ollama:0.32.6}
+    container_name: par-rus-ollama
+    restart: unless-stopped
+    gpus: all
+    environment:
+      OLLAMA_KEEP_ALIVE: 15m
+      OLLAMA_MAX_LOADED_MODELS: '1'
+      OLLAMA_NUM_PARALLEL: '1'
+      OLLAMA_CONTEXT_LENGTH: '32768'
+    volumes:
+    - par-rus-models:/root/.ollama
+    healthcheck:
+      test:
+      - CMD
+      - ollama
+      - list
+      interval: 5s
+      timeout: 5s
+      retries: 60
+      start_period: 10s
+  core:
+    image: ${PA_CORE_IMAGE:-personal-agent-core:0.8.0-alpha.5}
+    container_name: par-rus-core
+    restart: unless-stopped
+    environment:
+      PA_PRODUCT_FAMILY: Personal Agent
+      PA_PRODUCT_NAME: Personal Agent Rus
+      PA_EDITION: rus
+      PA_LOCALE: ru-RU
+      PA_VERSION: 0.8.0-alpha.5
+      PA_RUNTIME_PROFILE: local
+      PA_HOST: 0.0.0.0
+      PA_PORT: 8080
+      PA_OLLAMA_URL: http://ollama:11434
+      PA_SEARXNG_URL: http://searxng:8080
+      PA_BROWSER_URL: http://browser:8000
+      PA_BOOTSTRAP_MODEL: ${PA_BOOTSTRAP_MODEL:-qwen3:0.6b}
+      PA_ADMIN_TOKEN: ${PA_ADMIN_TOKEN:?PA_ADMIN_TOKEN must be set in .env}
+      PA_AUTH_MODE: ${PA_AUTH_MODE:-personal}
+      PA_REGISTRATION_POLICY: ${PA_REGISTRATION_POLICY:-open}
+      PA_SECRETS_DIR: /data/secrets
+      PA_LOG_DIR: /data/logs
+      PA_USER_TOUR_VERSION: 1
+      PA_ADMIN_TOUR_VERSION: 1
+      PA_DB: /data/personal-agent-rus.db
+      PA_CODE_SOCKET: /run/personal-agent-code/code-worker.sock
+    volumes:
+    - par-rus-data:/data
+    - par-rus-code-ipc:/run/personal-agent-code:ro
+    ports:
+    - ${PA_BIND_IP:-127.0.0.1}:${PA_UI_PORT:-3100}:8080
+    depends_on:
+      ollama:
+        condition: service_healthy
+      searxng:
+        condition: service_started
+      browser:
+        condition: service_healthy
+      code-worker:
+        condition: service_healthy
+volumes:
+  par-rus-data:
+    name: par-rus-data
+  par-rus-models:
+    name: par-rus-models
+  par-rus-code-ipc:
+    name: par-rus-code-ipc

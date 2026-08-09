@@ -1,0 +1,9 @@
+ распаковать ZIP сюда:
+C:\AI\packages\Personal-Agent-Rus-1.0.0
+
+Set-Location "C:\AI\packages\Personal-Agent-Rus-1.0.0"
+.\RUN-FIRST.cmd
+
+После установки:
+
+C:\AI\RusPersonalAgent\VERIFY.cmd

@@ -1,0 +1,11 @@
+[BROWSER] shell/help ready
+[BROWSER] scenarios/site-preferences ready
+[BROWSER] chat/web/export ready
+[BROWSER] files ready
+[BROWSER] code ready
+[BROWSER] history/projects ready
+[BROWSER] mobile ready
+[BROWSER] account ready
+[BROWSER] admin ready
+[BROWSER] role boundary ready
+PAR_V080_BROWSER_ACCEPTANCE PASS: shell scenarios-site-preferences chat-export presets web-research files code-sandbox tasks history mobile role-boundary admin providers routing users billing deployment monitoring xss

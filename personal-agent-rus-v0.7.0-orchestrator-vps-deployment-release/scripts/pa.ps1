@@ -6,7 +6,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $Root = Split-Path -Parent $PSScriptRoot
 $EnvFile = Join-Path $Root '.env'
-$Compose = Join-Path $Root 'compose.yaml'
+$Compose = Join-Path $Root 'docker-compose-main.yaml'
 $LogDir = Join-Path $Root 'logs'
 $LogFile = Join-Path $LogDir 'PERSONAL-AGENT-LAST.log'
 if(-not $DryRun){ New-Item -ItemType Directory -Force -Path $LogDir | Out-Null; Set-Content -LiteralPath $LogFile -Value '' -Encoding ASCII }

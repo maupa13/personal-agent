@@ -11,7 +11,7 @@ services:
   browser:
     build:
       context: ./services/browser
-    image: ${PA_BROWSER_IMAGE:-personal-agent-browser:0.7.2}
+    image: ${PA_BROWSER_IMAGE:-personal-agent-browser:1.0.0}
     container_name: par-rus-browser
     restart: unless-stopped
     environment:
@@ -30,7 +30,7 @@ services:
       retries: 20
       start_period: 10s
   code-worker:
-    image: ${PA_CODE_WORKER_IMAGE:-personal-agent-code-worker:0.7.2}
+    image: ${PA_CODE_WORKER_IMAGE:-personal-agent-code-worker:1.0.0}
     container_name: par-rus-code-worker
     restart: unless-stopped
     network_mode: none
@@ -45,6 +45,7 @@ services:
       PA_CODE_MAX_SOURCE_BYTES: ${PA_CODE_MAX_SOURCE_BYTES:-262144}
       PA_CODE_MAX_OUTPUT_BYTES: ${PA_CODE_MAX_OUTPUT_BYTES:-1048576}
       PA_CODE_MAX_TIMEOUT_SECONDS: ${PA_CODE_MAX_TIMEOUT_SECONDS:-30}
+      PA_CODE_SOCKET_GID: '10001'
     cap_drop:
     - ALL
     cap_add:
@@ -94,7 +95,7 @@ services:
   core:
     build:
       context: ./services/core
-    image: ${PA_CORE_IMAGE:-personal-agent-core:0.7.2}
+    image: ${PA_CORE_IMAGE:-personal-agent-core:1.0.0}
     container_name: par-rus-core
     restart: unless-stopped
     environment:
@@ -102,18 +103,40 @@ services:
       PA_PRODUCT_NAME: Personal Agent Rus
       PA_EDITION: rus
       PA_LOCALE: ru-RU
-      PA_VERSION: 0.7.2
-      PA_RUNTIME_PROFILE: local
+      PA_VERSION: ${PA_VERSION:-1.0.0}
+      PA_RUNTIME_PROFILE: ${PA_RUNTIME_PROFILE:-local}
       PA_HOST: 0.0.0.0
       PA_PORT: 8080
-      PA_OLLAMA_URL: http://ollama:11434
-      PA_SEARXNG_URL: http://searxng:8080
-      PA_BROWSER_URL: http://browser:8000
+      PA_OLLAMA_URL: ${PA_OLLAMA_URL:-http://ollama:11434}
+      PA_SEARXNG_URL: ${PA_SEARXNG_URL:-http://searxng:8080}
+      PA_BROWSER_URL: ${PA_BROWSER_URL:-http://browser:8000}
       PA_BOOTSTRAP_MODEL: ${PA_BOOTSTRAP_MODEL:-qwen3:0.6b}
       PA_ADMIN_TOKEN: ${PA_ADMIN_TOKEN:?PA_ADMIN_TOKEN must be set in .env}
       PA_AUTH_MODE: ${PA_AUTH_MODE:-personal}
       PA_REGISTRATION_POLICY: ${PA_REGISTRATION_POLICY:-open}
+      PA_SECURE_COOKIES: ${PA_SECURE_COOKIES:-0}
+      PA_PUBLIC_URL: ${PA_PUBLIC_URL:-}
+      PA_DATABASE_URL: ${PA_DATABASE_URL:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      PA_OPENAI_API_KEY: ${PA_OPENAI_API_KEY:-}
+      PA_OPENAI_BASE_URL: ${PA_OPENAI_BASE_URL:-https://api.openai.com/v1}
+      PA_OPENAI_PROVIDER_TYPE: ${PA_OPENAI_PROVIDER_TYPE:-openai_responses}
+      PA_OPENAI_PROVIDER_ID: ${PA_OPENAI_PROVIDER_ID:-openai}
+      PA_OPENAI_PROVIDER_NAME: ${PA_OPENAI_PROVIDER_NAME:-OpenAI}
+      PA_VPN_ROUTING_ENABLED: ${PA_VPN_ROUTING_ENABLED:-0}
+      PA_VPN_ROUTING_MODE: ${PA_VPN_ROUTING_MODE:-}
+      PA_VPN_PREFERENCE_ID: ${PA_VPN_PREFERENCE_ID:-}
+      PA_VPN_VPS2_HOST: ${PA_VPN_VPS2_HOST:-}
+      PA_VPN_UPSTREAM_HOST: ${PA_VPN_UPSTREAM_HOST:-}
+      PA_VPN_UPSTREAM_IP: ${PA_VPN_UPSTREAM_IP:-}
+      PA_VPN_ALLOWED_IPS: ${PA_VPN_ALLOWED_IPS:-}
+      PA_VPN_PROFILE_FILE: ${PA_VPN_PROFILE_FILE:-}
+      PA_LAN_ENABLED: ${PA_LAN_ENABLED:-0}
+      PA_LAN_PUBLIC_URL: ${PA_LAN_PUBLIC_URL:-}
       PA_SECRETS_DIR: /data/secrets
+      PA_LOG_DIR: /data/logs
+      PA_USER_TOUR_VERSION: 1
+      PA_ADMIN_TOUR_VERSION: 1
       PA_DB: /data/personal-agent-rus.db
       PA_CODE_SOCKET: /run/personal-agent-code/code-worker.sock
     volumes:
@@ -127,8 +150,6 @@ services:
       searxng:
         condition: service_started
       browser:
-        condition: service_healthy
-      code-worker:
         condition: service_healthy
     healthcheck:
       test:

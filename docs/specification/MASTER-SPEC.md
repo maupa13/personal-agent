@@ -4345,6 +4345,13 @@ mobile browser
 
 Stable release запрещён, если не пройдены:
 
+Для `1.0.0` это означает два разных уровня проверки:
+
+- local deterministic gate, который подтверждает контрактную целостность, упаковку и cross-platform поведение без подмены среды;
+- separate Linux/VPS production gate, который подтверждает реальную публикацию, networking, browser path и code-worker на целевой VPS-среде.
+
+Browser/live/browser-automation, real VPS, and Linux-specific checks are environment-bound. Если нужная среда отсутствует, local gate должен явно помечать это как separate gate, а не притворяться PASS.
+
 ```
 auth
 tenant isolation

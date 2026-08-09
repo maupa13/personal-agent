@@ -1,0 +1,10 @@
+[PASS] SRC-001 - Explicit bare domains are authoritative source scope
+[PASS] SRC-002 - Cross-domain evidence is filtered for explicit-domain requests
+[PASS] SRC-004 - Admin source/search policy persists and advertises only real adapters
+[PASS] RESULT-001 - Adaptive cards exist for news/products/real-estate/procurement
+[PASS] OBS-A6-001 - Per-answer timing/trace metadata survives DB reload
+[PASS] OBS-A6-002 - USER shows timing while technical routing IDs remain out of public UI
+[PASS] OBS-A6-003 - Windows lifecycle HTTP failures contain actionable stage/status/timing/trace diagnostics
+[PASS] BILL-A6-001 - Turnkey YooKassa setup exposes a safe readiness checklist without returning secrets
+[PASS] RESULT-002 - Artifact list renders verified export metadata and exposes formatter failures in debug mode
+PAR_V080_ALPHA6_SEARCH_DEBUG_ACCEPTANCE PASS: 9 checks

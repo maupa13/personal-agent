@@ -1,0 +1,8 @@
+[PASS] UX-SELECT-A7-BROWSER - scenario and quick-action selected states are mutually exclusive
+[PASS] UX-SCALE-A7-BROWSER - compact scale reduces actual card/button density
+[PASS] UX-SCALE-A7-PERSIST - selected UI scale is applied to the document
+[PASS] RESULT-A7-BROWSER-001 - seven verified sources render as seven result cards
+[PASS] NEWS-A7-BROWSER-001 - bounded news clarification is presented as one-tap quick replies
+[PASS] UX-LIVE-A7-BROWSER-001 - new assistant answer is progressively revealed rather than painted as one block
+[PASS] UX-LIVE-A7-BROWSER-002 - progressive reveal finishes with the complete answer
+PAR_V080_ALPHA7_LIVE_RESULTS_BROWSER PASS

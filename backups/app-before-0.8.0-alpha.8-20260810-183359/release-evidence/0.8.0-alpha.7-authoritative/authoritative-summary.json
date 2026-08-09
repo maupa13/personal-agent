@@ -1,0 +1,153 @@
+{
+  "product": "Personal Agent Rus",
+  "version": "0.8.0-alpha.7",
+  "generated_at": 1786371839,
+  "authoritative_suites": [
+    {
+      "suite": "static",
+      "status": "PASS",
+      "evidence": "static.log"
+    },
+    {
+      "suite": "distribution",
+      "status": "PASS",
+      "evidence": "distribution.log"
+    },
+    {
+      "suite": "windows-contract",
+      "status": "PASS",
+      "evidence": "windows-contract.log"
+    },
+    {
+      "suite": "local-launch",
+      "status": "PASS",
+      "evidence": "local-launch.log"
+    },
+    {
+      "suite": "accounts-entitlements",
+      "status": "PASS",
+      "evidence": "accounts-entitlements.log"
+    },
+    {
+      "suite": "scenario",
+      "status": "PASS",
+      "evidence": "scenario.log"
+    },
+    {
+      "suite": "alpha6-search-debug",
+      "status": "PASS",
+      "evidence": "alpha6-search-debug.log"
+    },
+    {
+      "suite": "alpha7-runtime-timing",
+      "status": "PASS",
+      "evidence": "alpha7-runtime-timing.log"
+    },
+    {
+      "suite": "alpha7-live-results",
+      "status": "PASS",
+      "evidence": "alpha7-live-results.log"
+    },
+    {
+      "suite": "ux-admin",
+      "status": "PASS",
+      "evidence": "ux-admin.log"
+    },
+    {
+      "suite": "ux-complete",
+      "status": "PASS",
+      "evidence": "ux-complete.log"
+    },
+    {
+      "suite": "ux-complete-browser",
+      "status": "PASS",
+      "evidence": "ux-complete-browser.log"
+    },
+    {
+      "suite": "alpha7-live-results-browser",
+      "status": "PASS",
+      "evidence": "alpha7-live-results-browser.log"
+    },
+    {
+      "suite": "orchestrator-deployment",
+      "status": "PASS",
+      "evidence": "orchestrator-deployment.log"
+    },
+    {
+      "suite": "browser-user",
+      "status": "PASS",
+      "evidence": "browser-user.log"
+    },
+    {
+      "suite": "browser-admin",
+      "status": "PASS",
+      "evidence": "browser-admin.log"
+    },
+    {
+      "suite": "api",
+      "status": "PASS",
+      "evidence": "api.log"
+    },
+    {
+      "suite": "productization",
+      "status": "PASS",
+      "evidence": "productization.log"
+    },
+    {
+      "suite": "billing",
+      "status": "PASS",
+      "evidence": "billing.log"
+    },
+    {
+      "suite": "code-worker",
+      "status": "PASS",
+      "evidence": "code-worker.log"
+    }
+  ],
+  "counts": {
+    "PASS": 20,
+    "FAIL": 0
+  },
+  "monolithic_release_gate": {
+    "status": "INTERRUPTED_EXTERNAL_HARNESS",
+    "stage": "ux-complete-browser",
+    "note": "All mandatory deterministic suites were rerun as isolated processes with exit 0; monolithic orchestration was interrupted by the execution harness and is not promoted to PASS."
+  },
+  "environment_bound": [
+    {
+      "test_id": "PERF-A7-WIN-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "requires reference Windows alpha.7 VERIFY for real bootstrap timings"
+    },
+    {
+      "test_id": "WEB-011",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "requires live DTF internet canary on reference Windows"
+    },
+    {
+      "test_id": "BILL-LIVE-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "requires YooKassa merchant/test credentials and public HTTPS webhook"
+    },
+    {
+      "test_id": "LAN-LIVE-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "requires physical second LAN device"
+    },
+    {
+      "test_id": "PG-RUNTIME-001",
+      "status": "NOT_IMPLEMENTED",
+      "reason": "PostgreSQL canonical runtime is beta slice"
+    },
+    {
+      "test_id": "VPS-EGRESS-001",
+      "status": "NOT_IMPLEMENTED",
+      "reason": "real RU/global egress is 0.9 slice"
+    },
+    {
+      "test_id": "STREAM-SSE-001",
+      "status": "NOT_IMPLEMENTED",
+      "reason": "alpha.7 uses reduced-motion-aware progressive reveal; true token SSE transport is a later streaming slice"
+    }
+  ]
+}

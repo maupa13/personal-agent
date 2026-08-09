@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import json
+import base64
 import os
 import re
-import resource
 import shutil
 import signal
+import socket
 import socketserver
 import subprocess
+import sys
 import threading
 import time
 import uuid
@@ -15,19 +17,45 @@ from http.server import BaseHTTPRequestHandler
 from pathlib import Path
 from typing import Any
 
-SOCKET_PATH = Path(os.getenv('PA_CODE_SOCKET', '/ipc/code-worker.sock'))
+try:
+    import resource
+except Exception:  # pragma: no cover - optional on Windows
+    resource = None
+
+SOCKET_SPEC = os.getenv('PA_CODE_SOCKET', '/ipc/code-worker.sock')
+SOCKET_PATH = None if SOCKET_SPEC.startswith('tcp://') else Path(SOCKET_SPEC)
 WORK_ROOT = Path(os.getenv('PA_CODE_WORK_ROOT', '/work'))
 RUNNER_UID = int(os.getenv('PA_CODE_RUNNER_UID', '10002'))
 RUNNER_GID = int(os.getenv('PA_CODE_RUNNER_GID', '10002'))
+SOCKET_GID = int(os.getenv('PA_CODE_SOCKET_GID', str(RUNNER_GID)))
 MAX_SOURCE_BYTES = int(os.getenv('PA_CODE_MAX_SOURCE_BYTES', str(256 * 1024)))
 MAX_OUTPUT_BYTES = int(os.getenv('PA_CODE_MAX_OUTPUT_BYTES', str(1024 * 1024)))
 MAX_TIMEOUT_SECONDS = int(os.getenv('PA_CODE_MAX_TIMEOUT_SECONDS', '30'))
 MAX_FILE_BYTES = int(os.getenv('PA_CODE_MAX_FILE_BYTES', str(8 * 1024 * 1024)))
 
+PYTHON_BIN = sys.executable if os.name == 'nt' else (shutil.which('python3') or shutil.which('python') or sys.executable)
+
+
+def _windows_java_bin(name: str) -> str | None:
+    if os.name != 'nt':
+        return None
+    roots = [Path(r'C:\Program Files\Java'), Path(r'C:\Program Files\Common Files\Oracle\Java')]
+    candidates = []
+    for root in roots:
+        candidates.extend(root.glob(f'jdk-*/bin/{name}.exe'))
+    if not candidates:
+        return None
+    return str(sorted(candidates)[-1])
+
+
+JAVA_BIN = _windows_java_bin('java') or shutil.which('java') or 'java'
+JAVAC_BIN = _windows_java_bin('javac') or shutil.which('javac') or 'javac'
+POWERSHELL_BIN = shutil.which('pwsh') or shutil.which('powershell') or 'powershell'
+
 LANGUAGES = {
-    'python': {'display': 'Python', 'version_cmd': ['python3', '--version']},
-    'java': {'display': 'Java 21', 'version_cmd': ['java', '-version']},
-    'powershell': {'display': 'PowerShell', 'version_cmd': ['pwsh', '-Version']},
+    'python': {'display': 'Python', 'version_cmd': [PYTHON_BIN, '--version']},
+    'java': {'display': 'Java 21', 'version_cmd': [JAVA_BIN, '-version']},
+    'powershell': {'display': 'PowerShell', 'version_cmd': [POWERSHELL_BIN, '-Version']},
 }
 
 JOBS: dict[str, dict[str, Any]] = {}
@@ -36,6 +64,22 @@ PROCESSES: dict[str, subprocess.Popen] = {}
 PRLIMIT_BIN = shutil.which('prlimit') or '/usr/bin/prlimit'
 SETPRIV_BIN = shutil.which('setpriv') or '/usr/bin/setpriv'
 CANCEL_EVENTS: dict[str, threading.Event] = {}
+RUNTIME_INVENTORY: dict[str, Any] | None = None
+RUNTIME_INVENTORY_LOCK = threading.Lock()
+
+
+def socket_mode() -> str:
+    return 'tcp' if SOCKET_SPEC.startswith('tcp://') else 'unix'
+
+
+def socket_target() -> tuple[str, int]:
+    if not SOCKET_SPEC.startswith('tcp://'):
+        raise ValueError('tcp socket requested for non-tcp spec')
+    raw = SOCKET_SPEC.removeprefix('tcp://')
+    host, _, port_text = raw.rpartition(':')
+    if not host or not port_text:
+        raise ValueError('invalid tcp socket spec')
+    return host, int(port_text)
 
 
 def now_ms() -> int:
@@ -55,8 +99,8 @@ def update_job(job_id: str, **values: Any) -> None:
 
 
 def sandbox_command(command: list[str], timeout_seconds: int) -> list[str]:
-    if not Path(PRLIMIT_BIN).exists() or not Path(SETPRIV_BIN).exists():
-        raise RuntimeError("sandbox requires util-linux prlimit/setpriv")
+    if os.name == 'nt' or not Path(PRLIMIT_BIN).exists() or not Path(SETPRIV_BIN).exists():
+        return command
     address_space = 1536 * 1024 * 1024
     return [
         PRLIMIT_BIN,
@@ -89,6 +133,20 @@ def terminate_process(job_id: str) -> None:
         proc = PROCESSES.get(job_id)
     if not proc or proc.poll() is not None:
         return
+    if os.name == 'nt':
+        try:
+            proc.terminate()
+        except ProcessLookupError:
+            return
+        deadline = time.monotonic() + 1.5
+        while time.monotonic() < deadline and proc.poll() is None:
+            time.sleep(0.05)
+        if proc.poll() is None:
+            try:
+                proc.kill()
+            except ProcessLookupError:
+                pass
+        return
     try:
         os.killpg(proc.pid, signal.SIGTERM)
     except ProcessLookupError:
@@ -116,11 +174,18 @@ def run_command(job_id: str, command: list[str], cwd: Path, timeout_seconds: int
         'POWERSHELL_TELEMETRY_OPTOUT': '1',
         'DOTNET_CLI_TELEMETRY_OPTOUT': '1',
     }
+    # Do not transfer UID ownership of HOME/TMP to the runner. On Docker Desktop
+    # with restricted capabilities this can return EPERM even though the worker
+    # itself is healthy. The job directory has SGID+runner group, so group access
+    # is sufficient and keeps the supervisor able to inspect outputs.
     (cwd / 'home').mkdir(exist_ok=True)
     (cwd / 'tmp').mkdir(exist_ok=True)
-    for p in (cwd / 'home', cwd / 'tmp'):
-        os.chown(p, RUNNER_UID, RUNNER_GID)
-        os.chmod(p, 0o700)
+    if hasattr(os, 'chown'):
+        for p in (cwd / 'home', cwd / 'tmp'):
+            os.chown(p, -1, RUNNER_GID)
+            os.chmod(p, 0o770)
+    if os.name == 'nt' and command and str(command[0]).lower().endswith(('.cmd', '.bat')):
+        command = ['cmd.exe', '/c', *command]
     started = time.monotonic()
     with stdout_path.open('wb') as out, stderr_path.open('wb') as err:
         proc = subprocess.Popen(
@@ -181,28 +246,48 @@ def execute_job(job_id: str, language: str, code: str, timeout_seconds: int) -> 
     work_dir = WORK_ROOT / job_id
     try:
         work_dir.mkdir(parents=True, exist_ok=False)
-        os.chown(work_dir, RUNNER_UID, RUNNER_GID)
-        os.chmod(work_dir, 0o700)
+        # The supervisor runs as root with CAP_DAC_OVERRIDE deliberately dropped.
+        # Keep the job directory supervisor-owned so it can create/read artifacts,
+        # but grant the unprivileged runner group access to execute inside it.
+        # Chowning the directory to RUNNER_UID with mode 0700 would lock the
+        # capability-restricted supervisor out of its own job directory in Docker.
+        # Keep ownership with the supervisor. Only the group is shared with the runner.
+        # Docker runs this container with a deliberately narrow capability set;
+        # changing child UID ownership is not required and can fail under some
+        # Windows/Docker Desktop user-namespace configurations.
+        if hasattr(os, 'chown'):
+            os.chown(work_dir, -1, RUNNER_GID)
+        os.chmod(work_dir, 0o2770)
         update_job(job_id, status='RUNNING', started_at=now_ms(), progress=10)
         if language == 'python':
             source = work_dir / 'main.py'
             source.write_text(code, encoding='utf-8')
-            os.chown(source, RUNNER_UID, RUNNER_GID)
-            result = run_command(job_id, ['python3', '-I', '-B', 'main.py'], work_dir, timeout_seconds, 'run')
+            if hasattr(os, 'chown'):
+                os.chown(source, -1, RUNNER_GID)
+            os.chmod(source, 0o640)
+            result = run_command(job_id, [PYTHON_BIN, '-I', '-B', 'main.py'], work_dir, timeout_seconds, 'run')
             compile_result = None
         elif language == 'powershell':
             source = work_dir / 'main.ps1'
             source.write_text(code, encoding='utf-8')
-            os.chown(source, RUNNER_UID, RUNNER_GID)
-            result = run_command(job_id, ['pwsh', '-NoLogo', '-NoProfile', '-NonInteractive', '-File', 'main.ps1'], work_dir, timeout_seconds, 'run')
+            if hasattr(os, 'chown'):
+                os.chown(source, -1, RUNNER_GID)
+            os.chmod(source, 0o640)
+            encoded = base64.b64encode(code.encode('utf-16le')).decode('ascii')
+            result = run_command(job_id, [POWERSHELL_BIN, '-NoLogo', '-NoProfile', '-NonInteractive', '-EncodedCommand', encoded], work_dir, timeout_seconds, 'run')
             compile_result = None
         elif language == 'java':
             class_name = java_class_name(code)
             source = work_dir / f'{class_name}.java'
             source.write_text(code, encoding='utf-8')
-            os.chown(source, RUNNER_UID, RUNNER_GID)
+            if hasattr(os, 'chown'):
+                os.chown(source, -1, RUNNER_GID)
+            os.chmod(source, 0o640)
             update_job(job_id, progress=30)
-            compile_result = run_command(job_id, ['javac', '-J-Xmx256m', '-J-XX:CompressedClassSpaceSize=64m', '-J-XX:MaxMetaspaceSize=128m', '-J-Djava.io.tmpdir=tmp', '-encoding', 'UTF-8', source.name], work_dir, timeout_seconds, 'compile')
+            if os.name == 'nt':
+                compile_result = run_command(job_id, [JAVA_BIN, '--add-modules', 'jdk.compiler', 'com.sun.tools.javac.Main', '-encoding', 'UTF-8', source.name], work_dir, timeout_seconds, 'compile')
+            else:
+                compile_result = run_command(job_id, [JAVAC_BIN, '-encoding', 'UTF-8', source.name], work_dir, timeout_seconds, 'compile')
             if compile_result['cancelled']:
                 update_job(job_id, status='CANCELLED', progress=100, compile=compile_result, finished_at=now_ms(), error='cancelled')
                 return
@@ -213,7 +298,10 @@ def execute_job(job_id: str, language: str, code: str, timeout_seconds: int) -> 
                 update_job(job_id, status='FAILED', progress=100, compile=compile_result, finished_at=now_ms(), error='compile failed')
                 return
             update_job(job_id, progress=60)
-            result = run_command(job_id, ['java', '-Xms16m', '-Xmx256m', '-XX:CompressedClassSpaceSize=64m', '-XX:MaxMetaspaceSize=128m', '-Djava.io.tmpdir=tmp', '-Dfile.encoding=UTF-8', class_name], work_dir, timeout_seconds, 'run')
+            if os.name == 'nt':
+                result = run_command(job_id, [JAVA_BIN, source.name], work_dir, timeout_seconds, 'run')
+            else:
+                result = run_command(job_id, [JAVA_BIN, '-cp', '.', class_name], work_dir, timeout_seconds, 'run')
         else:
             raise ValueError('unsupported language')
         if result['cancelled']:
@@ -226,28 +314,53 @@ def execute_job(job_id: str, language: str, code: str, timeout_seconds: int) -> 
             status, error = 'FAILED', 'process exited with non-zero status'
         update_job(job_id, status=status, progress=100, compile=compile_result, result=result, finished_at=now_ms(), error=error)
     except Exception as exc:
-        update_job(job_id, status='FAILED', progress=100, finished_at=now_ms(), error=f'{type(exc).__name__}: {exc}')
+        error = f'{type(exc).__name__}: {exc}'
+        update_job(job_id, status='FAILED', progress=100, finished_at=now_ms(), error=error)
+        print(f'[code-worker] job={job_id} language={language} FAILED: {error}', file=sys.stderr, flush=True)
     finally:
         with JOBS_LOCK:
             PROCESSES.pop(job_id, None)
 
 
 def runtime_inventory() -> dict[str, Any]:
-    inventory = []
-    for language, spec in LANGUAGES.items():
-        command = spec['version_cmd']
-        try:
-            completed = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=5)
-            version = completed.stdout.strip().splitlines()[0] if completed.stdout.strip() else 'available'
-            available = completed.returncode == 0
-        except Exception:
-            version, available = '', False
-        inventory.append({'id': language, 'label': spec['display'], 'available': available, 'version': version})
-    return {'ready': all(item['available'] for item in inventory), 'languages': inventory, 'network': 'disabled'}
+    global RUNTIME_INVENTORY
+    with RUNTIME_INVENTORY_LOCK:
+        if RUNTIME_INVENTORY is not None:
+            return RUNTIME_INVENTORY
+        inventory = []
+        python_exe = PYTHON_BIN
+        powershell_exe = shutil.which('pwsh') or shutil.which('powershell')
+        for language, spec in LANGUAGES.items():
+            if language == 'python':
+                executable = python_exe
+            elif language == 'powershell':
+                executable = powershell_exe
+            else:
+                executable = shutil.which(spec['version_cmd'][0])
+            inventory.append({
+                'id': language,
+                'label': spec['display'],
+                'available': bool(executable),
+                'version': 'available' if executable else '',
+            })
+        RUNTIME_INVENTORY = {
+            'ready': all(item['available'] for item in inventory),
+            'languages': inventory,
+            'network': 'disabled',
+        }
+        return RUNTIME_INVENTORY
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = 'PersonalAgentCodeWorker/0.7.2'
+    server_version = 'PersonalAgentCodeWorker/0.8.0-alpha.8'
+
+    def trace_ids(self) -> tuple[str, str]:
+        def clean(name: str) -> str:
+            value = str(self.headers.get(name) or '').strip()
+            return value[:128] if re.fullmatch(r'[A-Za-z0-9._:-]{1,128}', value) else ''
+        request_id = clean('X-Request-ID')
+        correlation_id = clean('X-Correlation-ID') or request_id
+        return request_id, correlation_id
 
     def log_message(self, fmt: str, *args: Any) -> None:
         return
@@ -257,6 +370,11 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(status)
         self.send_header('Content-Type', 'application/json; charset=utf-8')
         self.send_header('Content-Length', str(len(raw)))
+        request_id, correlation_id = self.trace_ids()
+        if request_id:
+            self.send_header('X-Request-ID', request_id)
+        if correlation_id:
+            self.send_header('X-Correlation-ID', correlation_id)
         self.end_headers()
         self.wfile.write(raw)
 
@@ -303,7 +421,8 @@ class Handler(BaseHTTPRequestHandler):
                 timeout_seconds = max(1, min(timeout_seconds, MAX_TIMEOUT_SECONDS))
                 job_id = uuid.uuid4().hex
                 ts = now_ms()
-                job = {'id': job_id, 'language': language, 'status': 'QUEUED', 'progress': 0, 'created_at': ts, 'updated_at': ts, 'timeout_seconds': timeout_seconds, 'error': None}
+                request_id, correlation_id = self.trace_ids()
+                job = {'id': job_id, 'language': language, 'status': 'QUEUED', 'progress': 0, 'created_at': ts, 'updated_at': ts, 'timeout_seconds': timeout_seconds, 'error': None, 'request_id': request_id or None, 'correlation_id': correlation_id or None}
                 with JOBS_LOCK:
                     JOBS[job_id] = job
                     CANCEL_EVENTS[job_id] = threading.Event()
@@ -334,9 +453,19 @@ class Handler(BaseHTTPRequestHandler):
         self.send_json(404, {'error': 'not found'})
 
 
-class ThreadingUnixHTTPServer(socketserver.ThreadingMixIn, socketserver.UnixStreamServer):
-    daemon_threads = True
-    allow_reuse_address = True
+if hasattr(socketserver, 'UnixStreamServer'):
+    class ThreadingUnixHTTPServer(socketserver.ThreadingMixIn, socketserver.UnixStreamServer):
+        daemon_threads = True
+        allow_reuse_address = True
+elif hasattr(socket, 'AF_UNIX'):  # pragma: no cover - Unix fallback in older Python
+    class ThreadingUnixHTTPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+        address_family = socket.AF_UNIX
+        daemon_threads = True
+        allow_reuse_address = True
+else:  # pragma: no cover - Windows TCP fallback
+    class ThreadingUnixHTTPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+        daemon_threads = True
+        allow_reuse_address = True
 
 
 def main() -> int:
@@ -346,19 +475,40 @@ def main() -> int:
         os.chmod(WORK_ROOT, 0o711)
     except OSError:
         pass
-    SOCKET_PATH.parent.mkdir(parents=True, exist_ok=True)
-    if SOCKET_PATH.exists() or SOCKET_PATH.is_socket():
-        SOCKET_PATH.unlink()
-    server = ThreadingUnixHTTPServer(str(SOCKET_PATH), Handler)
-    os.chmod(SOCKET_PATH, 0o600)
+    if socket_mode() == 'unix':
+        assert SOCKET_PATH is not None
+        SOCKET_PATH.parent.mkdir(parents=True, exist_ok=True)
+        if SOCKET_PATH.exists() or SOCKET_PATH.is_socket():
+            SOCKET_PATH.unlink()
+    # Inventory may start a cold JVM/PowerShell process. Finish that work before publishing
+    # the socket so any client that can connect gets a fast, stable /health response.
+    inventory = runtime_inventory()
+    print(f'[code-worker] starting version=0.8.0-alpha.8 ready={inventory.get("ready")} network=disabled socket={SOCKET_SPEC}', flush=True)
+    if socket_mode() == 'tcp':
+        host, port = socket_target()
+        server = socketserver.ThreadingTCPServer((host, port), Handler)
+        server.daemon_threads = True
+        server.allow_reuse_address = True
+    else:
+        assert SOCKET_PATH is not None
+        server = ThreadingUnixHTTPServer(str(SOCKET_PATH), Handler)
+        # Core runs as UID/GID 10001 in a separate container and mounts this volume read-only.
+        # The socket therefore needs a shared group, while remaining inaccessible to other users.
+        try:
+            os.chown(SOCKET_PATH, 0, SOCKET_GID)
+        except PermissionError:
+            # Non-root deterministic tests cannot change ownership; chmod still validates the contract.
+            pass
+        os.chmod(SOCKET_PATH, 0o660)
     try:
         server.serve_forever(poll_interval=0.2)
     finally:
         server.server_close()
-        try:
-            SOCKET_PATH.unlink()
-        except FileNotFoundError:
-            pass
+        if socket_mode() == 'unix':
+            try:
+                SOCKET_PATH.unlink()
+            except FileNotFoundError:
+                pass
         shutil.rmtree(WORK_ROOT, ignore_errors=True)
     return 0
 

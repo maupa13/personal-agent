@@ -1,0 +1,9 @@
+services:
+  core:
+    environment:
+      PA_AUTH_MODE: accounts
+      PA_REGISTRATION_POLICY: open
+      # VK ID remains disabled until a real VK application is configured.
+      # Set both values to expose VK ID as configured in /api/auth/providers.
+      PA_VK_ID_CLIENT_ID: ${PA_VK_ID_CLIENT_ID:-}
+      PA_VK_ID_REDIRECT_URI: ${PA_VK_ID_REDIRECT_URI:-}

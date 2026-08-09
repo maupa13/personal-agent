@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="app-version" content="0.7.4-local.3">
+  <title>Personal Agent Rus</title>
+  <link rel="stylesheet" href="/static/styles.css?v=0.7.4-local.3">
+</head>
+<body class="user-page">
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar" aria-label="Навигация">
+      <div class="brand-block">
+        <a class="brand-home" href="/" aria-label="Personal Agent Rus">
+          <div class="brand-mark" aria-hidden="true">PA</div>
+          <div class="brand-copy"><strong>Personal Agent</strong><span>Rus</span></div>
+        </a>
+        <button class="icon-button sidebar-close" id="closeSidebar" type="button" aria-label="Закрыть меню">×</button>
+      </div>
+
+      <button class="new-chat" id="newChat" type="button"><span aria-hidden="true">＋</span><span>Новый чат</span><kbd>Ctrl K</kbd></button>
+
+      <div class="chat-search-wrap">
+        <span class="search-icon" aria-hidden="true">⌕</span>
+        <input id="chatSearch" class="chat-search" type="search" placeholder="Поиск диалогов" autocomplete="off" aria-label="Поиск диалогов">
+      </div>
+
+      <div class="sidebar-section-row">
+        <span class="sidebar-section-title">Диалоги</span>
+        <button class="text-icon-button" id="clearAllShortcut" type="button" title="Удалить все диалоги">Очистить</button>
+      </div>
+      <nav class="conversation-list" id="conversations" aria-label="Диалоги"></nav>
+      <div class="conversation-empty" id="conversationEmpty" hidden>Ничего не найдено</div>
+
+      <div class="sidebar-spacer"></div>
+      <div class="sidebar-status">
+        <span id="sideDot" class="dot"></span>
+        <div><strong id="sideHealth">Запуск…</strong><small>Локальный режим</small></div>
+      </div>
+      <button class="sidebar-link" id="filesEntry" type="button"><span aria-hidden="true">▣</span><span>Файлы</span><span class="lock" aria-hidden="true">›</span></button>
+      <button class="sidebar-link" id="codeEntry" type="button"><span aria-hidden="true">&lt;/&gt;</span><span>Код</span><span class="lock" aria-hidden="true">›</span></button>
+      <button class="sidebar-link" id="tasksEntry" type="button"><span aria-hidden="true">✓</span><span>Задачи</span><span class="lock" aria-hidden="true">›</span></button>
+      <button class="sidebar-link" id="settingsEntry" type="button"><span aria-hidden="true">⚙</span><span>Настройки</span><span class="lock" aria-hidden="true">›</span></button>
+      <a class="sidebar-link" id="accountEntry" href="/account"><span aria-hidden="true">◎</span><span class="account-label">Профиль</span><span class="lock" aria-hidden="true">›</span></a>
+      <a class="sidebar-link admin-entry" href="/admin" aria-label="Открыть администрирование"><span aria-hidden="true">◈</span><span>Администрирование</span><span class="lock" aria-hidden="true">›</span></a>
+      <div class="version-line"><span id="version">v0.7.4-local.3</span><span>Personal Agent Rus</span></div>
+    </aside>
+
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <section class="workspace">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="icon-button mobile-menu" id="openSidebar" type="button" aria-label="Открыть меню">☰</button>
+          <div class="title-stack">
+            <strong id="conversationTitle">Новый чат</strong>
+            <span class="topbar-sub">Персональный AI на вашем компьютере</span>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div class="mode-bar" id="modes" aria-label="Режим ответа"></div>
+          <div class="status-pill"><span id="dot" class="dot"></span><span id="health">Запуск…</span></div>
+          <div class="menu-wrap">
+            <button class="icon-button" id="chatMenuButton" type="button" aria-label="Меню диалога" aria-expanded="false">•••</button>
+            <div class="popover-menu" id="chatMenu" hidden>
+              <button type="button" data-action="rename">Переименовать</button>
+              <button type="button" data-action="export">Экспортировать Markdown</button>
+              <button type="button" data-action="clear">Очистить сообщения</button>
+              <button type="button" class="danger-menu" data-action="delete">Удалить диалог</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="chat-stage">
+        <section class="chat" id="chat" aria-live="polite"></section>
+      </main>
+
+      <div class="composer-zone">
+        <div class="capability-banner" id="capabilityBanner" hidden></div>
+        <div class="tool-tray" id="toolTray" hidden>
+          <button type="button" class="tool-card ready" data-tool="web"><span class="tool-icon">⌁</span><span><strong>Веб</strong><small>Поиск, сайты и исследование</small></span></button>
+          <button type="button" class="tool-card ready" data-tool="files"><span class="tool-icon">▣</span><span><strong>Файлы</strong><small>TXT, MD, JSON, CSV, PDF, DOCX, XLSX, PPTX</small></span></button>
+          <button type="button" class="tool-card ready" data-tool="code"><span class="tool-icon">&lt;/&gt;</span><span><strong>Код</strong><small>Python, Java 21, PowerShell · изолированный запуск</small></span></button>
+          <button type="button" class="tool-card ready" data-tool="task-report"><span class="tool-icon">✓</span><span><strong>Исследование → отчёт</strong><small>Источники → анализ → MD/XLSX/PDF → проверка</small></span></button>
+          <button type="button" class="tool-card planned" data-tool="media"><span class="tool-icon">◉</span><span><strong>Медиа</strong><small>Изображения и аудио · последующий слой</small></span></button>
+        </div>
+        <div class="attachment-bar" id="attachmentBar" hidden></div>
+        <input id="fileInput" type="file" multiple hidden accept=".txt,.md,.json,.csv,.pdf,.docx,.xlsx,.pptx">
+        <form id="form" class="composer">
+          <div class="composer-actions">
+            <button class="tool-button" id="attachBtn" type="button" aria-label="Инструменты" title="Инструменты" aria-expanded="false"><span aria-hidden="true">＋</span></button>
+          </div>
+          <textarea id="input" rows="1" placeholder="Напишите сообщение…" aria-label="Сообщение" required></textarea>
+          <button id="send" class="send-button" type="submit" aria-label="Отправить"><span>Отправить</span><span aria-hidden="true">↑</span></button>
+        </form>
+        <div class="composer-meta"><span>Enter — отправить · Shift+Enter — новая строка</span><span id="capabilityMeta">Чат, Веб, Файлы, Код и Задачи доступны · Медиа подключается следующим слоем</span></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="settingsBackdrop" hidden>
+    <section class="settings-modal" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <header class="settings-header">
+        <div><span class="eyebrow">PERSONAL AGENT RUS</span><h2 id="settingsTitle">Настройки</h2></div>
+        <button class="icon-button" id="closeSettings" type="button" aria-label="Закрыть настройки">×</button>
+      </header>
+      <div class="settings-grid">
+        <nav class="settings-nav" aria-label="Разделы настроек">
+          <button type="button" class="active" data-settings-tab="general">Общие</button>
+          <button type="button" data-settings-tab="data">Данные</button>
+          <button type="button" data-settings-tab="files">Файлы</button>
+          <button type="button" data-settings-tab="code">Код</button>
+          <button type="button" data-settings-tab="tasks">Задачи</button>
+          <button type="button" data-settings-tab="capabilities">Возможности</button>
+          <a href="/admin">Администрирование ↗</a>
+        </nav>
+        <div class="settings-content">
+          <section class="settings-panel active" data-settings-panel="general">
+            <h3>Интерфейс</h3>
+            <div class="setting-row"><div><strong>Язык</strong><span>Русский по умолчанию</span></div><span class="setting-value">ru-RU</span></div>
+            <div class="setting-row"><div><strong>Режим выполнения</strong><span>Локальный Docker runtime</span></div><span class="setting-value">Локально</span></div>
+            <div class="setting-row"><div><strong>Версия интерфейса</strong><span>Должна совпадать с Core</span></div><span class="setting-value" id="settingsVersion">v0.7.4-local.3</span></div>
+            <div class="setting-row"><div><strong>Хранение диалогов</strong><span>Локально в этом браузере до Orchestrator</span></div><span class="setting-value">Browser</span></div>
+          </section>
+          <section class="settings-panel" data-settings-panel="data">
+            <h3>История и данные</h3>
+            <p class="muted">В foundation-версии история диалогов хранится в этом браузере. Серверное хранение появится вместе с Orchestrator.</p>
+            <div class="settings-actions">
+              <button type="button" class="secondary-button" id="exportAllChats">Экспортировать все диалоги</button>
+              <button type="button" class="secondary-button" id="clearCurrentChat">Очистить текущий чат</button>
+              <button type="button" class="danger-button" id="clearAllChats">Удалить все диалоги</button>
+            </div>
+          </section>
+          <section class="settings-panel" data-settings-panel="files">
+            <h3>Workspace и артефакты</h3>
+            <p class="muted">Загруженные и созданные файлы хранятся в изолированном workspace вашего профиля и проверяются перед выдачей.</p>
+            <div class="artifact-create">
+              <div class="form-grid compact">
+                <label>Формат<select id="artifactFormat"><option>txt</option><option>md</option><option>json</option><option>csv</option><option>pdf</option><option>docx</option><option>xlsx</option><option>pptx</option></select></label>
+                <label>Имя файла<input id="artifactName" value="document.txt" maxlength="120"></label>
+              </div>
+              <label>Содержимое<textarea id="artifactContent" rows="5" placeholder="Текст или JSON/CSV-данные для создаваемого файла"></textarea></label>
+              <div class="settings-actions"><button type="button" class="primary-button" id="createArtifact">Создать и проверить</button><button type="button" class="secondary-button" id="uploadArtifact">Загрузить файл</button></div>
+            </div>
+            <div class="artifact-list" id="artifactList"><div class="muted">Загрузка списка файлов…</div></div>
+          </section>
+          <section class="settings-panel" data-settings-panel="code">
+            <h3>Код и безопасный запуск</h3>
+            <p class="muted">Код выполняется в отдельном sandbox-worker без сети и без доступа к Docker socket, Core, базе данных или вашим секретам.</p>
+            <div class="form-grid compact">
+              <label>Язык<select id="codeLanguage"><option value="python">Python</option><option value="java">Java 21</option><option value="powershell">PowerShell</option></select></label>
+              <label>Лимит времени<select id="codeTimeout"><option value="5">5 секунд</option><option value="10" selected>10 секунд</option><option value="20">20 секунд</option><option value="30">30 секунд</option></select></label>
+            </div>
+            <label>Код<textarea id="codeEditor" class="code-editor" rows="12" spellcheck="false">print("Hello from Personal Agent Rus")</textarea></label>
+            <div class="settings-actions"><button type="button" class="primary-button" id="runCode">Запустить</button><button type="button" class="secondary-button" id="cancelCode" disabled>Отменить</button></div>
+            <div class="code-run-state" id="codeRunState">Sandbox не проверен</div>
+            <div class="code-result-grid">
+              <div><strong>stdout</strong><pre id="codeStdout" class="code-output"></pre></div>
+              <div><strong>stderr</strong><pre id="codeStderr" class="code-output"></pre></div>
+            </div>
+          </section>
+          <section class="settings-panel" data-settings-panel="tasks">
+            <h3>Задачи и прогресс</h3>
+            <p class="muted">Долгие операции выполняются серверным Task Engine, переживают refresh и сохраняют шаги/результаты.</p>
+            <div class="settings-actions"><button type="button" class="secondary-button" id="refreshTasks">Обновить задачи</button></div>
+            <div id="taskList" class="task-list"></div>
+          </section>
+          <section class="settings-panel" data-settings-panel="capabilities">
+            <h3>Возможности</h3>
+            <div class="capability-settings" id="capabilitySettings"></div>
+          </section>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="actionBackdrop" hidden>
+    <section class="action-modal" role="dialog" aria-modal="true" aria-labelledby="actionTitle">
+      <h2 id="actionTitle">Подтверждение</h2>
+      <p id="actionMessage"></p>
+      <label id="actionInputLabel" for="actionInput" hidden>Название</label>
+      <input id="actionInput" class="modal-input" type="text" maxlength="80" hidden>
+      <div class="modal-actions">
+        <button type="button" class="secondary-button" id="actionCancel">Отмена</button>
+        <button type="button" class="primary-button" id="actionConfirm">Продолжить</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast-region" id="toasts" aria-live="polite" aria-atomic="true"></div>
+  <script src="/static/app.js?v=0.7.4-local.3"></script>
+</body>
+</html>

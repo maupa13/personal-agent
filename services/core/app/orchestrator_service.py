@@ -8,6 +8,8 @@ import uuid
 from pathlib import Path
 from typing import Any, Callable
 
+from db_compat import connect_app_db
+
 TERMINAL_STATES = {"COMPLETED", "PARTIAL", "BLOCKED", "FAILED", "CANCELLED"}
 ACTIVE_STATES = {"CREATED", "PLANNING", "QUEUED", "RUNNING", "RETRYING", "VERIFYING", "WAITING_PERMISSION", "WAITING_USER"}
 
@@ -27,11 +29,8 @@ class TaskStore:
         self.db_path = Path(db_path)
         self.lock = threading.RLock()
 
-    def _db(self) -> sqlite3.Connection:
-        self.db_path.parent.mkdir(parents=True, exist_ok=True)
-        conn = sqlite3.connect(self.db_path, timeout=10, check_same_thread=False)
-        conn.row_factory = sqlite3.Row
-        return conn
+    def _db(self) -> Any:
+        return connect_app_db(self.db_path)
 
     def init_schema(self) -> None:
         with self.lock, self._db() as conn:

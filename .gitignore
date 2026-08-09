@@ -6,3 +6,9 @@ backup-*/
 .DS_Store
 .idea/
 .vscode/
+not-commit/
+release-evidence/1.0.0-local/
+release-evidence/_tmp/
+app/release-evidence/1.0.0-local/
+app/release-evidence/_tmp/
+pytest-cache-files-*/

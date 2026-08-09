@@ -13,7 +13,7 @@ for p in root.rglob('*.json'):
 for p in root.rglob('*'):
     if p.name=='__pycache__' or p.suffix=='.pyc': errors.append(f'generated artifact {p}')
 try:
-    compose=yaml.safe_load((root/'compose.yaml').read_text(encoding='utf-8'))
+    compose=yaml.safe_load((root/'docker-compose-main.yaml').read_text(encoding='utf-8'))
     services=set((compose or {}).get('services',{}))
     expected={'ollama','searxng','browser','code-worker','core'}
     if services!=expected: errors.append(f'production compose services must be {sorted(expected)}, got {sorted(services)}')
@@ -98,7 +98,7 @@ if 'no-store, max-age=0, must-revalidate' not in core: errors.append('asset no-s
 if 'unsafe-eval' in core: errors.append('production CSP must not enable unsafe-eval')
 if 'по умолчанию отвечай на русском языке' not in core: errors.append('Rus edition Russian-default system policy missing')
 if "PA_TEST_MODE" not in core or "PA_WEB_TEST_PUBLIC_HOSTS" not in core: errors.append('deterministic Web fixture hooks missing')
-for f in ('compose.yaml','compose.release.yaml','scripts/pa.ps1','scripts/pa.sh','.env.example'):
+for f in ('docker-compose-main.yaml','compose.release.yaml','scripts/pa.ps1','scripts/pa.sh','.env.example'):
     txt=(root/f).read_text(encoding='utf-8')
     if 'PA_TEST_MODE' in txt or 'PA_WEB_TEST_PUBLIC_HOSTS' in txt: errors.append(f'test-only Web bypass leaked into runtime config: {f}')
 if not (root/'services/browser/Dockerfile').exists() or not (root/'services/browser/app/browser_worker.py').exists(): errors.append('browser worker missing')

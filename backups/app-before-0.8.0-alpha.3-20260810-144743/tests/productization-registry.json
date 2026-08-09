@@ -1,0 +1,239 @@
+{
+  "schema_version": 1,
+  "product": "Personal Agent Rus",
+  "version": "0.8.0-alpha.3",
+  "source_spec": "docs/MASTER-IMPLEMENTATION-PROMPT-v5.md",
+  "tests": [
+    {
+      "test_id": "UX-001",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "tests/productization_acceptance.py + tests/browser_journeys.py",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "UX-002",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "tests/browser_journeys.py desktop/mobile shell",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "UX-003",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "tests/productization_acceptance.py",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "UX-004",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "tests/productization_acceptance.py + tests/browser_journeys.py",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "UX-005",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "tests/productization_acceptance.py",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "UX-006",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "tests/productization_acceptance.py + tests/browser_journeys.py",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "UX-007",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "tests/run_acceptance.py + tests/browser_journeys.py",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "UX-008",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "tests/browser_journeys.py",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "UX-009",
+      "mandatory": false,
+      "status": "NOT_IMPLEMENTED",
+      "evidence": "complete cross-surface state matrix is scheduled before beta",
+      "mandatory_from": "0.8.0-beta.1"
+    },
+    {
+      "test_id": "UX-010",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "tests/productization_acceptance.py",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "ONB-001",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "tests/productization_acceptance.py",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "ONB-002",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "tests/productization_acceptance.py",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "ONB-003",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "Help Center restart-tour control + browser contract",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "ONB-004",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "tests/productization_acceptance.py",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "ONB-005",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "tests/productization_acceptance.py",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "ONB-006",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "tests/browser_journeys.py mobile viewport",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "ONB-007",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "static prefers-reduced-motion + keyboard controls",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "ONB-101",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "tests/productization_acceptance.py + Admin UI",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "CONV-001",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "tests/productization_acceptance.py",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "CONV-002",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "tests/productization_acceptance.py + tests/run_acceptance.py",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "CONV-003",
+      "mandatory": true,
+      "status": "BLOCKED_ENVIRONMENT",
+      "evidence": "real second-device LAN journey is alpha.2/reference-Windows gate",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "CONV-004",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "tests/productization_acceptance.py + tests/run_acceptance.py",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "CONV-005",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "tests/productization_acceptance.py",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "CONV-006",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "tests/browser_journeys.py",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "OBS-001",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "tests/productization_acceptance.py",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "OBS-002",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "tests/run_acceptance.py Core->Web/Ollama/Code + tests/productization_acceptance.py real Browser worker",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "OBS-003",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "tests/productization_acceptance.py",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "OBS-004",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "tests/productization_acceptance.py",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "OBS-005",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "Core /api/admin/diagnostics + sanitized /api/admin/diagnostics/download ZIP + API acceptance",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "GUIDE-001",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "Help Center via brand logo",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "GUIDE-002",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "in-product user-guide.html",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "GUIDE-003",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "docs/ADMIN-GUIDE.md + static documentation gate",
+      "mandatory_from": "0.8.0-alpha.2"
+    },
+    {
+      "test_id": "CONV-007",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "tests/productization_acceptance.py + tests/browser_journeys.py",
+      "mandatory_from": "0.8.0-alpha.2"
+    }
+  ]
+}

@@ -16,6 +16,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from db_compat import connect_app_db
+
 PLAN_PRICES_RUB = {"LIGHT": 0, "MEDIUM": 500, "PRO": 1000}
 PLAN_NAMES = {"LIGHT": "Лайт", "MEDIUM": "Медиум", "PRO": "Про"}
 PLAN_SUPPORT = {"LIGHT": "community", "MEDIUM": "standard", "PRO": "priority"}
@@ -67,11 +69,8 @@ class BillingService:
         self.lock = threading.RLock()
         self.payment_api_base = os.getenv("PA_PAYMENT_API_BASE", "https://api.yookassa.ru/v3").rstrip("/")
 
-    def db(self) -> sqlite3.Connection:
-        self.db_path.parent.mkdir(parents=True, exist_ok=True)
-        conn = sqlite3.connect(self.db_path, timeout=10, check_same_thread=False)
-        conn.row_factory = sqlite3.Row
-        return conn
+    def db(self) -> Any:
+        return connect_app_db(self.db_path)
 
     def init_schema(self) -> None:
         self.secrets_dir.mkdir(parents=True, exist_ok=True)
@@ -207,13 +206,26 @@ class BillingService:
         provider = self._setting("payment_provider", "disabled")
         shop_id = self._setting("yookassa_shop_id", "")
         public_base_url = self._setting("public_base_url", "")
+        has_secret = bool(self._read_payment_secret())
+        configured = provider == "yookassa" and bool(shop_id and public_base_url and has_secret)
+        with self.lock, self.db() as conn:
+            webhook_seen = bool(conn.execute("SELECT 1 FROM payment_events WHERE provider='yookassa' LIMIT 1").fetchone())
+            paid_seen = bool(conn.execute("SELECT 1 FROM payments WHERE provider='yookassa' AND status='PAID' LIMIT 1").fetchone())
+        webhook_path = "/api/billing/webhook/yookassa"
         return {
             "provider": provider,
             "shop_id": shop_id,
             "public_base_url": public_base_url,
-            "has_secret": bool(self._read_payment_secret()),
-            "configured": provider == "yookassa" and bool(shop_id and public_base_url and self._read_payment_secret()),
-            "webhook_path": "/api/billing/webhook/yookassa",
+            "has_secret": has_secret,
+            "configured": configured,
+            "webhook_path": webhook_path,
+            "webhook_url": (public_base_url + webhook_path) if public_base_url else "",
+            "setup": {
+                "shop_id": bool(shop_id), "secret": has_secret,
+                "public_https": bool(public_base_url.startswith("https://")),
+                "webhook_seen": webhook_seen, "paid_payment_seen": paid_seen,
+                "production_ready": bool(configured and webhook_seen and paid_seen),
+            },
         }
 
     def configure_yookassa(self, *, shop_id: str, secret_key: str | None, public_base_url: str) -> dict[str, Any]:

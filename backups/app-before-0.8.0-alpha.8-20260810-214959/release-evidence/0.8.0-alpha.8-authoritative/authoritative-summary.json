@@ -1,0 +1,161 @@
+{
+  "version": "0.8.0-alpha.8",
+  "records": [
+    {
+      "name": "windows-contract",
+      "file": "tests/windows_contract.py",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_sec": 1.537,
+      "log": "windows-contract.log"
+    },
+    {
+      "name": "local-launch",
+      "file": "tests/local_launch_acceptance.py",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_sec": 1.501,
+      "log": "local-launch.log"
+    },
+    {
+      "name": "accounts-entitlements",
+      "file": "tests/accounts_entitlements_acceptance.py",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_sec": 1.461,
+      "log": "accounts-entitlements.log"
+    },
+    {
+      "name": "scenario",
+      "file": "tests/scenario_acceptance.py",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_sec": 1.686,
+      "log": "scenario.log"
+    },
+    {
+      "name": "alpha6-search-debug",
+      "file": "tests/alpha6_search_debug_acceptance.py",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_sec": 1.726,
+      "log": "alpha6-search-debug.log"
+    },
+    {
+      "name": "alpha7-runtime-timing",
+      "file": "tests/alpha7_runtime_timing_acceptance.py",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_sec": 1.461,
+      "log": "alpha7-runtime-timing.log"
+    },
+    {
+      "name": "alpha8-bootstrap-smoke",
+      "file": "tests/alpha8_bootstrap_smoke_acceptance.py",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_sec": 1.515,
+      "log": "alpha8-bootstrap-smoke.log"
+    },
+    {
+      "name": "alpha7-live-results",
+      "file": "tests/alpha7_live_results_acceptance.py",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_sec": 1.454,
+      "log": "alpha7-live-results.log"
+    },
+    {
+      "name": "ux-admin",
+      "file": "tests/ux_admin_hardening_acceptance.py",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_sec": 1.497,
+      "log": "ux-admin.log"
+    },
+    {
+      "name": "ux-complete",
+      "file": "tests/ux_complete_acceptance.py",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_sec": 1.427,
+      "log": "ux-complete.log"
+    },
+    {
+      "name": "ux-complete-browser",
+      "file": "tests/ux_complete_browser.py",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_sec": 10.567,
+      "log": "ux-complete-browser.log"
+    },
+    {
+      "name": "alpha7-live-results-browser",
+      "file": "tests/alpha7_live_results_browser.py",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_sec": 8.212,
+      "log": "alpha7-live-results-browser.log"
+    },
+    {
+      "name": "orchestrator-deployment",
+      "file": "tests/orchestrator_deployment_acceptance.py",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_sec": 2.534,
+      "log": "orchestrator-deployment.log"
+    },
+    {
+      "name": "browser-user",
+      "file": "tests/browser_journeys_runner.py",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_sec": 27.342,
+      "log": "browser-user.log"
+    },
+    {
+      "name": "browser-admin",
+      "file": "tests/browser_admin_journeys.py",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_sec": 6.54,
+      "log": "browser-admin.log"
+    },
+    {
+      "name": "api",
+      "file": "tests/run_acceptance.py",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_sec": 23.048,
+      "log": "api.log"
+    },
+    {
+      "name": "productization",
+      "file": "tests/productization_acceptance.py",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_sec": 3.295,
+      "log": "productization.log"
+    },
+    {
+      "name": "billing",
+      "file": "tests/billing_acceptance.py",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_sec": 5.63,
+      "log": "billing.log"
+    },
+    {
+      "name": "code-worker",
+      "file": "tests/code_worker_acceptance.py",
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_sec": 11.069,
+      "log": "code-worker.log"
+    }
+  ],
+  "counts": {
+    "PASS": 19,
+    "FAIL": 0
+  }
+}

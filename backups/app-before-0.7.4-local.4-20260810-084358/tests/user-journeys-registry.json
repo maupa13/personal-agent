@@ -1,0 +1,1435 @@
+{
+  "schema_version": 1,
+  "product": "Personal Agent Rus",
+  "canonical_spec": "docs/specification/MASTER-SPEC.md",
+  "version": "0.7.4-local.3",
+  "semantics": {
+    "PASS": "implemented and verified by listed automated test(s)",
+    "BLOCKED_ENVIRONMENT": "implementation present but authoritative environment test outstanding",
+    "NOT_IMPLEMENTED": "tracked requirement; UI must not claim ready"
+  },
+  "journeys": [
+    {
+      "journey_id": "UJ-001",
+      "capability": "foundation",
+      "title": "Fresh package start",
+      "status": "PASS",
+      "mandatory_from": "0.2.0",
+      "test_ids": [
+        "FND-START-001"
+      ]
+    },
+    {
+      "journey_id": "UJ-010",
+      "capability": "chat",
+      "title": "First chat with real inference",
+      "status": "PASS",
+      "mandatory_from": "0.2.0",
+      "test_ids": [
+        "FND-API-001"
+      ]
+    },
+    {
+      "journey_id": "UJ-011",
+      "capability": "chat",
+      "title": "Refresh and continue conversation",
+      "status": "PASS",
+      "mandatory_from": "0.2.4",
+      "test_ids": [
+        "FND-BROWSER-OFFLINE-001"
+      ]
+    },
+    {
+      "journey_id": "UJ-014",
+      "capability": "chat",
+      "title": "Switch Auto/Fast/Smart modes",
+      "status": "PASS",
+      "mandatory_from": "0.2.0",
+      "test_ids": [
+        "FND-BROWSER-OFFLINE-001"
+      ]
+    },
+    {
+      "journey_id": "UJ-020",
+      "capability": "auth",
+      "title": "Registration/login/session",
+      "status": "PASS",
+      "mandatory_from": "0.2.5",
+      "test_ids": [
+        "AUTH-001",
+        "AUTH-002"
+      ]
+    },
+    {
+      "journey_id": "UJ-021",
+      "capability": "providers",
+      "title": "Discover local provider models",
+      "status": "PASS",
+      "mandatory_from": "0.2.5",
+      "test_ids": [
+        "PRV-001",
+        "PRV-002"
+      ]
+    },
+    {
+      "journey_id": "UJ-022",
+      "capability": "providers",
+      "title": "Connect OpenAI-compatible provider and discover models",
+      "status": "PASS",
+      "mandatory_from": "0.2.5",
+      "test_ids": [
+        "PRV-004",
+        "PRV-005"
+      ]
+    },
+    {
+      "journey_id": "UJ-023",
+      "capability": "providers",
+      "title": "Assign provider+model routing and persist",
+      "status": "PASS",
+      "mandatory_from": "0.2.5",
+      "test_ids": [
+        "PRV-006"
+      ]
+    },
+    {
+      "journey_id": "UJ-100",
+      "capability": "web",
+      "title": "Search Web and show normalized results",
+      "status": "PASS",
+      "mandatory_from": "0.4.0",
+      "test_ids": [
+        "WEB-001"
+      ]
+    },
+    {
+      "journey_id": "UJ-101",
+      "capability": "web",
+      "title": "Read a specific URL through static/browser pipeline",
+      "status": "PASS",
+      "mandatory_from": "0.4.0",
+      "test_ids": [
+        "WEB-002",
+        "WEB-003"
+      ]
+    },
+    {
+      "journey_id": "UJ-102",
+      "capability": "web",
+      "title": "Ask about URL and answer only with retrieved evidence",
+      "status": "PASS",
+      "mandatory_from": "0.4.0",
+      "test_ids": [
+        "WEB-004"
+      ]
+    },
+    {
+      "journey_id": "UJ-103",
+      "capability": "research",
+      "title": "Ask for current news and automatically invoke Web",
+      "status": "PASS",
+      "mandatory_from": "0.4.0",
+      "test_ids": [
+        "WEB-005"
+      ]
+    },
+    {
+      "journey_id": "UJ-104",
+      "capability": "research",
+      "title": "Multi-source research with sources",
+      "status": "PASS",
+      "mandatory_from": "0.4.0",
+      "test_ids": [
+        "WEB-006"
+      ]
+    },
+    {
+      "journey_id": "UJ-105",
+      "capability": "web",
+      "title": "Unavailable evidence produces honest failure",
+      "status": "PASS",
+      "mandatory_from": "0.4.0",
+      "test_ids": [
+        "WEB-007"
+      ]
+    },
+    {
+      "journey_id": "UJ-106",
+      "capability": "security",
+      "title": "Web SSRF/private redirect attack is blocked",
+      "status": "PASS",
+      "mandatory_from": "0.4.0",
+      "test_ids": [
+        "WEB-008",
+        "WEB-009"
+      ]
+    },
+    {
+      "journey_id": "UJ-107",
+      "capability": "security",
+      "title": "Malicious Web prompt injection remains untrusted data",
+      "status": "PASS",
+      "mandatory_from": "0.4.0",
+      "test_ids": [
+        "WEB-010"
+      ]
+    },
+    {
+      "journey_id": "UJ-108",
+      "capability": "web",
+      "title": "Live DTF news canary",
+      "status": "BLOCKED_ENVIRONMENT",
+      "mandatory_from": "0.4.0",
+      "test_ids": [
+        "WEB-011",
+        "WEB-012"
+      ]
+    },
+    {
+      "journey_id": "UJ-150",
+      "capability": "context-memory",
+      "title": "50+ message coherent conversation",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-151",
+      "capability": "context-memory",
+      "title": "Context compression respects model window",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-152",
+      "capability": "context-memory",
+      "title": "Restart restores conversation semantics",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-153",
+      "capability": "context-memory",
+      "title": "User views/edits/deletes memory",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-154",
+      "capability": "context-memory",
+      "title": "Large document selective retrieval",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-155",
+      "capability": "context-memory",
+      "title": "Model context switch without overflow",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-200",
+      "capability": "files",
+      "title": "Upload/read/analyze TXT",
+      "status": "PASS",
+      "mandatory_from": "0.4.0",
+      "test_ids": [
+        "FILE-001",
+        "FILE-012",
+        "FILE-017"
+      ]
+    },
+    {
+      "journey_id": "UJ-201",
+      "capability": "files",
+      "title": "Upload/read/analyze MD",
+      "status": "PASS",
+      "mandatory_from": "0.4.0",
+      "test_ids": [
+        "FILE-002",
+        "FILE-012",
+        "FILE-017"
+      ]
+    },
+    {
+      "journey_id": "UJ-202",
+      "capability": "files",
+      "title": "Upload/read/analyze JSON",
+      "status": "PASS",
+      "mandatory_from": "0.4.0",
+      "test_ids": [
+        "FILE-003",
+        "FILE-012",
+        "FILE-017"
+      ]
+    },
+    {
+      "journey_id": "UJ-203",
+      "capability": "files",
+      "title": "Upload/read/analyze CSV",
+      "status": "PASS",
+      "mandatory_from": "0.4.0",
+      "test_ids": [
+        "FILE-004",
+        "FILE-012",
+        "FILE-017"
+      ]
+    },
+    {
+      "journey_id": "UJ-204",
+      "capability": "files",
+      "title": "Upload/read/analyze PDF text",
+      "status": "PASS",
+      "mandatory_from": "0.4.0",
+      "test_ids": [
+        "FILE-005",
+        "FILE-012",
+        "FILE-017"
+      ]
+    },
+    {
+      "journey_id": "UJ-205",
+      "capability": "files",
+      "title": "Upload/read/analyze PDF scan/OCR",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-206",
+      "capability": "files",
+      "title": "Upload/read/analyze DOCX",
+      "status": "PASS",
+      "mandatory_from": "0.4.0",
+      "test_ids": [
+        "FILE-006",
+        "FILE-012",
+        "FILE-017"
+      ]
+    },
+    {
+      "journey_id": "UJ-207",
+      "capability": "files",
+      "title": "Upload/read/analyze XLSX",
+      "status": "PASS",
+      "mandatory_from": "0.4.0",
+      "test_ids": [
+        "FILE-007",
+        "FILE-012",
+        "FILE-017"
+      ]
+    },
+    {
+      "journey_id": "UJ-208",
+      "capability": "files",
+      "title": "Upload/read/analyze PPTX",
+      "status": "PASS",
+      "mandatory_from": "0.4.0",
+      "test_ids": [
+        "FILE-008",
+        "FILE-012",
+        "FILE-017"
+      ]
+    },
+    {
+      "journey_id": "UJ-209",
+      "capability": "files",
+      "title": "Upload/read/analyze ZIP",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-210",
+      "capability": "files",
+      "title": "Upload/read/analyze image",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-211",
+      "capability": "files",
+      "title": "Upload/read/analyze audio",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-212",
+      "capability": "files",
+      "title": "Upload/read/analyze video",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-213",
+      "capability": "files",
+      "title": "Upload/read/analyze Java",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-214",
+      "capability": "files",
+      "title": "Upload/read/analyze Python",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-215",
+      "capability": "files",
+      "title": "Upload/read/analyze PowerShell",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-220",
+      "capability": "files-artifacts",
+      "title": "Create validated artifact",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-221",
+      "capability": "files-artifacts",
+      "title": "Edit existing artifact and preserve unrelated content",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-222",
+      "capability": "files-artifacts",
+      "title": "Download artifact with authorization",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-223",
+      "capability": "files-artifacts",
+      "title": "Malformed file controlled failure",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-224",
+      "capability": "files-artifacts",
+      "title": "Large file resource policy",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-225",
+      "capability": "files-artifacts",
+      "title": "Archive zip-slip/bomb protection",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-226",
+      "capability": "files-artifacts",
+      "title": "Multi-artifact XLSX + PDF report",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-300",
+      "capability": "code-data",
+      "title": "Python generate/execute/test",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-301",
+      "capability": "code-data",
+      "title": "PowerShell generate/execute/test",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-302",
+      "capability": "code-data",
+      "title": "Java project discover/modify/compile/JUnit/retest",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-303",
+      "capability": "code-data",
+      "title": "Failing tests diagnose/fix/regression",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-304",
+      "capability": "code-data",
+      "title": "Code timeout and cancellation",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-305",
+      "capability": "code-data",
+      "title": "Sandbox filesystem escape blocked",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-306",
+      "capability": "code-data",
+      "title": "Sandbox Docker socket/secrets blocked",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-320",
+      "capability": "code-data",
+      "title": "CSV/XLSX data clean/transform/visualize",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-321",
+      "capability": "code-data",
+      "title": "SQL schema/query/optimization",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-322",
+      "capability": "code-data",
+      "title": "ETL API + file + database",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-400",
+      "capability": "image",
+      "title": "Image upload and vision analysis",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-401",
+      "capability": "image",
+      "title": "Image generation artifact",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-402",
+      "capability": "image",
+      "title": "Image edit/inpainting/upscale",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-420",
+      "capability": "audio",
+      "title": "Audio transcription with timestamps",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-421",
+      "capability": "audio",
+      "title": "Diarization/summary/action items",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-422",
+      "capability": "audio",
+      "title": "TTS playable output",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-440",
+      "capability": "video",
+      "title": "Video transcript/scenes/keyframes/OCR/summary",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-500",
+      "capability": "connectors",
+      "title": "REST connector read",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-501",
+      "capability": "connectors",
+      "title": "OAuth connect/refresh/revoke",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-502",
+      "capability": "connectors",
+      "title": "Read-only connector cannot write",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-503",
+      "capability": "connectors",
+      "title": "External write requires permission",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-504",
+      "capability": "connectors",
+      "title": "Connector outage gives PARTIAL/BLOCKED",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-520",
+      "capability": "connectors",
+      "title": "MCP server capability discovery",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-521",
+      "capability": "connectors",
+      "title": "Plugin manifest permissions",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-540",
+      "capability": "automation",
+      "title": "One-time scheduled task",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-541",
+      "capability": "automation",
+      "title": "Recurring timezone-aware task",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-542",
+      "capability": "automation",
+      "title": "Condition-based monitor",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-543",
+      "capability": "automation",
+      "title": "Restart recovers schedules without duplicates",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-544",
+      "capability": "automation",
+      "title": "Automation notification delivery",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-600",
+      "capability": "account-security",
+      "title": "Email verification according to policy",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-601",
+      "capability": "account-security",
+      "title": "Password reset single-use expiry",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-602",
+      "capability": "account-security",
+      "title": "Session list and revoke",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-603",
+      "capability": "account-security",
+      "title": "2FA/TOTP and backup codes",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-604",
+      "capability": "account-security",
+      "title": "Personal cabinet profile/privacy/memory/storage",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-605",
+      "capability": "account-security",
+      "title": "Data export and delete account",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-620",
+      "capability": "billing",
+      "title": "Plan entitlement enforcement",
+      "status": "PASS",
+      "mandatory_from": "0.6.0",
+      "test_ids": [
+        "BILL-001",
+        "BILL-002"
+      ]
+    },
+    {
+      "journey_id": "UJ-621",
+      "capability": "billing",
+      "title": "Usage metering per model/provider",
+      "status": "PASS",
+      "mandatory_from": "0.6.0",
+      "test_ids": [
+        "BILL-003",
+        "BILL-006"
+      ]
+    },
+    {
+      "journey_id": "UJ-622",
+      "capability": "billing",
+      "title": "Payment success + idempotent webhook",
+      "status": "PASS",
+      "mandatory_from": "0.6.0",
+      "test_ids": [
+        "BILL-007",
+        "BILL-008",
+        "BILL-009"
+      ]
+    },
+    {
+      "journey_id": "UJ-623",
+      "capability": "billing",
+      "title": "Upgrade/downgrade/grace/cancel",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-624",
+      "capability": "billing",
+      "title": "BYOK usage separated from platform cost",
+      "status": "PASS",
+      "mandatory_from": "0.6.0",
+      "test_ids": [
+        "BILL-004"
+      ]
+    },
+    {
+      "journey_id": "UJ-625",
+      "capability": "billing",
+      "title": "Quota exhaustion local/private fallback",
+      "status": "PASS",
+      "mandatory_from": "0.6.0",
+      "test_ids": [
+        "BILL-005"
+      ]
+    },
+    {
+      "journey_id": "UJ-640",
+      "capability": "public-api",
+      "title": "User API key create/use/revoke",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-641",
+      "capability": "public-api",
+      "title": "Inbound OpenAI-compatible chat",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-642",
+      "capability": "public-api",
+      "title": "Rate limit by user/tenant/key",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-660",
+      "capability": "admin-ops",
+      "title": "Admin user suspend/unsuspend/plan/quota",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-661",
+      "capability": "admin-ops",
+      "title": "Admin provider health/priority/pricing/privacy",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-662",
+      "capability": "admin-ops",
+      "title": "Admin queues/workers/storage/health",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-663",
+      "capability": "admin-ops",
+      "title": "Audit log sensitive admin actions",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-700",
+      "capability": "lifecycle",
+      "title": "STOP -> START preserves state",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-701",
+      "capability": "lifecycle",
+      "title": "RESTART preserves state",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-702",
+      "capability": "lifecycle",
+      "title": "REPAIR healthy is idempotent",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-703",
+      "capability": "lifecycle",
+      "title": "REPAIR damaged runtime preserves data",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-704",
+      "capability": "lifecycle",
+      "title": "Backup -> restore verified",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-705",
+      "capability": "lifecycle",
+      "title": "Update -> migrate -> verify",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-706",
+      "capability": "lifecycle",
+      "title": "Failed update rollback including data",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-707",
+      "capability": "lifecycle",
+      "title": "Real Windows reboot recovery",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-708",
+      "capability": "lifecycle",
+      "title": "Clean machine bootstrap",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-730",
+      "capability": "security",
+      "title": "Tenant IDOR blocked",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-731",
+      "capability": "security",
+      "title": "CSRF blocked",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-732",
+      "capability": "security",
+      "title": "XSS blocked",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-733",
+      "capability": "security",
+      "title": "SQL injection blocked",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-734",
+      "capability": "security",
+      "title": "Prompt injection blocked",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-735",
+      "capability": "security",
+      "title": "Secret leakage attempt blocked",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-736",
+      "capability": "security",
+      "title": "Upload abuse blocked",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-737",
+      "capability": "security",
+      "title": "Rate-limit abuse handled",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-760",
+      "capability": "mobile",
+      "title": "Mobile registration/login/chat",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-761",
+      "capability": "mobile",
+      "title": "Mobile file/image/audio upload",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-762",
+      "capability": "mobile",
+      "title": "Mobile artifact download",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-763",
+      "capability": "mobile",
+      "title": "Real mobile microphone secure-context journey",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-764",
+      "capability": "mobile",
+      "title": "PWA install/share/push readiness",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-800",
+      "capability": "multi-capability",
+      "title": "Research -> XLSX -> PDF with verified sources/artifacts",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-801",
+      "capability": "multi-capability",
+      "title": "Uploaded document -> research -> revised document",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-802",
+      "capability": "multi-capability",
+      "title": "Web -> code -> validated artifact",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-803",
+      "capability": "multi-capability",
+      "title": "External API read -> compare file -> permission -> external write",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "future",
+      "test_ids": []
+    },
+    {
+      "journey_id": "UJ-216",
+      "capability": "files",
+      "title": "Create verified artifact in supported format and download it",
+      "status": "PASS",
+      "mandatory_from": "0.4.0",
+      "test_ids": [
+        "FILE-001",
+        "FILE-002",
+        "FILE-003",
+        "FILE-004",
+        "FILE-005",
+        "FILE-006",
+        "FILE-007",
+        "FILE-008"
+      ]
+    },
+    {
+      "journey_id": "UJ-217",
+      "capability": "files",
+      "title": "Modify artifact as a verified new version",
+      "status": "PASS",
+      "mandatory_from": "0.4.0",
+      "test_ids": [
+        "FILE-011"
+      ]
+    },
+    {
+      "journey_id": "UJ-218",
+      "capability": "files",
+      "title": "Workspace/artifact isolation between accounts",
+      "status": "PASS",
+      "mandatory_from": "0.4.0",
+      "test_ids": [
+        "FILE-014"
+      ]
+    },
+    {
+      "journey_id": "UJ-219",
+      "capability": "files-security",
+      "title": "Reject malformed, oversized and path-traversal file inputs",
+      "status": "PASS",
+      "mandatory_from": "0.4.0",
+      "test_ids": [
+        "FILE-009",
+        "FILE-010",
+        "FILE-015",
+        "FILE-016"
+      ]
+    },
+    {
+      "journey_id": "UJ-290",
+      "capability": "code.execute",
+      "title": "Run Python snippet in isolated sandbox and inspect stdout/stderr/exit code",
+      "status": "PASS",
+      "mandatory_from": "0.6.0",
+      "test_ids": [
+        "CODE-001",
+        "CODE-012"
+      ]
+    },
+    {
+      "journey_id": "UJ-291",
+      "capability": "code.execute",
+      "title": "Compile and run Java 21 snippet in isolated sandbox",
+      "status": "PASS",
+      "mandatory_from": "0.6.0",
+      "test_ids": [
+        "CODE-002"
+      ]
+    },
+    {
+      "journey_id": "UJ-292",
+      "capability": "code.execute",
+      "title": "Run PowerShell snippet through sandbox command contract",
+      "status": "PASS",
+      "mandatory_from": "0.6.0",
+      "test_ids": [
+        "CODE-003"
+      ]
+    },
+    {
+      "journey_id": "UJ-293",
+      "capability": "code.execute",
+      "title": "Compilation/non-zero process failure is surfaced, never reported as success",
+      "status": "PASS",
+      "mandatory_from": "0.6.0",
+      "test_ids": [
+        "CODE-004",
+        "CODE-005"
+      ]
+    },
+    {
+      "journey_id": "UJ-294",
+      "capability": "code.execute",
+      "title": "Timeout and cancellation terminate sandbox process tree",
+      "status": "PASS",
+      "mandatory_from": "0.6.0",
+      "test_ids": [
+        "CODE-007",
+        "CODE-008"
+      ]
+    },
+    {
+      "journey_id": "UJ-295",
+      "capability": "code-security",
+      "title": "Execution output is bounded and runtime secrets are not inherited by user code",
+      "status": "PASS",
+      "mandatory_from": "0.6.0",
+      "test_ids": [
+        "CODE-009",
+        "CODE-010"
+      ]
+    },
+    {
+      "journey_id": "UJ-296",
+      "capability": "code-security",
+      "title": "Sandbox has no network/Docker socket and uses read-only bounded runtime",
+      "status": "PASS",
+      "mandatory_from": "0.6.0",
+      "test_ids": [
+        "CODE-011"
+      ]
+    },
+    {
+      "journey_id": "UJ-297",
+      "capability": "code-security",
+      "title": "Code job ownership is isolated between accounts",
+      "status": "PASS",
+      "mandatory_from": "0.6.0",
+      "test_ids": [
+        "CODE-006"
+      ]
+    },
+    {
+      "journey_id": "UJ-298",
+      "capability": "code.execute",
+      "title": "Reference Windows Docker image executes real Python, Java and PowerShell",
+      "status": "BLOCKED_ENVIRONMENT",
+      "mandatory_from": "0.6.0",
+      "test_ids": [
+        "CODE-LIVE-001"
+      ]
+    },
+    {
+      "journey_id": "UJ-626",
+      "capability": "billing",
+      "title": "User opts in to token usage display; default remains hidden",
+      "status": "PASS",
+      "mandatory_from": "0.6.0",
+      "test_ids": [
+        "BILL-006"
+      ]
+    },
+    {
+      "journey_id": "UJ-627",
+      "capability": "billing",
+      "title": "Real YooKassa merchant checkout/webhook/recurring payment on public HTTPS",
+      "status": "BLOCKED_ENVIRONMENT",
+      "mandatory_from": "0.6.0",
+      "test_ids": [
+        "BILL-LIVE-001"
+      ]
+    },
+    {
+      "journey_id": "UJ-403",
+      "capability": "orchestrator",
+      "title": "User cancels a running/recoverable task",
+      "status": "PASS",
+      "mandatory_from": "0.7.3",
+      "test_ids": [
+        "TASK-006"
+      ]
+    },
+    {
+      "journey_id": "UJ-650",
+      "capability": "deployment",
+      "title": "Admin saves VPS target with trusted SSH fingerprint and no persisted credential",
+      "status": "PASS",
+      "mandatory_from": "0.7.3",
+      "test_ids": [
+        "DEPLOY-002",
+        "DEPLOY-006"
+      ]
+    },
+    {
+      "journey_id": "UJ-651",
+      "capability": "deployment",
+      "title": "Admin preflight recommends server-lite for weak VPS",
+      "status": "PASS",
+      "mandatory_from": "0.7.3",
+      "test_ids": [
+        "DEPLOY-003"
+      ]
+    },
+    {
+      "journey_id": "UJ-652",
+      "capability": "deployment",
+      "title": "Staged VPS deploy keeps current/previous and performs hot verification",
+      "status": "PASS",
+      "mandatory_from": "0.7.3",
+      "test_ids": [
+        "DEPLOY-001",
+        "DEPLOY-004"
+      ]
+    },
+    {
+      "journey_id": "UJ-653",
+      "capability": "deployment",
+      "title": "Admin rollback switches to previous VPS release",
+      "status": "PASS",
+      "mandatory_from": "0.7.3",
+      "test_ids": [
+        "DEPLOY-005"
+      ]
+    },
+    {
+      "journey_id": "UJ-654",
+      "capability": "observability",
+      "title": "Admin sees lightweight runtime monitoring on weak/local node",
+      "status": "PASS",
+      "mandatory_from": "0.7.3",
+      "test_ids": [
+        "OBS-001"
+      ]
+    },
+    {
+      "journey_id": "UJ-655",
+      "capability": "lan",
+      "title": "Windows owner enables/disables Private-LAN access without deleting data",
+      "status": "PASS",
+      "mandatory_from": "0.7.3",
+      "test_ids": [
+        "LAN-001"
+      ]
+    },
+    {
+      "journey_id": "UJ-656",
+      "capability": "deployment",
+      "title": "Real VPS deploy + DNS/HTTPS + remote provider + browser chat",
+      "status": "BLOCKED_ENVIRONMENT",
+      "mandatory_from": "0.7.3",
+      "test_ids": [
+        "DEPLOY-LIVE-001"
+      ]
+    },
+    {
+      "journey_id": "UJ-657",
+      "capability": "lan",
+      "title": "Physical second device uses local Docker UI over LAN",
+      "status": "BLOCKED_ENVIRONMENT",
+      "mandatory_from": "0.7.3",
+      "test_ids": [
+        "LAN-LIVE-001"
+      ]
+    },
+    {
+      "journey_id": "UJ-658",
+      "capability": "deployment",
+      "title": "Admin prepares a fresh Debian/Ubuntu VPS with Docker/Compose using root SSH",
+      "status": "PASS",
+      "mandatory_from": "0.7.3",
+      "test_ids": [
+        "DEPLOY-007"
+      ]
+    },
+    {
+      "journey_id": "UJ-659",
+      "capability": "deployment-security",
+      "title": "Public server account sessions use Secure cookies and reject state changes without CSRF",
+      "status": "PASS",
+      "mandatory_from": "0.7.3",
+      "test_ids": [
+        "AUTH-CSRF-001"
+      ]
+    },
+    {
+      "id": "UJ-006",
+      "persona": "USER",
+      "capability": "distribution",
+      "title": "Canonical first run",
+      "preconditions": [
+        "release ZIP extracted anywhere on Windows"
+      ],
+      "input": "RUN-FIRST.cmd",
+      "actions": [
+        "verify signed package",
+        "stage app",
+        "preserve config/data",
+        "install to canonical app root",
+        "repair/start runtime"
+      ],
+      "expected_visible_behavior": [
+        "one obvious first-run entrypoint",
+        "actionable failure",
+        "browser opens after verified runtime"
+      ],
+      "expected_backend_effect": [
+        "app installed under C:\\AI\\RusPersonalAgent\\app",
+        "Docker named volumes preserved"
+      ],
+      "verification": [
+        "DIST-001",
+        "DIST-002",
+        "DIST-003"
+      ],
+      "evidence": [],
+      "cleanup_recovery": "previous app backup retained",
+      "status": "BLOCKED_ENVIRONMENT",
+      "mandatory_from": "0.7.3"
+    },
+    {
+      "id": "UJ-007",
+      "persona": "USER",
+      "capability": "distribution",
+      "title": "Stable root launchers",
+      "preconditions": [
+        "canonical install completed"
+      ],
+      "input": "C:\\AI\\RusPersonalAgent\\START.cmd",
+      "actions": [
+        "invoke lifecycle command from root"
+      ],
+      "expected_visible_behavior": [
+        "user never needs version-specific folder"
+      ],
+      "expected_backend_effect": [
+        "launcher delegates to app entrypoint"
+      ],
+      "verification": [
+        "DIST-001"
+      ],
+      "evidence": [],
+      "cleanup_recovery": "none",
+      "status": "PASS",
+      "mandatory_from": "0.7.3"
+    },
+    {
+      "id": "UJ-008",
+      "persona": "USER",
+      "capability": "runtime.local-start",
+      "title": "Fail-soft local start when Code worker is unavailable",
+      "preconditions": [
+        "Docker Desktop is running",
+        "required images can be built/pulled"
+      ],
+      "input": "RUN-FIRST.cmd or START.cmd",
+      "actions": [
+        "start Ollama/Search/Browser",
+        "prepare bootstrap model",
+        "attempt isolated Code worker",
+        "start Core without Code dependency",
+        "verify Chat/Web/Files baseline"
+      ],
+      "expected_visible_behavior": [
+        "UI opens at http://127.0.0.1:3100/",
+        "Code is shown as degraded if its worker is unavailable",
+        "Chat/Web/Research/Files remain usable"
+      ],
+      "expected_backend_effect": [
+        "Core readiness does not depend on code-worker health",
+        "strict CODE-ACCEPTANCE remains FAIL until worker is healthy"
+      ],
+      "verification": [
+        "LOCAL-START-001",
+        "FND-WIN-CONTRACT-001",
+        "FND-API-001"
+      ],
+      "evidence": [
+        "tests/local_launch_acceptance.py",
+        "tests/release_gate.py"
+      ],
+      "cleanup_recovery": "Run REPAIR.cmd; named data/model volumes are preserved",
+      "status": "PASS",
+      "mandatory_from": "0.7.4-local.1"
+    }
+  ]
+}

@@ -1,0 +1,2422 @@
+{
+  "product": "Personal Agent Rus",
+  "version": "0.8.0-alpha.8",
+  "environment": {
+    "platform": "Linux-6.18.35-x86_64-with-glibc2.41",
+    "python": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+    "executable": "/opt/pyvenv/bin/python"
+  },
+  "results": [
+    {
+      "test_id": "FND-STATIC-001",
+      "name": "static",
+      "status": "PASS",
+      "started_at": 1786374226.2050643,
+      "finished_at": 1786374228.6499176,
+      "duration_sec": 2.445,
+      "exit_code": 0,
+      "output_file": "FND-STATIC-001.log"
+    },
+    {
+      "test_id": "FND-ASSET-VERSION-001",
+      "name": "static",
+      "status": "PASS",
+      "started_at": 1786374226.2050643,
+      "finished_at": 1786374228.6499176,
+      "duration_sec": 2.445,
+      "exit_code": 0,
+      "output_file": "FND-STATIC-001.log"
+    },
+    {
+      "test_id": "CODE-011",
+      "name": "static",
+      "status": "PASS",
+      "started_at": 1786374226.2050643,
+      "finished_at": 1786374228.6499176,
+      "duration_sec": 2.445,
+      "exit_code": 0,
+      "output_file": "FND-STATIC-001.log"
+    },
+    {
+      "test_id": "DIST-001",
+      "name": "distribution",
+      "status": "PASS",
+      "started_at": 1786374228.650173,
+      "finished_at": 1786374230.440828,
+      "duration_sec": 1.791,
+      "exit_code": 0,
+      "output_file": "DIST-001.log"
+    },
+    {
+      "test_id": "DIST-002",
+      "name": "distribution",
+      "status": "PASS",
+      "started_at": 1786374228.650173,
+      "finished_at": 1786374230.440828,
+      "duration_sec": 1.791,
+      "exit_code": 0,
+      "output_file": "DIST-001.log"
+    },
+    {
+      "test_id": "DIST-003",
+      "name": "distribution",
+      "status": "PASS",
+      "started_at": 1786374228.650173,
+      "finished_at": 1786374230.440828,
+      "duration_sec": 1.791,
+      "exit_code": 0,
+      "output_file": "DIST-001.log"
+    },
+    {
+      "test_id": "FND-WIN-CONTRACT-001",
+      "name": "windows-contract-static",
+      "status": "PASS",
+      "started_at": 1786374230.4412212,
+      "finished_at": 1786374232.2668424,
+      "duration_sec": 1.826,
+      "exit_code": 0,
+      "output_file": "FND-WIN-CONTRACT-001.log"
+    },
+    {
+      "test_id": "LOCAL-START-001",
+      "name": "local-launch-contract",
+      "status": "PASS",
+      "started_at": 1786374232.267206,
+      "finished_at": 1786374234.247771,
+      "duration_sec": 1.981,
+      "exit_code": 0,
+      "output_file": "LOCAL-START-001.log"
+    },
+    {
+      "test_id": "PLAN-001",
+      "name": "accounts-entitlements-acceptance",
+      "status": "PASS",
+      "started_at": 1786374234.2480848,
+      "finished_at": 1786374236.393608,
+      "duration_sec": 2.146,
+      "exit_code": 0,
+      "output_file": "PLAN-001.log"
+    },
+    {
+      "test_id": "PLAN-002",
+      "name": "accounts-entitlements-acceptance",
+      "status": "PASS",
+      "started_at": 1786374234.2480848,
+      "finished_at": 1786374236.393608,
+      "duration_sec": 2.146,
+      "exit_code": 0,
+      "output_file": "PLAN-001.log"
+    },
+    {
+      "test_id": "PLAN-003",
+      "name": "accounts-entitlements-acceptance",
+      "status": "PASS",
+      "started_at": 1786374234.2480848,
+      "finished_at": 1786374236.393608,
+      "duration_sec": 2.146,
+      "exit_code": 0,
+      "output_file": "PLAN-001.log"
+    },
+    {
+      "test_id": "PLAN-ADMIN-001",
+      "name": "accounts-entitlements-acceptance",
+      "status": "PASS",
+      "started_at": 1786374234.2480848,
+      "finished_at": 1786374236.393608,
+      "duration_sec": 2.146,
+      "exit_code": 0,
+      "output_file": "PLAN-001.log"
+    },
+    {
+      "test_id": "PLAN-PERSIST-001",
+      "name": "accounts-entitlements-acceptance",
+      "status": "PASS",
+      "started_at": 1786374234.2480848,
+      "finished_at": 1786374236.393608,
+      "duration_sec": 2.146,
+      "exit_code": 0,
+      "output_file": "PLAN-001.log"
+    },
+    {
+      "test_id": "AUTH-005",
+      "name": "accounts-entitlements-acceptance",
+      "status": "PASS",
+      "started_at": 1786374234.2480848,
+      "finished_at": 1786374236.393608,
+      "duration_sec": 2.146,
+      "exit_code": 0,
+      "output_file": "PLAN-001.log"
+    },
+    {
+      "test_id": "AUTH-006",
+      "name": "accounts-entitlements-acceptance",
+      "status": "PASS",
+      "started_at": 1786374234.2480848,
+      "finished_at": 1786374236.393608,
+      "duration_sec": 2.146,
+      "exit_code": 0,
+      "output_file": "PLAN-001.log"
+    },
+    {
+      "test_id": "ADMIN-002",
+      "name": "accounts-entitlements-acceptance",
+      "status": "PASS",
+      "started_at": 1786374234.2480848,
+      "finished_at": 1786374236.393608,
+      "duration_sec": 2.146,
+      "exit_code": 0,
+      "output_file": "PLAN-001.log"
+    },
+    {
+      "test_id": "LAN-001",
+      "name": "accounts-entitlements-acceptance",
+      "status": "PASS",
+      "started_at": 1786374234.2480848,
+      "finished_at": 1786374236.393608,
+      "duration_sec": 2.146,
+      "exit_code": 0,
+      "output_file": "PLAN-001.log"
+    },
+    {
+      "test_id": "LAN-002",
+      "name": "accounts-entitlements-acceptance",
+      "status": "PASS",
+      "started_at": 1786374234.2480848,
+      "finished_at": 1786374236.393608,
+      "duration_sec": 2.146,
+      "exit_code": 0,
+      "output_file": "PLAN-001.log"
+    },
+    {
+      "test_id": "PG-FOUNDATION-001",
+      "name": "accounts-entitlements-acceptance",
+      "status": "PASS",
+      "started_at": 1786374234.2480848,
+      "finished_at": 1786374236.393608,
+      "duration_sec": 2.146,
+      "exit_code": 0,
+      "output_file": "PLAN-001.log"
+    },
+    {
+      "test_id": "PG-FOUNDATION-002",
+      "name": "accounts-entitlements-acceptance",
+      "status": "PASS",
+      "started_at": 1786374234.2480848,
+      "finished_at": 1786374236.393608,
+      "duration_sec": 2.146,
+      "exit_code": 0,
+      "output_file": "PLAN-001.log"
+    },
+    {
+      "test_id": "PG-FOUNDATION-003",
+      "name": "accounts-entitlements-acceptance",
+      "status": "PASS",
+      "started_at": 1786374234.2480848,
+      "finished_at": 1786374236.393608,
+      "duration_sec": 2.146,
+      "exit_code": 0,
+      "output_file": "PLAN-001.log"
+    },
+    {
+      "test_id": "SCN-001",
+      "name": "scenario-site-preferences-acceptance",
+      "status": "PASS",
+      "started_at": 1786374236.3940606,
+      "finished_at": 1786374238.3797994,
+      "duration_sec": 1.986,
+      "exit_code": 0,
+      "output_file": "SCN-001.log"
+    },
+    {
+      "test_id": "SCN-002",
+      "name": "scenario-site-preferences-acceptance",
+      "status": "PASS",
+      "started_at": 1786374236.3940606,
+      "finished_at": 1786374238.3797994,
+      "duration_sec": 1.986,
+      "exit_code": 0,
+      "output_file": "SCN-001.log"
+    },
+    {
+      "test_id": "SCN-003",
+      "name": "scenario-site-preferences-acceptance",
+      "status": "PASS",
+      "started_at": 1786374236.3940606,
+      "finished_at": 1786374238.3797994,
+      "duration_sec": 1.986,
+      "exit_code": 0,
+      "output_file": "SCN-001.log"
+    },
+    {
+      "test_id": "SCN-004",
+      "name": "scenario-site-preferences-acceptance",
+      "status": "PASS",
+      "started_at": 1786374236.3940606,
+      "finished_at": 1786374238.3797994,
+      "duration_sec": 1.986,
+      "exit_code": 0,
+      "output_file": "SCN-001.log"
+    },
+    {
+      "test_id": "SCN-004A",
+      "name": "scenario-site-preferences-acceptance",
+      "status": "PASS",
+      "started_at": 1786374236.3940606,
+      "finished_at": 1786374238.3797994,
+      "duration_sec": 1.986,
+      "exit_code": 0,
+      "output_file": "SCN-001.log"
+    },
+    {
+      "test_id": "SCN-005",
+      "name": "scenario-site-preferences-acceptance",
+      "status": "PASS",
+      "started_at": 1786374236.3940606,
+      "finished_at": 1786374238.3797994,
+      "duration_sec": 1.986,
+      "exit_code": 0,
+      "output_file": "SCN-001.log"
+    },
+    {
+      "test_id": "SCN-006",
+      "name": "scenario-site-preferences-acceptance",
+      "status": "PASS",
+      "started_at": 1786374236.3940606,
+      "finished_at": 1786374238.3797994,
+      "duration_sec": 1.986,
+      "exit_code": 0,
+      "output_file": "SCN-001.log"
+    },
+    {
+      "test_id": "SCN-006A",
+      "name": "scenario-site-preferences-acceptance",
+      "status": "PASS",
+      "started_at": 1786374236.3940606,
+      "finished_at": 1786374238.3797994,
+      "duration_sec": 1.986,
+      "exit_code": 0,
+      "output_file": "SCN-001.log"
+    },
+    {
+      "test_id": "SCN-007",
+      "name": "scenario-site-preferences-acceptance",
+      "status": "PASS",
+      "started_at": 1786374236.3940606,
+      "finished_at": 1786374238.3797994,
+      "duration_sec": 1.986,
+      "exit_code": 0,
+      "output_file": "SCN-001.log"
+    },
+    {
+      "test_id": "SCN-007A",
+      "name": "scenario-site-preferences-acceptance",
+      "status": "PASS",
+      "started_at": 1786374236.3940606,
+      "finished_at": 1786374238.3797994,
+      "duration_sec": 1.986,
+      "exit_code": 0,
+      "output_file": "SCN-001.log"
+    },
+    {
+      "test_id": "SCN-007B",
+      "name": "scenario-site-preferences-acceptance",
+      "status": "PASS",
+      "started_at": 1786374236.3940606,
+      "finished_at": 1786374238.3797994,
+      "duration_sec": 1.986,
+      "exit_code": 0,
+      "output_file": "SCN-001.log"
+    },
+    {
+      "test_id": "SCN-007C",
+      "name": "scenario-site-preferences-acceptance",
+      "status": "PASS",
+      "started_at": 1786374236.3940606,
+      "finished_at": 1786374238.3797994,
+      "duration_sec": 1.986,
+      "exit_code": 0,
+      "output_file": "SCN-001.log"
+    },
+    {
+      "test_id": "SCN-008",
+      "name": "scenario-site-preferences-acceptance",
+      "status": "PASS",
+      "started_at": 1786374236.3940606,
+      "finished_at": 1786374238.3797994,
+      "duration_sec": 1.986,
+      "exit_code": 0,
+      "output_file": "SCN-001.log"
+    },
+    {
+      "test_id": "SCN-009",
+      "name": "scenario-site-preferences-acceptance",
+      "status": "PASS",
+      "started_at": 1786374236.3940606,
+      "finished_at": 1786374238.3797994,
+      "duration_sec": 1.986,
+      "exit_code": 0,
+      "output_file": "SCN-001.log"
+    },
+    {
+      "test_id": "SITE-001",
+      "name": "scenario-site-preferences-acceptance",
+      "status": "PASS",
+      "started_at": 1786374236.3940606,
+      "finished_at": 1786374238.3797994,
+      "duration_sec": 1.986,
+      "exit_code": 0,
+      "output_file": "SCN-001.log"
+    },
+    {
+      "test_id": "SITE-002",
+      "name": "scenario-site-preferences-acceptance",
+      "status": "PASS",
+      "started_at": 1786374236.3940606,
+      "finished_at": 1786374238.3797994,
+      "duration_sec": 1.986,
+      "exit_code": 0,
+      "output_file": "SCN-001.log"
+    },
+    {
+      "test_id": "SITE-003",
+      "name": "scenario-site-preferences-acceptance",
+      "status": "PASS",
+      "started_at": 1786374236.3940606,
+      "finished_at": 1786374238.3797994,
+      "duration_sec": 1.986,
+      "exit_code": 0,
+      "output_file": "SCN-001.log"
+    },
+    {
+      "test_id": "SITE-004",
+      "name": "scenario-site-preferences-acceptance",
+      "status": "PASS",
+      "started_at": 1786374236.3940606,
+      "finished_at": 1786374238.3797994,
+      "duration_sec": 1.986,
+      "exit_code": 0,
+      "output_file": "SCN-001.log"
+    },
+    {
+      "test_id": "SITE-005",
+      "name": "scenario-site-preferences-acceptance",
+      "status": "PASS",
+      "started_at": 1786374236.3940606,
+      "finished_at": 1786374238.3797994,
+      "duration_sec": 1.986,
+      "exit_code": 0,
+      "output_file": "SCN-001.log"
+    },
+    {
+      "test_id": "SITE-006",
+      "name": "scenario-site-preferences-acceptance",
+      "status": "PASS",
+      "started_at": 1786374236.3940606,
+      "finished_at": 1786374238.3797994,
+      "duration_sec": 1.986,
+      "exit_code": 0,
+      "output_file": "SCN-001.log"
+    },
+    {
+      "test_id": "SRC-001",
+      "name": "alpha6-search-debug-acceptance",
+      "status": "PASS",
+      "started_at": 1786374238.3802094,
+      "finished_at": 1786374240.4613633,
+      "duration_sec": 2.081,
+      "exit_code": 0,
+      "output_file": "SRC-001.log"
+    },
+    {
+      "test_id": "SRC-002",
+      "name": "alpha6-search-debug-acceptance",
+      "status": "PASS",
+      "started_at": 1786374238.3802094,
+      "finished_at": 1786374240.4613633,
+      "duration_sec": 2.081,
+      "exit_code": 0,
+      "output_file": "SRC-001.log"
+    },
+    {
+      "test_id": "SRC-004",
+      "name": "alpha6-search-debug-acceptance",
+      "status": "PASS",
+      "started_at": 1786374238.3802094,
+      "finished_at": 1786374240.4613633,
+      "duration_sec": 2.081,
+      "exit_code": 0,
+      "output_file": "SRC-001.log"
+    },
+    {
+      "test_id": "RESULT-001",
+      "name": "alpha6-search-debug-acceptance",
+      "status": "PASS",
+      "started_at": 1786374238.3802094,
+      "finished_at": 1786374240.4613633,
+      "duration_sec": 2.081,
+      "exit_code": 0,
+      "output_file": "SRC-001.log"
+    },
+    {
+      "test_id": "RESULT-002",
+      "name": "alpha6-search-debug-acceptance",
+      "status": "PASS",
+      "started_at": 1786374238.3802094,
+      "finished_at": 1786374240.4613633,
+      "duration_sec": 2.081,
+      "exit_code": 0,
+      "output_file": "SRC-001.log"
+    },
+    {
+      "test_id": "OBS-A6-001",
+      "name": "alpha6-search-debug-acceptance",
+      "status": "PASS",
+      "started_at": 1786374238.3802094,
+      "finished_at": 1786374240.4613633,
+      "duration_sec": 2.081,
+      "exit_code": 0,
+      "output_file": "SRC-001.log"
+    },
+    {
+      "test_id": "OBS-A6-002",
+      "name": "alpha6-search-debug-acceptance",
+      "status": "PASS",
+      "started_at": 1786374238.3802094,
+      "finished_at": 1786374240.4613633,
+      "duration_sec": 2.081,
+      "exit_code": 0,
+      "output_file": "SRC-001.log"
+    },
+    {
+      "test_id": "OBS-A6-003",
+      "name": "alpha6-search-debug-acceptance",
+      "status": "PASS",
+      "started_at": 1786374238.3802094,
+      "finished_at": 1786374240.4613633,
+      "duration_sec": 2.081,
+      "exit_code": 0,
+      "output_file": "SRC-001.log"
+    },
+    {
+      "test_id": "BILL-A6-001",
+      "name": "alpha6-search-debug-acceptance",
+      "status": "PASS",
+      "started_at": 1786374238.3802094,
+      "finished_at": 1786374240.4613633,
+      "duration_sec": 2.081,
+      "exit_code": 0,
+      "output_file": "SRC-001.log"
+    },
+    {
+      "test_id": "REL-A7-001",
+      "name": "alpha7-runtime-timing-acceptance",
+      "status": "PASS",
+      "started_at": 1786374240.46158,
+      "finished_at": 1786374242.2357306,
+      "duration_sec": 1.774,
+      "exit_code": 0,
+      "output_file": "REL-A7-001.log"
+    },
+    {
+      "test_id": "PERF-A7-001",
+      "name": "alpha7-runtime-timing-acceptance",
+      "status": "PASS",
+      "started_at": 1786374240.46158,
+      "finished_at": 1786374242.2357306,
+      "duration_sec": 1.774,
+      "exit_code": 0,
+      "output_file": "REL-A7-001.log"
+    },
+    {
+      "test_id": "OBS-A7-001",
+      "name": "alpha7-runtime-timing-acceptance",
+      "status": "PASS",
+      "started_at": 1786374240.46158,
+      "finished_at": 1786374242.2357306,
+      "duration_sec": 1.774,
+      "exit_code": 0,
+      "output_file": "REL-A7-001.log"
+    },
+    {
+      "test_id": "REL-A8-001",
+      "name": "alpha8-bootstrap-smoke-acceptance",
+      "status": "PASS",
+      "started_at": 1786374242.2359328,
+      "finished_at": 1786374244.1644213,
+      "duration_sec": 1.928,
+      "exit_code": 0,
+      "output_file": "REL-A8-001.log"
+    },
+    {
+      "test_id": "PERF-A8-001",
+      "name": "alpha8-bootstrap-smoke-acceptance",
+      "status": "PASS",
+      "started_at": 1786374242.2359328,
+      "finished_at": 1786374244.1644213,
+      "duration_sec": 1.928,
+      "exit_code": 0,
+      "output_file": "REL-A8-001.log"
+    },
+    {
+      "test_id": "PERF-A8-002",
+      "name": "alpha8-bootstrap-smoke-acceptance",
+      "status": "PASS",
+      "started_at": 1786374242.2359328,
+      "finished_at": 1786374244.1644213,
+      "duration_sec": 1.928,
+      "exit_code": 0,
+      "output_file": "REL-A8-001.log"
+    },
+    {
+      "test_id": "OBS-A8-001",
+      "name": "alpha8-bootstrap-smoke-acceptance",
+      "status": "PASS",
+      "started_at": 1786374242.2359328,
+      "finished_at": 1786374244.1644213,
+      "duration_sec": 1.928,
+      "exit_code": 0,
+      "output_file": "REL-A8-001.log"
+    },
+    {
+      "test_id": "REG-A8-001",
+      "name": "alpha8-bootstrap-smoke-acceptance",
+      "status": "PASS",
+      "started_at": 1786374242.2359328,
+      "finished_at": 1786374244.1644213,
+      "duration_sec": 1.928,
+      "exit_code": 0,
+      "output_file": "REL-A8-001.log"
+    },
+    {
+      "test_id": "RESULT-A7-001",
+      "name": "alpha7-live-results-acceptance",
+      "status": "PASS",
+      "started_at": 1786374244.1648593,
+      "finished_at": 1786374246.1539943,
+      "duration_sec": 1.989,
+      "exit_code": 0,
+      "output_file": "RESULT-A7-001.log"
+    },
+    {
+      "test_id": "RESULT-A7-002",
+      "name": "alpha7-live-results-acceptance",
+      "status": "PASS",
+      "started_at": 1786374244.1648593,
+      "finished_at": 1786374246.1539943,
+      "duration_sec": 1.989,
+      "exit_code": 0,
+      "output_file": "RESULT-A7-001.log"
+    },
+    {
+      "test_id": "NEWS-A7-001",
+      "name": "alpha7-live-results-acceptance",
+      "status": "PASS",
+      "started_at": 1786374244.1648593,
+      "finished_at": 1786374246.1539943,
+      "duration_sec": 1.989,
+      "exit_code": 0,
+      "output_file": "RESULT-A7-001.log"
+    },
+    {
+      "test_id": "NEWS-A7-002",
+      "name": "alpha7-live-results-acceptance",
+      "status": "PASS",
+      "started_at": 1786374244.1648593,
+      "finished_at": 1786374246.1539943,
+      "duration_sec": 1.989,
+      "exit_code": 0,
+      "output_file": "RESULT-A7-001.log"
+    },
+    {
+      "test_id": "UX-SELECT-A7-001",
+      "name": "alpha7-live-results-acceptance",
+      "status": "PASS",
+      "started_at": 1786374244.1648593,
+      "finished_at": 1786374246.1539943,
+      "duration_sec": 1.989,
+      "exit_code": 0,
+      "output_file": "RESULT-A7-001.log"
+    },
+    {
+      "test_id": "UX-LIVE-A7-001",
+      "name": "alpha7-live-results-acceptance",
+      "status": "PASS",
+      "started_at": 1786374244.1648593,
+      "finished_at": 1786374246.1539943,
+      "duration_sec": 1.989,
+      "exit_code": 0,
+      "output_file": "RESULT-A7-001.log"
+    },
+    {
+      "test_id": "UX-SELECT-A7-BROWSER",
+      "name": "alpha7-live-results-browser",
+      "status": "PASS",
+      "started_at": 1786374246.1541703,
+      "finished_at": 1786374256.3903232,
+      "duration_sec": 10.236,
+      "exit_code": 0,
+      "output_file": "UX-SELECT-A7-BROWSER.log"
+    },
+    {
+      "test_id": "UX-SCALE-A7-BROWSER",
+      "name": "alpha7-live-results-browser",
+      "status": "PASS",
+      "started_at": 1786374246.1541703,
+      "finished_at": 1786374256.3903232,
+      "duration_sec": 10.236,
+      "exit_code": 0,
+      "output_file": "UX-SELECT-A7-BROWSER.log"
+    },
+    {
+      "test_id": "UX-SCALE-A7-PERSIST",
+      "name": "alpha7-live-results-browser",
+      "status": "PASS",
+      "started_at": 1786374246.1541703,
+      "finished_at": 1786374256.3903232,
+      "duration_sec": 10.236,
+      "exit_code": 0,
+      "output_file": "UX-SELECT-A7-BROWSER.log"
+    },
+    {
+      "test_id": "RESULT-A7-BROWSER-001",
+      "name": "alpha7-live-results-browser",
+      "status": "PASS",
+      "started_at": 1786374246.1541703,
+      "finished_at": 1786374256.3903232,
+      "duration_sec": 10.236,
+      "exit_code": 0,
+      "output_file": "UX-SELECT-A7-BROWSER.log"
+    },
+    {
+      "test_id": "NEWS-A7-BROWSER-001",
+      "name": "alpha7-live-results-browser",
+      "status": "PASS",
+      "started_at": 1786374246.1541703,
+      "finished_at": 1786374256.3903232,
+      "duration_sec": 10.236,
+      "exit_code": 0,
+      "output_file": "UX-SELECT-A7-BROWSER.log"
+    },
+    {
+      "test_id": "UX-LIVE-A7-BROWSER-001",
+      "name": "alpha7-live-results-browser",
+      "status": "PASS",
+      "started_at": 1786374246.1541703,
+      "finished_at": 1786374256.3903232,
+      "duration_sec": 10.236,
+      "exit_code": 0,
+      "output_file": "UX-SELECT-A7-BROWSER.log"
+    },
+    {
+      "test_id": "UX-LIVE-A7-BROWSER-002",
+      "name": "alpha7-live-results-browser",
+      "status": "PASS",
+      "started_at": 1786374246.1541703,
+      "finished_at": 1786374256.3903232,
+      "duration_sec": 10.236,
+      "exit_code": 0,
+      "output_file": "UX-SELECT-A7-BROWSER.log"
+    },
+    {
+      "test_id": "UX-A4-001",
+      "name": "ux-admin-hardening-acceptance",
+      "status": "PASS",
+      "started_at": 1786374256.391695,
+      "finished_at": 1786374258.5334923,
+      "duration_sec": 2.142,
+      "exit_code": 0,
+      "output_file": "UX-A4-001.log"
+    },
+    {
+      "test_id": "UX-A4-002",
+      "name": "ux-admin-hardening-acceptance",
+      "status": "PASS",
+      "started_at": 1786374256.391695,
+      "finished_at": 1786374258.5334923,
+      "duration_sec": 2.142,
+      "exit_code": 0,
+      "output_file": "UX-A4-001.log"
+    },
+    {
+      "test_id": "FEEDBACK-A4-001",
+      "name": "ux-admin-hardening-acceptance",
+      "status": "PASS",
+      "started_at": 1786374256.391695,
+      "finished_at": 1786374258.5334923,
+      "duration_sec": 2.142,
+      "exit_code": 0,
+      "output_file": "UX-A4-001.log"
+    },
+    {
+      "test_id": "SHARE-A4-001",
+      "name": "ux-admin-hardening-acceptance",
+      "status": "PASS",
+      "started_at": 1786374256.391695,
+      "finished_at": 1786374258.5334923,
+      "duration_sec": 2.142,
+      "exit_code": 0,
+      "output_file": "UX-A4-001.log"
+    },
+    {
+      "test_id": "EXEC-A4-001",
+      "name": "ux-admin-hardening-acceptance",
+      "status": "PASS",
+      "started_at": 1786374256.391695,
+      "finished_at": 1786374258.5334923,
+      "duration_sec": 2.142,
+      "exit_code": 0,
+      "output_file": "UX-A4-001.log"
+    },
+    {
+      "test_id": "TONE-A4-001",
+      "name": "ux-admin-hardening-acceptance",
+      "status": "PASS",
+      "started_at": 1786374256.391695,
+      "finished_at": 1786374258.5334923,
+      "duration_sec": 2.142,
+      "exit_code": 0,
+      "output_file": "UX-A4-001.log"
+    },
+    {
+      "test_id": "ADMIN-A4-001",
+      "name": "ux-admin-hardening-acceptance",
+      "status": "PASS",
+      "started_at": 1786374256.391695,
+      "finished_at": 1786374258.5334923,
+      "duration_sec": 2.142,
+      "exit_code": 0,
+      "output_file": "UX-A4-001.log"
+    },
+    {
+      "test_id": "ADMIN-A4-002",
+      "name": "ux-admin-hardening-acceptance",
+      "status": "PASS",
+      "started_at": 1786374256.391695,
+      "finished_at": 1786374258.5334923,
+      "duration_sec": 2.142,
+      "exit_code": 0,
+      "output_file": "UX-A4-001.log"
+    },
+    {
+      "test_id": "UI-A4-001",
+      "name": "ux-admin-hardening-acceptance",
+      "status": "PASS",
+      "started_at": 1786374256.391695,
+      "finished_at": 1786374258.5334923,
+      "duration_sec": 2.142,
+      "exit_code": 0,
+      "output_file": "UX-A4-001.log"
+    },
+    {
+      "test_id": "GUIDE-A4-001",
+      "name": "ux-admin-hardening-acceptance",
+      "status": "PASS",
+      "started_at": 1786374256.391695,
+      "finished_at": 1786374258.5334923,
+      "duration_sec": 2.142,
+      "exit_code": 0,
+      "output_file": "UX-A4-001.log"
+    },
+    {
+      "test_id": "PRIV-A4-001",
+      "name": "ux-admin-hardening-acceptance",
+      "status": "PASS",
+      "started_at": 1786374256.391695,
+      "finished_at": 1786374258.5334923,
+      "duration_sec": 2.142,
+      "exit_code": 0,
+      "output_file": "UX-A4-001.log"
+    },
+    {
+      "test_id": "BRAND-A5-001",
+      "name": "ux-complete-acceptance",
+      "status": "PASS",
+      "started_at": 1786374258.5343292,
+      "finished_at": 1786374260.270452,
+      "duration_sec": 1.736,
+      "exit_code": 0,
+      "output_file": "BRAND-A5-001.log"
+    },
+    {
+      "test_id": "BRAND-A5-002",
+      "name": "ux-complete-acceptance",
+      "status": "PASS",
+      "started_at": 1786374258.5343292,
+      "finished_at": 1786374260.270452,
+      "duration_sec": 1.736,
+      "exit_code": 0,
+      "output_file": "BRAND-A5-001.log"
+    },
+    {
+      "test_id": "BRAND-A5-003",
+      "name": "ux-complete-acceptance",
+      "status": "PASS",
+      "started_at": 1786374258.5343292,
+      "finished_at": 1786374260.270452,
+      "duration_sec": 1.736,
+      "exit_code": 0,
+      "output_file": "BRAND-A5-001.log"
+    },
+    {
+      "test_id": "BRAND-A5-004",
+      "name": "ux-complete-acceptance",
+      "status": "PASS",
+      "started_at": 1786374258.5343292,
+      "finished_at": 1786374260.270452,
+      "duration_sec": 1.736,
+      "exit_code": 0,
+      "output_file": "BRAND-A5-001.log"
+    },
+    {
+      "test_id": "I18N-A5-001",
+      "name": "ux-complete-acceptance",
+      "status": "PASS",
+      "started_at": 1786374258.5343292,
+      "finished_at": 1786374260.270452,
+      "duration_sec": 1.736,
+      "exit_code": 0,
+      "output_file": "BRAND-A5-001.log"
+    },
+    {
+      "test_id": "I18N-A5-002",
+      "name": "ux-complete-acceptance",
+      "status": "PASS",
+      "started_at": 1786374258.5343292,
+      "finished_at": 1786374260.270452,
+      "duration_sec": 1.736,
+      "exit_code": 0,
+      "output_file": "BRAND-A5-001.log"
+    },
+    {
+      "test_id": "I18N-A5-003",
+      "name": "ux-complete-acceptance",
+      "status": "PASS",
+      "started_at": 1786374258.5343292,
+      "finished_at": 1786374260.270452,
+      "duration_sec": 1.736,
+      "exit_code": 0,
+      "output_file": "BRAND-A5-001.log"
+    },
+    {
+      "test_id": "I18N-A5-004",
+      "name": "ux-complete-acceptance",
+      "status": "PASS",
+      "started_at": 1786374258.5343292,
+      "finished_at": 1786374260.270452,
+      "duration_sec": 1.736,
+      "exit_code": 0,
+      "output_file": "BRAND-A5-001.log"
+    },
+    {
+      "test_id": "UX-009",
+      "name": "ux-complete-acceptance",
+      "status": "PASS",
+      "started_at": 1786374258.5343292,
+      "finished_at": 1786374260.270452,
+      "duration_sec": 1.736,
+      "exit_code": 0,
+      "output_file": "BRAND-A5-001.log"
+    },
+    {
+      "test_id": "A11Y-A5-001",
+      "name": "ux-complete-acceptance",
+      "status": "PASS",
+      "started_at": 1786374258.5343292,
+      "finished_at": 1786374260.270452,
+      "duration_sec": 1.736,
+      "exit_code": 0,
+      "output_file": "BRAND-A5-001.log"
+    },
+    {
+      "test_id": "A11Y-A5-002",
+      "name": "ux-complete-acceptance",
+      "status": "PASS",
+      "started_at": 1786374258.5343292,
+      "finished_at": 1786374260.270452,
+      "duration_sec": 1.736,
+      "exit_code": 0,
+      "output_file": "BRAND-A5-001.log"
+    },
+    {
+      "test_id": "UX-A5-001",
+      "name": "ux-complete-acceptance",
+      "status": "PASS",
+      "started_at": 1786374258.5343292,
+      "finished_at": 1786374260.270452,
+      "duration_sec": 1.736,
+      "exit_code": 0,
+      "output_file": "BRAND-A5-001.log"
+    },
+    {
+      "test_id": "UX-A5-002",
+      "name": "ux-complete-acceptance",
+      "status": "PASS",
+      "started_at": 1786374258.5343292,
+      "finished_at": 1786374260.270452,
+      "duration_sec": 1.736,
+      "exit_code": 0,
+      "output_file": "BRAND-A5-001.log"
+    },
+    {
+      "test_id": "UX-A5-003",
+      "name": "ux-complete-acceptance",
+      "status": "PASS",
+      "started_at": 1786374258.5343292,
+      "finished_at": 1786374260.270452,
+      "duration_sec": 1.736,
+      "exit_code": 0,
+      "output_file": "BRAND-A5-001.log"
+    },
+    {
+      "test_id": "UX-A5-004",
+      "name": "ux-complete-acceptance",
+      "status": "PASS",
+      "started_at": 1786374258.5343292,
+      "finished_at": 1786374260.270452,
+      "duration_sec": 1.736,
+      "exit_code": 0,
+      "output_file": "BRAND-A5-001.log"
+    },
+    {
+      "test_id": "UX-A5-005",
+      "name": "ux-complete-acceptance",
+      "status": "PASS",
+      "started_at": 1786374258.5343292,
+      "finished_at": 1786374260.270452,
+      "duration_sec": 1.736,
+      "exit_code": 0,
+      "output_file": "BRAND-A5-001.log"
+    },
+    {
+      "test_id": "UX-A5-006",
+      "name": "ux-complete-acceptance",
+      "status": "PASS",
+      "started_at": 1786374258.5343292,
+      "finished_at": 1786374260.270452,
+      "duration_sec": 1.736,
+      "exit_code": 0,
+      "output_file": "BRAND-A5-001.log"
+    },
+    {
+      "test_id": "ADMIN-A5-001",
+      "name": "ux-complete-acceptance",
+      "status": "PASS",
+      "started_at": 1786374258.5343292,
+      "finished_at": 1786374260.270452,
+      "duration_sec": 1.736,
+      "exit_code": 0,
+      "output_file": "BRAND-A5-001.log"
+    },
+    {
+      "test_id": "ADMIN-A5-002",
+      "name": "ux-complete-acceptance",
+      "status": "PASS",
+      "started_at": 1786374258.5343292,
+      "finished_at": 1786374260.270452,
+      "duration_sec": 1.736,
+      "exit_code": 0,
+      "output_file": "BRAND-A5-001.log"
+    },
+    {
+      "test_id": "ADMIN-A5-003",
+      "name": "ux-complete-acceptance",
+      "status": "PASS",
+      "started_at": 1786374258.5343292,
+      "finished_at": 1786374260.270452,
+      "duration_sec": 1.736,
+      "exit_code": 0,
+      "output_file": "BRAND-A5-001.log"
+    },
+    {
+      "test_id": "UX-009",
+      "name": "ux-complete-browser",
+      "status": "PASS",
+      "started_at": 1786374260.2706895,
+      "finished_at": 1786374271.050235,
+      "duration_sec": 10.78,
+      "exit_code": 0,
+      "output_file": "UX-009.log"
+    },
+    {
+      "test_id": "I18N-A5-001",
+      "name": "ux-complete-browser",
+      "status": "PASS",
+      "started_at": 1786374260.2706895,
+      "finished_at": 1786374271.050235,
+      "duration_sec": 10.78,
+      "exit_code": 0,
+      "output_file": "UX-009.log"
+    },
+    {
+      "test_id": "I18N-A5-002",
+      "name": "ux-complete-browser",
+      "status": "PASS",
+      "started_at": 1786374260.2706895,
+      "finished_at": 1786374271.050235,
+      "duration_sec": 10.78,
+      "exit_code": 0,
+      "output_file": "UX-009.log"
+    },
+    {
+      "test_id": "I18N-A5-003",
+      "name": "ux-complete-browser",
+      "status": "PASS",
+      "started_at": 1786374260.2706895,
+      "finished_at": 1786374271.050235,
+      "duration_sec": 10.78,
+      "exit_code": 0,
+      "output_file": "UX-009.log"
+    },
+    {
+      "test_id": "I18N-A5-004",
+      "name": "ux-complete-browser",
+      "status": "PASS",
+      "started_at": 1786374260.2706895,
+      "finished_at": 1786374271.050235,
+      "duration_sec": 10.78,
+      "exit_code": 0,
+      "output_file": "UX-009.log"
+    },
+    {
+      "test_id": "A11Y-A5-001",
+      "name": "ux-complete-browser",
+      "status": "PASS",
+      "started_at": 1786374260.2706895,
+      "finished_at": 1786374271.050235,
+      "duration_sec": 10.78,
+      "exit_code": 0,
+      "output_file": "UX-009.log"
+    },
+    {
+      "test_id": "A11Y-A5-002",
+      "name": "ux-complete-browser",
+      "status": "PASS",
+      "started_at": 1786374260.2706895,
+      "finished_at": 1786374271.050235,
+      "duration_sec": 10.78,
+      "exit_code": 0,
+      "output_file": "UX-009.log"
+    },
+    {
+      "test_id": "TASK-006",
+      "name": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "started_at": 1786374271.0505219,
+      "finished_at": 1786374273.5927684,
+      "duration_sec": 2.542,
+      "exit_code": 0,
+      "output_file": "TASK-006.log"
+    },
+    {
+      "test_id": "DEPLOY-001",
+      "name": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "started_at": 1786374271.0505219,
+      "finished_at": 1786374273.5927684,
+      "duration_sec": 2.542,
+      "exit_code": 0,
+      "output_file": "TASK-006.log"
+    },
+    {
+      "test_id": "DEPLOY-002",
+      "name": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "started_at": 1786374271.0505219,
+      "finished_at": 1786374273.5927684,
+      "duration_sec": 2.542,
+      "exit_code": 0,
+      "output_file": "TASK-006.log"
+    },
+    {
+      "test_id": "DEPLOY-003",
+      "name": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "started_at": 1786374271.0505219,
+      "finished_at": 1786374273.5927684,
+      "duration_sec": 2.542,
+      "exit_code": 0,
+      "output_file": "TASK-006.log"
+    },
+    {
+      "test_id": "DEPLOY-004",
+      "name": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "started_at": 1786374271.0505219,
+      "finished_at": 1786374273.5927684,
+      "duration_sec": 2.542,
+      "exit_code": 0,
+      "output_file": "TASK-006.log"
+    },
+    {
+      "test_id": "DEPLOY-005",
+      "name": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "started_at": 1786374271.0505219,
+      "finished_at": 1786374273.5927684,
+      "duration_sec": 2.542,
+      "exit_code": 0,
+      "output_file": "TASK-006.log"
+    },
+    {
+      "test_id": "DEPLOY-006",
+      "name": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "started_at": 1786374271.0505219,
+      "finished_at": 1786374273.5927684,
+      "duration_sec": 2.542,
+      "exit_code": 0,
+      "output_file": "TASK-006.log"
+    },
+    {
+      "test_id": "DEPLOY-007",
+      "name": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "started_at": 1786374271.0505219,
+      "finished_at": 1786374273.5927684,
+      "duration_sec": 2.542,
+      "exit_code": 0,
+      "output_file": "TASK-006.log"
+    },
+    {
+      "test_id": "DEPLOY-008",
+      "name": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "started_at": 1786374271.0505219,
+      "finished_at": 1786374273.5927684,
+      "duration_sec": 2.542,
+      "exit_code": 0,
+      "output_file": "TASK-006.log"
+    },
+    {
+      "test_id": "DEPLOY-009",
+      "name": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "started_at": 1786374271.0505219,
+      "finished_at": 1786374273.5927684,
+      "duration_sec": 2.542,
+      "exit_code": 0,
+      "output_file": "TASK-006.log"
+    },
+    {
+      "test_id": "LAN-001",
+      "name": "orchestrator-deployment-acceptance",
+      "status": "PASS",
+      "started_at": 1786374271.0505219,
+      "finished_at": 1786374273.5927684,
+      "duration_sec": 2.542,
+      "exit_code": 0,
+      "output_file": "TASK-006.log"
+    },
+    {
+      "test_id": "FND-BROWSER-OFFLINE-001",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786374273.5930521,
+      "finished_at": 1786374304.5219548,
+      "duration_sec": 30.929,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "FND-PRODUCT-SHELL-001",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786374273.5930521,
+      "finished_at": 1786374304.5219548,
+      "duration_sec": 30.929,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "FND-PRODUCT-SHELL-V2-001",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786374273.5930521,
+      "finished_at": 1786374304.5219548,
+      "duration_sec": 30.929,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "FND-CHAT-EXPORT-001",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786374273.5930521,
+      "finished_at": 1786374304.5219548,
+      "duration_sec": 30.929,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "FND-PRESET-001",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786374273.5930521,
+      "finished_at": 1786374304.5219548,
+      "duration_sec": 30.929,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "PRV-001",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786374273.5930521,
+      "finished_at": 1786374304.5219548,
+      "duration_sec": 30.929,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "PRV-005",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786374273.5930521,
+      "finished_at": 1786374304.5219548,
+      "duration_sec": 30.929,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "AUTH-003",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786374273.5930521,
+      "finished_at": 1786374304.5219548,
+      "duration_sec": 30.929,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "WEB-004",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786374273.5930521,
+      "finished_at": 1786374304.5219548,
+      "duration_sec": 30.929,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "WEB-006",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786374273.5930521,
+      "finished_at": 1786374304.5219548,
+      "duration_sec": 30.929,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "FILE-017",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786374273.5930521,
+      "finished_at": 1786374304.5219548,
+      "duration_sec": 30.929,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "CODE-012",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786374273.5930521,
+      "finished_at": 1786374304.5219548,
+      "duration_sec": 30.929,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "BILL-006",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786374273.5930521,
+      "finished_at": 1786374304.5219548,
+      "duration_sec": 30.929,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "BILL-011",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786374273.5930521,
+      "finished_at": 1786374304.5219548,
+      "duration_sec": 30.929,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "TASK-001",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786374273.5930521,
+      "finished_at": 1786374304.5219548,
+      "duration_sec": 30.929,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "TASK-003",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786374273.5930521,
+      "finished_at": 1786374304.5219548,
+      "duration_sec": 30.929,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "DEPLOY-006",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786374273.5930521,
+      "finished_at": 1786374304.5219548,
+      "duration_sec": 30.929,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "OBS-001",
+      "name": "browser-user-journeys",
+      "status": "PASS",
+      "started_at": 1786374273.5930521,
+      "finished_at": 1786374304.5219548,
+      "duration_sec": 30.929,
+      "exit_code": 0,
+      "output_file": "FND-BROWSER-OFFLINE-001.log"
+    },
+    {
+      "test_id": "ADMIN-A6-BROWSER-001",
+      "name": "admin-browser-journeys",
+      "status": "PASS",
+      "started_at": 1786374304.5236034,
+      "finished_at": 1786374312.28567,
+      "duration_sec": 7.762,
+      "exit_code": 0,
+      "output_file": "ADMIN-A6-BROWSER-001.log"
+    },
+    {
+      "test_id": "ADMIN-A6-BROWSER-002",
+      "name": "admin-browser-journeys",
+      "status": "PASS",
+      "started_at": 1786374304.5236034,
+      "finished_at": 1786374312.28567,
+      "duration_sec": 7.762,
+      "exit_code": 0,
+      "output_file": "ADMIN-A6-BROWSER-001.log"
+    },
+    {
+      "test_id": "FND-API-001",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FND-CAPABILITY-HONESTY-001",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FND-PRESET-001",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "PRV-001",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "PRV-002",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "PRV-003",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "PRV-004",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "PRV-005",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "PRV-006",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "PRV-008",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "PRV-009",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "AUTH-001",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "AUTH-002",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "AUTH-003",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "AUTH-CSRF-001",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "WEB-001",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "WEB-002",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "WEB-003",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "WEB-004",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "WEB-005",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "WEB-006",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "WEB-007",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "WEB-008",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "WEB-009",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "WEB-010",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "WEB-013",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "WEB-014",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-001",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-002",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-003",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-004",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-005",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-006",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-007",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-008",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-009",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-010",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-011",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-012",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-013",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-014",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-015",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "FILE-016",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "CODE-001",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "CODE-002",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "CODE-003",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "CODE-004",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "CODE-005",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "CODE-006",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "TASK-001",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "TASK-002",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "TASK-003",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "TASK-004",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "TASK-005",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "TASK-007",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "DEPLOY-006",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "OBS-001",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "OBS-002",
+      "name": "api-acceptance",
+      "status": "PASS",
+      "started_at": 1786374312.2860742,
+      "finished_at": 1786374335.2140787,
+      "duration_sec": 22.928,
+      "exit_code": 0,
+      "output_file": "FND-API-001.log"
+    },
+    {
+      "test_id": "UX-001",
+      "name": "productization-acceptance",
+      "status": "PASS",
+      "started_at": 1786374335.2144947,
+      "finished_at": 1786374338.4609427,
+      "duration_sec": 3.246,
+      "exit_code": 0,
+      "output_file": "UX-001.log"
+    },
+    {
+      "test_id": "UX-003",
+      "name": "productization-acceptance",
+      "status": "PASS",
+      "started_at": 1786374335.2144947,
+      "finished_at": 1786374338.4609427,
+      "duration_sec": 3.246,
+      "exit_code": 0,
+      "output_file": "UX-001.log"
+    },
+    {
+      "test_id": "UX-004",
+      "name": "productization-acceptance",
+      "status": "PASS",
+      "started_at": 1786374335.2144947,
+      "finished_at": 1786374338.4609427,
+      "duration_sec": 3.246,
+      "exit_code": 0,
+      "output_file": "UX-001.log"
+    },
+    {
+      "test_id": "UX-005",
+      "name": "productization-acceptance",
+      "status": "PASS",
+      "started_at": 1786374335.2144947,
+      "finished_at": 1786374338.4609427,
+      "duration_sec": 3.246,
+      "exit_code": 0,
+      "output_file": "UX-001.log"
+    },
+    {
+      "test_id": "UX-006",
+      "name": "productization-acceptance",
+      "status": "PASS",
+      "started_at": 1786374335.2144947,
+      "finished_at": 1786374338.4609427,
+      "duration_sec": 3.246,
+      "exit_code": 0,
+      "output_file": "UX-001.log"
+    },
+    {
+      "test_id": "UX-007",
+      "name": "productization-acceptance",
+      "status": "PASS",
+      "started_at": 1786374335.2144947,
+      "finished_at": 1786374338.4609427,
+      "duration_sec": 3.246,
+      "exit_code": 0,
+      "output_file": "UX-001.log"
+    },
+    {
+      "test_id": "UX-010",
+      "name": "productization-acceptance",
+      "status": "PASS",
+      "started_at": 1786374335.2144947,
+      "finished_at": 1786374338.4609427,
+      "duration_sec": 3.246,
+      "exit_code": 0,
+      "output_file": "UX-001.log"
+    },
+    {
+      "test_id": "ONB-001",
+      "name": "productization-acceptance",
+      "status": "PASS",
+      "started_at": 1786374335.2144947,
+      "finished_at": 1786374338.4609427,
+      "duration_sec": 3.246,
+      "exit_code": 0,
+      "output_file": "UX-001.log"
+    },
+    {
+      "test_id": "ONB-002",
+      "name": "productization-acceptance",
+      "status": "PASS",
+      "started_at": 1786374335.2144947,
+      "finished_at": 1786374338.4609427,
+      "duration_sec": 3.246,
+      "exit_code": 0,
+      "output_file": "UX-001.log"
+    },
+    {
+      "test_id": "ONB-004",
+      "name": "productization-acceptance",
+      "status": "PASS",
+      "started_at": 1786374335.2144947,
+      "finished_at": 1786374338.4609427,
+      "duration_sec": 3.246,
+      "exit_code": 0,
+      "output_file": "UX-001.log"
+    },
+    {
+      "test_id": "ONB-005",
+      "name": "productization-acceptance",
+      "status": "PASS",
+      "started_at": 1786374335.2144947,
+      "finished_at": 1786374338.4609427,
+      "duration_sec": 3.246,
+      "exit_code": 0,
+      "output_file": "UX-001.log"
+    },
+    {
+      "test_id": "ONB-101",
+      "name": "productization-acceptance",
+      "status": "PASS",
+      "started_at": 1786374335.2144947,
+      "finished_at": 1786374338.4609427,
+      "duration_sec": 3.246,
+      "exit_code": 0,
+      "output_file": "UX-001.log"
+    },
+    {
+      "test_id": "CONV-001",
+      "name": "productization-acceptance",
+      "status": "PASS",
+      "started_at": 1786374335.2144947,
+      "finished_at": 1786374338.4609427,
+      "duration_sec": 3.246,
+      "exit_code": 0,
+      "output_file": "UX-001.log"
+    },
+    {
+      "test_id": "CONV-002",
+      "name": "productization-acceptance",
+      "status": "PASS",
+      "started_at": 1786374335.2144947,
+      "finished_at": 1786374338.4609427,
+      "duration_sec": 3.246,
+      "exit_code": 0,
+      "output_file": "UX-001.log"
+    },
+    {
+      "test_id": "CONV-004",
+      "name": "productization-acceptance",
+      "status": "PASS",
+      "started_at": 1786374335.2144947,
+      "finished_at": 1786374338.4609427,
+      "duration_sec": 3.246,
+      "exit_code": 0,
+      "output_file": "UX-001.log"
+    },
+    {
+      "test_id": "CONV-005",
+      "name": "productization-acceptance",
+      "status": "PASS",
+      "started_at": 1786374335.2144947,
+      "finished_at": 1786374338.4609427,
+      "duration_sec": 3.246,
+      "exit_code": 0,
+      "output_file": "UX-001.log"
+    },
+    {
+      "test_id": "CONV-007",
+      "name": "productization-acceptance",
+      "status": "PASS",
+      "started_at": 1786374335.2144947,
+      "finished_at": 1786374338.4609427,
+      "duration_sec": 3.246,
+      "exit_code": 0,
+      "output_file": "UX-001.log"
+    },
+    {
+      "test_id": "OBS-001",
+      "name": "productization-acceptance",
+      "status": "PASS",
+      "started_at": 1786374335.2144947,
+      "finished_at": 1786374338.4609427,
+      "duration_sec": 3.246,
+      "exit_code": 0,
+      "output_file": "UX-001.log"
+    },
+    {
+      "test_id": "OBS-002",
+      "name": "productization-acceptance",
+      "status": "PASS",
+      "started_at": 1786374335.2144947,
+      "finished_at": 1786374338.4609427,
+      "duration_sec": 3.246,
+      "exit_code": 0,
+      "output_file": "UX-001.log"
+    },
+    {
+      "test_id": "OBS-003",
+      "name": "productization-acceptance",
+      "status": "PASS",
+      "started_at": 1786374335.2144947,
+      "finished_at": 1786374338.4609427,
+      "duration_sec": 3.246,
+      "exit_code": 0,
+      "output_file": "UX-001.log"
+    },
+    {
+      "test_id": "OBS-004",
+      "name": "productization-acceptance",
+      "status": "PASS",
+      "started_at": 1786374335.2144947,
+      "finished_at": 1786374338.4609427,
+      "duration_sec": 3.246,
+      "exit_code": 0,
+      "output_file": "UX-001.log"
+    },
+    {
+      "test_id": "GUIDE-003",
+      "name": "productization-acceptance",
+      "status": "PASS",
+      "started_at": 1786374335.2144947,
+      "finished_at": 1786374338.4609427,
+      "duration_sec": 3.246,
+      "exit_code": 0,
+      "output_file": "UX-001.log"
+    },
+    {
+      "test_id": "BILL-001",
+      "name": "billing-acceptance",
+      "status": "PASS",
+      "started_at": 1786374338.461335,
+      "finished_at": 1786374344.0172746,
+      "duration_sec": 5.556,
+      "exit_code": 0,
+      "output_file": "BILL-001.log"
+    },
+    {
+      "test_id": "BILL-002",
+      "name": "billing-acceptance",
+      "status": "PASS",
+      "started_at": 1786374338.461335,
+      "finished_at": 1786374344.0172746,
+      "duration_sec": 5.556,
+      "exit_code": 0,
+      "output_file": "BILL-001.log"
+    },
+    {
+      "test_id": "BILL-003",
+      "name": "billing-acceptance",
+      "status": "PASS",
+      "started_at": 1786374338.461335,
+      "finished_at": 1786374344.0172746,
+      "duration_sec": 5.556,
+      "exit_code": 0,
+      "output_file": "BILL-001.log"
+    },
+    {
+      "test_id": "BILL-004",
+      "name": "billing-acceptance",
+      "status": "PASS",
+      "started_at": 1786374338.461335,
+      "finished_at": 1786374344.0172746,
+      "duration_sec": 5.556,
+      "exit_code": 0,
+      "output_file": "BILL-001.log"
+    },
+    {
+      "test_id": "BILL-005",
+      "name": "billing-acceptance",
+      "status": "PASS",
+      "started_at": 1786374338.461335,
+      "finished_at": 1786374344.0172746,
+      "duration_sec": 5.556,
+      "exit_code": 0,
+      "output_file": "BILL-001.log"
+    },
+    {
+      "test_id": "BILL-007",
+      "name": "billing-acceptance",
+      "status": "PASS",
+      "started_at": 1786374338.461335,
+      "finished_at": 1786374344.0172746,
+      "duration_sec": 5.556,
+      "exit_code": 0,
+      "output_file": "BILL-001.log"
+    },
+    {
+      "test_id": "BILL-008",
+      "name": "billing-acceptance",
+      "status": "PASS",
+      "started_at": 1786374338.461335,
+      "finished_at": 1786374344.0172746,
+      "duration_sec": 5.556,
+      "exit_code": 0,
+      "output_file": "BILL-001.log"
+    },
+    {
+      "test_id": "BILL-009",
+      "name": "billing-acceptance",
+      "status": "PASS",
+      "started_at": 1786374338.461335,
+      "finished_at": 1786374344.0172746,
+      "duration_sec": 5.556,
+      "exit_code": 0,
+      "output_file": "BILL-001.log"
+    },
+    {
+      "test_id": "BILL-010",
+      "name": "billing-acceptance",
+      "status": "PASS",
+      "started_at": 1786374338.461335,
+      "finished_at": 1786374344.0172746,
+      "duration_sec": 5.556,
+      "exit_code": 0,
+      "output_file": "BILL-001.log"
+    },
+    {
+      "test_id": "CODE-007",
+      "name": "code-worker-acceptance",
+      "status": "PASS",
+      "started_at": 1786374344.0175169,
+      "finished_at": 1786374355.1962848,
+      "duration_sec": 11.179,
+      "exit_code": 0,
+      "output_file": "CODE-007.log"
+    },
+    {
+      "test_id": "CODE-008",
+      "name": "code-worker-acceptance",
+      "status": "PASS",
+      "started_at": 1786374344.0175169,
+      "finished_at": 1786374355.1962848,
+      "duration_sec": 11.179,
+      "exit_code": 0,
+      "output_file": "CODE-007.log"
+    },
+    {
+      "test_id": "CODE-009",
+      "name": "code-worker-acceptance",
+      "status": "PASS",
+      "started_at": 1786374344.0175169,
+      "finished_at": 1786374355.1962848,
+      "duration_sec": 11.179,
+      "exit_code": 0,
+      "output_file": "CODE-007.log"
+    },
+    {
+      "test_id": "CODE-010",
+      "name": "code-worker-acceptance",
+      "status": "PASS",
+      "started_at": 1786374344.0175169,
+      "finished_at": 1786374355.1962848,
+      "duration_sec": 11.179,
+      "exit_code": 0,
+      "output_file": "CODE-007.log"
+    }
+  ],
+  "counts": {
+    "PASS": 233,
+    "FAIL": 0
+  },
+  "environment_bound": [
+    {
+      "test_id": "FND-BROWSER-LIVE-REAL-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "authoritative on reference Windows runtime"
+    },
+    {
+      "test_id": "FND-BROWSER-LIVE-SECURITY-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "authoritative on reference Windows Docker runtime"
+    },
+    {
+      "test_id": "FND-RUS-LANGUAGE-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "stochastic real-model language behavior is authoritative on reference Windows runtime"
+    },
+    {
+      "test_id": "FND-REFERENCE-SEQUENCE-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "runs RELEASE-ACCEPTANCE.cmd on reference Windows Docker runtime"
+    },
+    {
+      "test_id": "FND-REBOOT-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "requires real Windows reboot"
+    },
+    {
+      "test_id": "WEB-011",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "live DTF canary is authoritative on reference Windows with external internet"
+    },
+    {
+      "test_id": "WEB-012",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "live Web diagnostics are captured by WEB-ACCEPTANCE.cmd on reference Windows"
+    },
+    {
+      "test_id": "CODE-LIVE-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "real Docker code-worker image with Python/Java/PowerShell is authoritative on reference Windows Docker runtime"
+    },
+    {
+      "test_id": "BILL-LIVE-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "requires real YooKassa merchant credentials plus public HTTPS callback/webhook endpoint"
+    },
+    {
+      "test_id": "DEPLOY-LIVE-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "requires a real Linux VPS, SSH credential, DNS and public HTTPS"
+    },
+    {
+      "test_id": "LAN-LIVE-001",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "requires a physical second LAN device and Windows Private-network firewall"
+    },
+    {
+      "test_id": "CONV-003",
+      "status": "BLOCKED_ENVIRONMENT",
+      "reason": "requires same account on a second physical LAN device"
+    }
+  ],
+  "deferred_not_applicable_to_alpha7": [
+    {
+      "test_id": "PG-RUNTIME-001",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "0.8.0-beta.1",
+      "reason": "PostgreSQL server schema/compose are present, but canonical Core persistence switch/migration/rollback is a separate vertical slice"
+    },
+    {
+      "test_id": "VPS-EGRESS-001",
+      "status": "NOT_IMPLEMENTED",
+      "mandatory_from": "0.9.0",
+      "reason": "site profile egress_region is policy metadata; real RU/global worker routing requires multi-region VPS integration and policy tests"
+    }
+  ],
+  "note": "Live CSP browser, real Windows lifecycle/reboot and clean-machine gates are separate environment-bound gates and are not promoted to PASS by this local release gate."
+}

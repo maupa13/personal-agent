@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="app-version" content="0.8.0-alpha.6">
+  <title>Установка локального Родной Агент</title>
+  <link rel="icon" href="/static/favicon.svg">
+  <link rel="stylesheet" href="/static/styles.css?v=0.8.0-alpha.6">
+  <meta name="robots" content="noindex,nofollow">
+</head>
+<body class="guide-page">
+  <main class="setup-guide">
+    <a class="login-back" href="/">← Родной Агент</a>
+    <header class="setup-hero">
+      <span class="eyebrow">ЛОКАЛЬНЫЙ ЗАПУСК</span>
+      <h1>Родной Агент на своём компьютере</h1>
+      <p>Модели могут работать на вашем ПК, а Родной Агент сам управляет runtime. Обычному пользователю не нужно разбираться в Docker, контейнерах или ID моделей.</p>
+    </header>
+
+    <section class="setup-step-grid" aria-label="Шаги установки">
+      <article class="setup-step"><span>1</span><div><h2>Проверьте компьютер</h2><p>Windows 11, актуальный Docker Desktop и достаточно свободного места. Для локальных моделей GPU NVIDIA желателен, но конкретные требования зависят от выбранной модели.</p></div></article>
+      <article class="setup-step"><span>2</span><div><h2>Распакуйте релиз</h2><p>Распакуйте ZIP Родной Агент в отдельную папку. Ваши постоянные данные потом будут жить в канонической папке установки, а не в папке распаковки.</p></div></article>
+      <article class="setup-step"><span>3</span><div><h2>Запустите установку</h2><p>Откройте <code>RUN-FIRST.cmd</code>. Скрипт проверит Docker, подготовит сервисы, небольшую bootstrap-модель и сохранит постоянный лог. Данные существующей установки не удаляются.</p></div></article>
+      <article class="setup-step"><span>4</span><div><h2>Дождитесь «Готово»</h2><p>После проверки откроется <code>http://127.0.0.1:3100/</code>. Если отдельная capability временно недоступна, приложение должно показать понятный degraded-статус, а не белый экран.</p></div></article>
+      <article class="setup-step"><span>5</span><div><h2>Выберите настоящую локальную модель</h2><p>Владелец открывает <b>Администрирование → Модели / Маршрутизация</b>, видит обнаруженные модели и назначает их режимам «Авто», «Быстро» и «Умно». Bootstrap-модель нужна только для первого smoke.</p></div></article>
+      <article class="setup-step"><span>6</span><div><h2>Проверьте систему</h2><p>Запустите <code>VERIFY.cmd</code>. Проверка должна подтвердить Core, inference и основные границы безопасности. Для строгой проверки используйте acceptance-команды релиза.</p></div></article>
+    </section>
+
+    <section class="setup-choice-grid">
+      <article class="setup-choice"><span class="setup-choice-icon">⌂</span><h2>Только локально</h2><p>Запросы обрабатываются локальной моделью. Если подходящей модели нет, Родной Агент не должен молча отправлять данные наружу.</p></article>
+      <article class="setup-choice"><span class="setup-choice-icon">⇄</span><h2>Гибридно</h2><p>Локальная обработка предпочтительна, а разрешённый remote provider используется только согласно выбранной политике приватности и тарифу.</p></article>
+      <article class="setup-choice"><span class="setup-choice-icon">☁</span><h2>VPS / Web</h2><p>Для серверной тестовой версии администратор подключает отдельный remote provider. API-ключ хранится на сервере и никогда не должен попадать в браузер пользователя.</p></article>
+    </section>
+
+    <section class="info-callout">
+      <strong>Локальная сеть</strong>
+      <p>Когда локальный запуск стабилен, администратор может включить LAN-доступ. На телефоне или ноутбуке открывается тот же Родной Агент; для полноценного multi-user режима используйте аккаунты и изоляцию пользователей.</p>
+    </section>
+
+    <div class="setup-actions">
+      <a class="primary-button link-button" href="/">Открыть Родной Агент</a>
+      <a class="secondary-button link-button" href="/static/admin-guide.html">Руководство администратора</a>
+    </div>
+  </main>
+</body>
+</html>

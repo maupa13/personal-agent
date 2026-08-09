@@ -1,0 +1,228 @@
+{
+  "schema_version": 1,
+  "product": "Personal Agent Rus",
+  "version": "0.8.0-alpha.5",
+  "source_spec": "docs/MASTER-IMPLEMENTATION-PROMPT-v5.md",
+  "tests": [
+    {
+      "test_id": "BRAND-A5-001",
+      "capability": "ui.branding",
+      "release_gate": "C/D",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.5",
+      "environment": "browser+static",
+      "persona": "USER",
+      "status": "PASS",
+      "evidence": "tests/ux_complete_acceptance.py + tests/ux_complete_browser.py"
+    },
+    {
+      "test_id": "BRAND-A5-002",
+      "capability": "ui.browser-identity",
+      "release_gate": "D",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.5",
+      "environment": "browser+static",
+      "persona": "USER",
+      "status": "PASS",
+      "evidence": "tests/ux_complete_acceptance.py + tests/ux_complete_browser.py"
+    },
+    {
+      "test_id": "BRAND-A5-003",
+      "capability": "ui.edition-hiding",
+      "release_gate": "D",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.5",
+      "environment": "browser+static",
+      "persona": "USER",
+      "status": "PASS",
+      "evidence": "tests/ux_complete_acceptance.py + tests/ux_complete_browser.py"
+    },
+    {
+      "test_id": "BRAND-A5-004",
+      "capability": "product.edition-identity",
+      "release_gate": "A",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.5",
+      "environment": "any",
+      "persona": "SYSTEM",
+      "status": "PASS",
+      "evidence": "tests/ux_complete_acceptance.py"
+    },
+    {
+      "test_id": "I18N-A5-001",
+      "capability": "ui.i18n-shell",
+      "release_gate": "D",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.5",
+      "environment": "browser+static",
+      "persona": "USER",
+      "status": "PASS",
+      "evidence": "tests/ux_complete_acceptance.py + tests/ux_complete_browser.py"
+    },
+    {
+      "test_id": "I18N-A5-002",
+      "capability": "ui.i18n-tour",
+      "release_gate": "D",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.5",
+      "environment": "browser+static",
+      "persona": "USER",
+      "status": "PASS",
+      "evidence": "tests/ux_complete_acceptance.py + tests/ux_complete_browser.py"
+    },
+    {
+      "test_id": "I18N-A5-003",
+      "capability": "ui.i18n-auth-account",
+      "release_gate": "D",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.5",
+      "environment": "browser+static",
+      "persona": "USER",
+      "status": "PASS",
+      "evidence": "tests/ux_complete_acceptance.py + tests/ux_complete_browser.py"
+    },
+    {
+      "test_id": "I18N-A5-004",
+      "capability": "ui.i18n-admin",
+      "release_gate": "D",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.5",
+      "environment": "browser+static",
+      "persona": "ADMIN",
+      "status": "PASS",
+      "evidence": "tests/ux_complete_acceptance.py + tests/ux_complete_browser.py"
+    },
+    {
+      "test_id": "UX-009",
+      "capability": "ui.state-matrix",
+      "release_gate": "D",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.5",
+      "environment": "browser+static",
+      "persona": "USER",
+      "status": "PASS",
+      "evidence": "tests/ux_complete_acceptance.py + tests/ux_complete_browser.py"
+    },
+    {
+      "test_id": "A11Y-A5-001",
+      "capability": "ui.accessibility",
+      "release_gate": "D",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.5",
+      "environment": "browser+static",
+      "persona": "USER",
+      "status": "PASS",
+      "evidence": "tests/ux_complete_acceptance.py + tests/ux_complete_browser.py"
+    },
+    {
+      "test_id": "A11Y-A5-002",
+      "capability": "ui.keyboard-resize",
+      "release_gate": "D",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.5",
+      "environment": "browser+static",
+      "persona": "USER",
+      "status": "PASS",
+      "evidence": "tests/ux_complete_acceptance.py + tests/ux_complete_browser.py"
+    },
+    {
+      "test_id": "UX-A5-001",
+      "capability": "ui.collapsed-rail",
+      "release_gate": "D",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.5",
+      "environment": "browser+static",
+      "persona": "USER",
+      "status": "PASS",
+      "evidence": "tests/ux_complete_acceptance.py + tests/ux_complete_browser.py"
+    },
+    {
+      "test_id": "UX-A5-002",
+      "capability": "ui.projects",
+      "release_gate": "D",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.5",
+      "environment": "browser+static",
+      "persona": "USER",
+      "status": "PASS",
+      "evidence": "tests/ux_complete_acceptance.py + tests/ux_complete_browser.py"
+    },
+    {
+      "test_id": "UX-A5-003",
+      "capability": "ui.form-layout",
+      "release_gate": "D",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.5",
+      "environment": "browser+static",
+      "persona": "USER",
+      "status": "PASS",
+      "evidence": "tests/ux_complete_acceptance.py + tests/ux_complete_browser.py"
+    },
+    {
+      "test_id": "UX-A5-004",
+      "capability": "ui.preferences",
+      "release_gate": "D",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.5",
+      "environment": "browser+static",
+      "persona": "USER",
+      "status": "PASS",
+      "evidence": "tests/ux_complete_acceptance.py + tests/ux_complete_browser.py"
+    },
+    {
+      "test_id": "UX-A5-005",
+      "capability": "ui.execution-policy",
+      "release_gate": "C/D",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.5",
+      "environment": "browser+static",
+      "persona": "USER",
+      "status": "PASS",
+      "evidence": "tests/ux_complete_acceptance.py + tests/ux_complete_browser.py"
+    },
+    {
+      "test_id": "UX-A5-006",
+      "capability": "ui.tone",
+      "release_gate": "D",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.5",
+      "environment": "browser+static",
+      "persona": "USER",
+      "status": "PASS",
+      "evidence": "tests/ux_complete_acceptance.py + tests/ux_complete_browser.py"
+    },
+    {
+      "test_id": "ADMIN-A5-001",
+      "capability": "admin.i18n-theme",
+      "release_gate": "D",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.5",
+      "environment": "browser+static",
+      "persona": "ADMIN",
+      "status": "PASS",
+      "evidence": "tests/ux_complete_acceptance.py + tests/ux_complete_browser.py"
+    },
+    {
+      "test_id": "ADMIN-A5-002",
+      "capability": "admin.control-plane",
+      "release_gate": "D",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.5",
+      "environment": "browser+static",
+      "persona": "ADMIN",
+      "status": "PASS",
+      "evidence": "tests/ux_complete_acceptance.py + tests/ux_complete_browser.py"
+    },
+    {
+      "test_id": "ADMIN-A5-003",
+      "capability": "admin.model-routing",
+      "release_gate": "C/D",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.5",
+      "environment": "browser+static",
+      "persona": "ADMIN",
+      "status": "PASS",
+      "evidence": "tests/ux_complete_acceptance.py + tests/ux_complete_browser.py"
+    }
+  ]
+}

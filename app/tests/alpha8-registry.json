@@ -1,0 +1,52 @@
+{
+  "version": "1.0.0",
+  "suite": "bootstrap-smoke-hardening",
+  "tests": [
+    {
+      "test_id": "REL-A8-001",
+      "capability": "release.identity",
+      "release_gate": "STATIC",
+      "mandatory_from_version": "1.0.0",
+      "environment": "any",
+      "persona": "ADMIN",
+      "evidence_required": true
+    },
+    {
+      "test_id": "PERF-A8-001",
+      "capability": "bootstrap.inference",
+      "release_gate": "CORE/API",
+      "mandatory_from_version": "1.0.0",
+      "environment": "any",
+      "persona": "ADMIN",
+      "evidence_required": true
+    },
+    {
+      "test_id": "PERF-A8-002",
+      "capability": "bootstrap.inference",
+      "release_gate": "CORE/API",
+      "mandatory_from_version": "1.0.0",
+      "environment": "any",
+      "persona": "ADMIN",
+      "evidence_required": true
+    },
+    {
+      "test_id": "OBS-A8-001",
+      "capability": "observability",
+      "release_gate": "WINDOWS REAL RUNTIME",
+      "mandatory_from_version": "1.0.0",
+      "environment": "reference-windows",
+      "persona": "ADMIN",
+      "evidence_required": true
+    },
+    {
+      "test_id": "REG-A8-001",
+      "capability": "bootstrap.inference",
+      "release_gate": "INTEGRATION",
+      "mandatory_from_version": "1.0.0",
+      "environment": "any",
+      "persona": "SYSTEM",
+      "evidence_required": true
+    }
+  ]
+}
+

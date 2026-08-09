@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "product": "Personal Agent Rus",
+  "version": "0.8.0-alpha.3",
+  "source_spec": "docs/MASTER-IMPLEMENTATION-PROMPT-v5.md",
+  "tests": [
+    {
+      "test_id": "SCN-001",
+      "capability": "scenario.gallery",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.3",
+      "environment": "any",
+      "status": "PASS",
+      "evidence": "tests/scenario_acceptance.py"
+    },
+    {
+      "test_id": "SCN-002",
+      "capability": "scenario.entitlements",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.3",
+      "environment": "any",
+      "status": "PASS",
+      "evidence": "tests/scenario_acceptance.py"
+    },
+    {
+      "test_id": "SCN-003",
+      "capability": "scenario.auto-detection",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.3",
+      "environment": "any",
+      "status": "PASS",
+      "evidence": "tests/scenario_acceptance.py"
+    },
+    {
+      "test_id": "SCN-004",
+      "capability": "scenario.routing",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.3",
+      "environment": "any",
+      "status": "PASS",
+      "evidence": "tests/scenario_acceptance.py"
+    },
+    {
+      "test_id": "SCN-004A",
+      "capability": "scenario.url-priority",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.3",
+      "environment": "any",
+      "status": "PASS",
+      "evidence": "tests/scenario_acceptance.py"
+    },
+    {
+      "test_id": "SCN-005",
+      "capability": "scenario.clarification",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.3",
+      "environment": "any",
+      "status": "PASS",
+      "evidence": "tests/scenario_acceptance.py"
+    },
+    {
+      "test_id": "SCN-006",
+      "capability": "scenario.context",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.3",
+      "environment": "any",
+      "status": "PASS",
+      "evidence": "tests/scenario_acceptance.py"
+    },
+    {
+      "test_id": "SCN-006A",
+      "capability": "scenario.search-context",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.3",
+      "environment": "any",
+      "status": "PASS",
+      "evidence": "tests/scenario_acceptance.py"
+    },
+    {
+      "test_id": "SCN-007",
+      "capability": "scenario.bounded-clarification",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.3",
+      "environment": "any",
+      "status": "PASS",
+      "evidence": "tests/scenario_acceptance.py"
+    },
+    {
+      "test_id": "SCN-007A",
+      "capability": "scenario.metadata-isolation",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.3",
+      "environment": "any",
+      "status": "PASS",
+      "evidence": "tests/scenario_acceptance.py"
+    },
+    {
+      "test_id": "SCN-008",
+      "capability": "scenario.api",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.3",
+      "environment": "any",
+      "status": "PASS",
+      "evidence": "tests/scenario_acceptance.py + tests/run_acceptance.py"
+    },
+    {
+      "test_id": "SCN-009",
+      "capability": "scenario.ui",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.3",
+      "environment": "browser",
+      "status": "PASS",
+      "evidence": "tests/scenario_acceptance.py + tests/browser_journeys.py"
+    },
+    {
+      "test_id": "SITE-001",
+      "capability": "web.preferences",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.3",
+      "environment": "any",
+      "status": "PASS",
+      "evidence": "tests/scenario_acceptance.py"
+    },
+    {
+      "test_id": "SITE-002",
+      "capability": "web.preferences-security",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.3",
+      "environment": "any",
+      "status": "PASS",
+      "evidence": "tests/scenario_acceptance.py"
+    },
+    {
+      "test_id": "SITE-003",
+      "capability": "web.site-profiles",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.3",
+      "environment": "any",
+      "status": "PASS",
+      "evidence": "tests/scenario_acceptance.py"
+    },
+    {
+      "test_id": "SITE-004",
+      "capability": "web.site-profiles-admin",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.3",
+      "environment": "any",
+      "status": "PASS",
+      "evidence": "tests/scenario_acceptance.py + tests/run_acceptance.py"
+    },
+    {
+      "test_id": "SITE-005",
+      "capability": "web.preferences-ui",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.3",
+      "environment": "browser",
+      "status": "PASS",
+      "evidence": "tests/scenario_acceptance.py + tests/browser_journeys.py"
+    },
+    {
+      "test_id": "SITE-006",
+      "capability": "web.site-profiles-ui",
+      "mandatory": true,
+      "mandatory_from": "0.8.0-alpha.3",
+      "environment": "browser",
+      "status": "PASS",
+      "evidence": "tests/scenario_acceptance.py + tests/browser_journeys.py"
+    }
+  ]
+}

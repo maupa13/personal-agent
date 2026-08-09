@@ -1,0 +1,25 @@
+[PASS] BRAND-A5-BROWSER-RU - RU shell uses Родной Агент
+[PASS] A11Y-A5-BROWSER-RESIZE - sidebar resizer responds to keyboard
+[PASS] UX-A5-BROWSER-COLLAPSE - collapsed rail does not compress project/chat rows
+[PASS] I18N-A5-BROWSER-SHELL - EN switch updates shell title and brand
+[PASS] THEME-A5-BROWSER - light theme applies immediately
+[PASS] EXEC-A5-BROWSER - local-only selection persists through backend preference flow
+[PASS] I18N-A5-BROWSER-FEEDBACK - feedback placeholder follows UI language
+[PASS] A11Y-A5-BROWSER-I18N - sidebar accessibility label follows UI language
+[PASS] I18N-A5-TOUR-01 - USER tour step 1 is English
+[PASS] I18N-A5-TOUR-02 - USER tour step 2 is English
+[PASS] I18N-A5-TOUR-03 - USER tour step 3 is English
+[PASS] I18N-A5-TOUR-04 - USER tour step 4 is English
+[PASS] I18N-A5-TOUR-05 - USER tour step 5 is English
+[PASS] I18N-A5-TOUR-06 - USER tour step 6 is English
+[PASS] I18N-A5-TOUR-07 - USER tour step 7 is English
+[PASS] I18N-A5-TOUR-08 - USER tour step 8 is English
+[PASS] I18N-A5-TOUR-09 - USER tour step 9 is English
+[PASS] UX-009-BROWSER-STATE - offline state is accessible and offers Retry
+[PASS] UX-A5-BROWSER-WEB-FORM - Web domain textarea uses the content width
+[PASS] UX-A5-BROWSER-CODE-FORM - code editor uses the content width
+[PASS] I18N-A5-BROWSER-ACCOUNT - account billing details are localized to English
+[PASS] ADMIN-A5-BROWSER-DYNAMIC-I18N - Admin overview dynamic product copy is localized to English
+[PASS] ADMIN-A5-BROWSER-THEME - Admin theme toggle applies
+[PASS] ADMIN-A5-BROWSER-I18N - Admin title is localized
+PAR_V080_ALPHA5_UX_COMPLETE_BROWSER PASS
