@@ -32,6 +32,7 @@ MAX_SOURCE_BYTES = int(os.getenv('PA_CODE_MAX_SOURCE_BYTES', str(256 * 1024)))
 MAX_OUTPUT_BYTES = int(os.getenv('PA_CODE_MAX_OUTPUT_BYTES', str(1024 * 1024)))
 MAX_TIMEOUT_SECONDS = int(os.getenv('PA_CODE_MAX_TIMEOUT_SECONDS', '30'))
 MAX_FILE_BYTES = int(os.getenv('PA_CODE_MAX_FILE_BYTES', str(8 * 1024 * 1024)))
+ADDRESS_SPACE_BYTES = int(os.getenv('PA_CODE_ADDRESS_SPACE_BYTES', str(16 * 1024 * 1024 * 1024)))
 
 PYTHON_BIN = sys.executable if os.name == 'nt' else (shutil.which('python3') or shutil.which('python') or sys.executable)
 
@@ -51,6 +52,8 @@ def _windows_java_bin(name: str) -> str | None:
 JAVA_BIN = _windows_java_bin('java') or shutil.which('java') or 'java'
 JAVAC_BIN = _windows_java_bin('javac') or shutil.which('javac') or 'javac'
 POWERSHELL_BIN = shutil.which('pwsh') or shutil.which('powershell') or 'powershell'
+JAVA_RUNTIME_FLAGS = ['-Xmx128m', '-XX:CompressedClassSpaceSize=32m', '-XX:ReservedCodeCacheSize=32m']
+JAVAC_RUNTIME_FLAGS = [f'-J{flag}' for flag in JAVA_RUNTIME_FLAGS]
 
 LANGUAGES = {
     'python': {'display': 'Python', 'version_cmd': [PYTHON_BIN, '--version']},
@@ -101,16 +104,26 @@ def update_job(job_id: str, **values: Any) -> None:
 def sandbox_command(command: list[str], timeout_seconds: int) -> list[str]:
     if os.name == 'nt' or not Path(PRLIMIT_BIN).exists() or not Path(SETPRIV_BIN).exists():
         return command
-    address_space = 1536 * 1024 * 1024
-    return [
+    executable = Path(command[0]).name.lower() if command else ''
+    powershell_runtime = executable in {'pwsh', 'pwsh.exe', 'powershell', 'powershell.exe'}
+    java_runtime = executable in {'java', 'java.exe', 'javac', 'javac.exe'}
+    file_limit = max(MAX_FILE_BYTES, 64 * 1024 * 1024) if powershell_runtime else MAX_FILE_BYTES
+    nofile_arg = '--nofile=256:256' if powershell_runtime else '--nofile=64:64'
+    nproc_arg = '--nproc=256:256' if powershell_runtime or java_runtime else '--nproc=64:64'
+    limited = [
         PRLIMIT_BIN,
         '--core=0:0',
         f'--cpu={max(1, timeout_seconds)}:{max(1, timeout_seconds + 1)}',
-        f'--fsize={MAX_FILE_BYTES}:{MAX_FILE_BYTES}',
-        '--nofile=64:64',
-        '--nproc=64:64',
-        f'--as={address_space}:{address_space}',
+        f'--fsize={file_limit}:{file_limit}',
+        nofile_arg,
+        nproc_arg,
+        f'--as={ADDRESS_SPACE_BYTES}:{ADDRESS_SPACE_BYTES}',
         '--',
+    ]
+    if hasattr(os, 'geteuid') and os.geteuid() != 0:
+        return [*limited, *command]
+    return [
+        *limited,
         SETPRIV_BIN,
         f'--reuid={RUNNER_UID}',
         f'--regid={RUNNER_GID}',
@@ -285,9 +298,9 @@ def execute_job(job_id: str, language: str, code: str, timeout_seconds: int) -> 
             os.chmod(source, 0o640)
             update_job(job_id, progress=30)
             if os.name == 'nt':
-                compile_result = run_command(job_id, [JAVA_BIN, '--add-modules', 'jdk.compiler', 'com.sun.tools.javac.Main', '-encoding', 'UTF-8', source.name], work_dir, timeout_seconds, 'compile')
+                compile_result = run_command(job_id, [JAVA_BIN, *JAVA_RUNTIME_FLAGS, '--add-modules', 'jdk.compiler', 'com.sun.tools.javac.Main', '-encoding', 'UTF-8', source.name], work_dir, timeout_seconds, 'compile')
             else:
-                compile_result = run_command(job_id, [JAVAC_BIN, '-encoding', 'UTF-8', source.name], work_dir, timeout_seconds, 'compile')
+                compile_result = run_command(job_id, [JAVAC_BIN, *JAVAC_RUNTIME_FLAGS, '-encoding', 'UTF-8', source.name], work_dir, timeout_seconds, 'compile')
             if compile_result['cancelled']:
                 update_job(job_id, status='CANCELLED', progress=100, compile=compile_result, finished_at=now_ms(), error='cancelled')
                 return
@@ -299,9 +312,9 @@ def execute_job(job_id: str, language: str, code: str, timeout_seconds: int) -> 
                 return
             update_job(job_id, progress=60)
             if os.name == 'nt':
-                result = run_command(job_id, [JAVA_BIN, source.name], work_dir, timeout_seconds, 'run')
+                result = run_command(job_id, [JAVA_BIN, *JAVA_RUNTIME_FLAGS, source.name], work_dir, timeout_seconds, 'run')
             else:
-                result = run_command(job_id, [JAVA_BIN, '-cp', '.', class_name], work_dir, timeout_seconds, 'run')
+                result = run_command(job_id, [JAVA_BIN, *JAVA_RUNTIME_FLAGS, '-cp', '.', class_name], work_dir, timeout_seconds, 'run')
         else:
             raise ValueError('unsupported language')
         if result['cancelled']:
