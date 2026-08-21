@@ -57,7 +57,7 @@ def main():
         names=set(tf.getnames());assert {'docker-compose-main.yaml','.env.server','Caddyfile','core/app/main.py','core/Dockerfile'}<=names
         compose=tf.extractfile('docker-compose-main.yaml').read().decode();env=tf.extractfile('.env.server').read().decode();caddy=tf.extractfile('Caddyfile').read().decode()
         assert 'caddy:2.11.2' in compose and 'ollama:' not in compose and 'code-worker:' not in compose and 'browser:' not in compose
-        assert 'PA_RUNTIME_PROFILE=server' in env and 'PA_AUTH_MODE=accounts' in env and 'PA_SECURE_COOKIES=1' in env and 'PA_OLLAMA_URL=' in env
+        assert 'PA_RUNTIME_PROFILE=server' in env and 'PA_AUTH_MODE=accounts' in env and 'PA_SECURE_COOKIES=1' in env and 'PA_OLLAMA_URL=' in env and 'PA_SEARXNG_URL=' in env and 'PA_BROWSER_URL=' in env
         assert 'agent.example.test' in caddy and 'reverse_proxy core:8080' in caddy
         assert 'ADMIN_TOKEN_TEST' in env
 

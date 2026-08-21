@@ -1,0 +1,4 @@
+{$PA_PUBLIC_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy core:8080
+}

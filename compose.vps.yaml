@@ -1,0 +1,75 @@
+name: personal-agent-rus-vps
+services:
+  core:
+    build:
+      context: ./services/core
+      dockerfile: Dockerfile.server
+    image: personal-agent-core:${PA_VERSION:-1.0.0}
+    restart: unless-stopped
+    environment:
+      PA_PRODUCT_FAMILY: Personal Agent
+      PA_PRODUCT_NAME: Personal Agent Rus
+      PA_EDITION: rus
+      PA_LOCALE: ru-RU
+      PA_VERSION: ${PA_VERSION:-1.0.0}
+      PA_RUNTIME_PROFILE: server
+      PA_AUTH_MODE: accounts
+      PA_REGISTRATION_POLICY: ${PA_REGISTRATION_POLICY:-approval_required}
+      PA_SECURE_COOKIES: ${PA_SECURE_COOKIES:-1}
+      PA_HOST: 0.0.0.0
+      PA_PORT: 8080
+      PA_PUBLIC_URL: ${PA_PUBLIC_URL:?PA_PUBLIC_URL must be set in .env.vps}
+      PA_ADMIN_TOKEN: ${PA_ADMIN_TOKEN:?PA_ADMIN_TOKEN must be set in .env.vps}
+      PA_DB: /data/personal-agent-rus.db
+      PA_SECRETS_DIR: /data/secrets
+      PA_LOG_DIR: /data/logs
+      PA_WORKSPACE_ROOT: /data/workspaces
+      PA_USER_TOUR_VERSION: 1
+      PA_ADMIN_TOUR_VERSION: 1
+      PA_OLLAMA_URL: ""
+      PA_SEARXNG_URL: ""
+      PA_BROWSER_URL: ""
+      PA_CODE_SOCKET: ""
+      PA_LAN_ENABLED: ${PA_LAN_ENABLED:-0}
+      PA_LAN_PUBLIC_URL: ${PA_LAN_PUBLIC_URL:-}
+      PA_BOOTSTRAP_MODEL: ${PA_BOOTSTRAP_MODEL:-qwen3:0.6b}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      PA_OPENAI_API_KEY: ${PA_OPENAI_API_KEY:-}
+      PA_OPENAI_BASE_URL: ${PA_OPENAI_BASE_URL:-https://api.openai.com/v1}
+      PA_OPENAI_PROVIDER_TYPE: ${PA_OPENAI_PROVIDER_TYPE:-openai_responses}
+      PA_OPENAI_PROVIDER_ID: ${PA_OPENAI_PROVIDER_ID:-openai}
+      PA_OPENAI_PROVIDER_NAME: ${PA_OPENAI_PROVIDER_NAME:-OpenAI}
+    volumes:
+      - par-vps-data:/data
+    expose:
+      - "8080"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/api/health', timeout=3)
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
+  caddy:
+    image: caddy:2.11.2
+    restart: unless-stopped
+    environment:
+      PA_PUBLIC_DOMAIN: ${PA_PUBLIC_DOMAIN:?PA_PUBLIC_DOMAIN must be set in .env.vps}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/server/Caddyfile:/etc/caddy/Caddyfile:ro
+      - par-vps-caddy-data:/data
+      - par-vps-caddy-config:/config
+    depends_on:
+      core:
+        condition: service_healthy
+volumes:
+  par-vps-data:
+  par-vps-caddy-data:
+  par-vps-caddy-config:

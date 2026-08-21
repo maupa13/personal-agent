@@ -62,6 +62,7 @@ STARTED_AT = int(time.time())
 OLLAMA_URL = os.getenv("PA_OLLAMA_URL", "http://ollama:11434").rstrip("/")
 SEARXNG_URL = os.getenv("PA_SEARXNG_URL", "http://searxng:8080").rstrip("/")
 BROWSER_URL = os.getenv("PA_BROWSER_URL", "http://browser:8000").rstrip("/")
+LOCAL_OLLAMA_ENABLED = bool(OLLAMA_URL)
 WEB_MAX_BYTES = int(os.getenv("PA_WEB_MAX_BYTES", str(3 * 1024 * 1024)))
 WEB_MAX_SOURCES = int(os.getenv("PA_WEB_MAX_SOURCES", "8"))
 LIST_RESULT_MINIMUM = max(1, min(int(os.getenv("PA_LIST_RESULT_MINIMUM", "7")), WEB_MAX_SOURCES))
@@ -581,18 +582,19 @@ def init_db() -> None:
         if "cost_output_per_million_rub" not in provider_cols:
             conn.execute("ALTER TABLE providers ADD COLUMN cost_output_per_million_rub REAL NOT NULL DEFAULT 0")
         ts = now_ts()
-        conn.execute(
-            "INSERT INTO providers(id,name,type,base_url,enabled,managed_by,secret_ref,billing_class,cost_input_per_million_rub,cost_output_per_million_rub,created_at,updated_at) "
-            "VALUES(?,?,?,?,1,'system',NULL,'LOCAL',0,0,?,?) "
-            "ON CONFLICT(id) DO UPDATE SET name=excluded.name,type=excluded.type,base_url=excluded.base_url,enabled=1,managed_by='system',billing_class='LOCAL',cost_input_per_million_rub=0,cost_output_per_million_rub=0,updated_at=excluded.updated_at",
-            (DEFAULT_PROVIDER_ID, "Локальный Ollama", "ollama", OLLAMA_URL, ts, ts),
-        )
-        for mode in MODE_DEFS:
+        if LOCAL_OLLAMA_ENABLED:
             conn.execute(
-                "INSERT OR IGNORE INTO routing(mode, model_id, provider_id, updated_at) VALUES (?, ?, ?, ?)",
-                (mode, BOOTSTRAP_MODEL, DEFAULT_PROVIDER_ID, ts),
+                "INSERT INTO providers(id,name,type,base_url,enabled,managed_by,secret_ref,billing_class,cost_input_per_million_rub,cost_output_per_million_rub,created_at,updated_at) "
+                "VALUES(?,?,?,?,1,'system',NULL,'LOCAL',0,0,?,?) "
+                "ON CONFLICT(id) DO UPDATE SET name=excluded.name,type=excluded.type,base_url=excluded.base_url,enabled=1,managed_by='system',billing_class='LOCAL',cost_input_per_million_rub=0,cost_output_per_million_rub=0,updated_at=excluded.updated_at",
+                (DEFAULT_PROVIDER_ID, "Локальный Ollama", "ollama", OLLAMA_URL, ts, ts),
             )
-            conn.execute("UPDATE routing SET provider_id=? WHERE mode=? AND (provider_id IS NULL OR provider_id='')", (DEFAULT_PROVIDER_ID, mode))
+            for mode in MODE_DEFS:
+                conn.execute(
+                    "INSERT OR IGNORE INTO routing(mode, model_id, provider_id, updated_at) VALUES (?, ?, ?, ?)",
+                    (mode, BOOTSTRAP_MODEL, DEFAULT_PROVIDER_ID, ts),
+                )
+                conn.execute("UPDATE routing SET provider_id=? WHERE mode=? AND (provider_id IS NULL OR provider_id='')", (DEFAULT_PROVIDER_ID, mode))
         conn.execute("INSERT OR IGNORE INTO settings(key,value) VALUES('setup_complete','0')")
         conn.execute("INSERT OR IGNORE INTO settings(key,value) VALUES('registration_policy',?)", (REGISTRATION_POLICY,))
         conn.execute("INSERT OR IGNORE INTO settings(key,value) VALUES('vpn_routing_config',?)", (json.dumps(vpn_routing_defaults(), ensure_ascii=False),))
@@ -697,6 +699,45 @@ def _env_csv(name: str) -> list[str]:
     return _normalize_list([part.strip() for part in raw.split(",") if part.strip()])
 
 
+def _allowed_ip_cidr(value: str) -> str:
+    raw = str(value or "").strip()
+    if not raw:
+        return ""
+    try:
+        if "/" in raw:
+            network = ipaddress.ip_network(raw, strict=False)
+            return network.with_prefixlen
+        address = ipaddress.ip_address(raw)
+    except ValueError:
+        return ""
+    suffix = "/128" if address.version == 6 else "/32"
+    return f"{address.compressed}{suffix}"
+
+
+def _resolve_host_allowed_ips(host: str, limit: int = 4) -> list[str]:
+    target = str(host or "").strip()
+    if not target:
+        return []
+    try:
+        infos = socket.getaddrinfo(target, None, proto=socket.IPPROTO_TCP)
+    except OSError:
+        return []
+    resolved: list[str] = []
+    seen: set[str] = set()
+    for _family, _socktype, _proto, _canonname, sockaddr in infos:
+        ip = str(sockaddr[0]).strip()
+        if not ip or ip in seen:
+            continue
+        cidr = _allowed_ip_cidr(ip)
+        if not cidr:
+            continue
+        seen.add(ip)
+        resolved.append(cidr)
+        if len(resolved) >= limit:
+            break
+    return resolved
+
+
 def vpn_routing_defaults() -> dict[str, Any]:
     allowed_ips = _env_csv("PA_VPN_ALLOWED_IPS")
     upstream_ip = _env_text("PA_VPN_UPSTREAM_IP")
@@ -765,7 +806,15 @@ def vpn_routing_config() -> dict[str, Any]:
     config["upstream"]["allowed_ips"] = _normalize_list(config["upstream"].get("allowed_ips"))
     config["notes"] = str(config.get("notes") or "").strip()[:4000]
     if not config["upstream"]["allowed_ips"] and config["upstream"]["ip"]:
-        config["upstream"]["allowed_ips"] = [config["upstream"]["ip"]]
+        cidr = _allowed_ip_cidr(config["upstream"]["ip"])
+        if cidr:
+            config["upstream"]["allowed_ips"] = [cidr]
+    if not config["upstream"]["allowed_ips"]:
+        resolved_allowed_ips = _resolve_host_allowed_ips(config["upstream"]["host"])
+        if resolved_allowed_ips:
+            config["upstream"]["allowed_ips"] = resolved_allowed_ips
+            if not config["upstream"]["ip"]:
+                config["upstream"]["ip"] = resolved_allowed_ips[0].split("/")[0]
     return config
 
 
@@ -791,10 +840,18 @@ def set_vpn_routing_config(body: dict[str, Any]) -> dict[str, Any]:
     current["upstream"]["ip"] = str((body.get("upstream") or {}).get("ip") or "").strip()[:255]
     current["upstream"]["allowed_ips"] = _normalize_list((body.get("upstream") or {}).get("allowed_ips"))
     if not current["upstream"]["allowed_ips"] and current["upstream"]["ip"]:
-        current["upstream"]["allowed_ips"] = [current["upstream"]["ip"]]
+        cidr = _allowed_ip_cidr(current["upstream"]["ip"])
+        if cidr:
+            current["upstream"]["allowed_ips"] = [cidr]
+    if not current["upstream"]["allowed_ips"]:
+        resolved_allowed_ips = _resolve_host_allowed_ips(current["upstream"]["host"])
+        if resolved_allowed_ips:
+            current["upstream"]["allowed_ips"] = resolved_allowed_ips
+            if not current["upstream"]["ip"]:
+                current["upstream"]["ip"] = resolved_allowed_ips[0].split("/")[0]
     current["notes"] = str(body.get("notes") or "").strip()[:4000]
     if current["enabled"] and not current["upstream"]["allowed_ips"]:
-        raise ValueError("allowed_ips or upstream ip is required when VPN routing is enabled")
+        raise ValueError("allowed_ips, upstream ip, or a resolvable upstream host is required when VPN routing is enabled")
     with DB_LOCK, db() as conn:
         conn.execute(
             "INSERT INTO settings(key,value) VALUES('vpn_routing_config',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
@@ -815,7 +872,11 @@ def vpn_routing_plan(config: dict[str, Any] | None = None) -> dict[str, Any]:
     upstream = cfg.get("upstream") if isinstance(cfg.get("upstream"), dict) else {}
     allowed_ips = _normalize_list(upstream.get("allowed_ips"))
     if not allowed_ips and str(upstream.get("ip") or "").strip():
-        allowed_ips = [f"{str(upstream.get('ip')).strip()}/32"]
+        cidr = _allowed_ip_cidr(str(upstream.get("ip") or ""))
+        if cidr:
+            allowed_ips = [cidr]
+    if not allowed_ips:
+        allowed_ips = _resolve_host_allowed_ips(str(upstream.get("host") or ""))
     if not allowed_ips:
         allowed_ips = ["203.0.113.50/32"]
     interface = str(vps1.get("interface") or "wg0").strip() or "wg0"
@@ -825,6 +886,8 @@ def vpn_routing_plan(config: dict[str, Any] | None = None) -> dict[str, Any]:
     endpoint_port = int(vps2.get("endpoint_port") or 51820)
     upstream_host = str(upstream.get("host") or "api.example.com").strip() or "api.example.com"
     upstream_ip = str(upstream.get("ip") or "").strip()
+    if not upstream_ip:
+        upstream_ip = allowed_ips[0].split("/")[0]
     vps2_host = str(vps2.get("host") or "").strip()
     vps2_interface = str(vps2.get("interface") or interface).strip() or interface
     vps2_vpn_address = str(vps2.get("vpn_address") or "10.10.0.1/24").strip() or "10.10.0.1/24"

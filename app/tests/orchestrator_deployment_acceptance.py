@@ -93,6 +93,7 @@ def main() -> int:
             assert "caddy:2.11.2" in compose and "ollama:" not in compose and "code-worker:" not in compose and "browser:" not in compose
             assert "agent.example.test" in caddy and "reverse_proxy core:8080" in caddy
             assert "ADMIN_TOKEN_TEST" in env
+            assert "PA_OLLAMA_URL=" in env and "PA_SEARXNG_URL=" in env and "PA_BROWSER_URL=" in env
 
         session = FakeSession(memory=2048)
         pf = preflight(session)
