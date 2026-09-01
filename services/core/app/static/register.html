@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="app-version" content="1.0.0">
+  <meta name="app-version" content="1.0.3">
   <meta name="description" content="Регистрация в Родном Агенте с отдельной сессией, балансом, темами, cookie-настройками и юридическими страницами.">
   <title>Регистрация — Родной Агент</title>
   <link rel="icon" href="/static/favicon.svg">
   <link rel="manifest" href="/static/manifest.webmanifest">
   <meta name="theme-color" content="#0b0c0f">
-  <link rel="stylesheet" href="/static/styles.css?v=1.0.0">
+  <link rel="stylesheet" href="/static/styles.css?v=1.0.3">
 </head>
 <body class="auth-page" data-auth-page="register">
 <main class="auth-shell">
@@ -19,7 +19,7 @@
       <span class="brand-mark">PA</span>
       <span>
         <strong class="localized-brand">Родной Агент</strong>
-        <small class="localized-edition">Локальная версия</small>
+        <small class="localized-edition">Версия</small>
       </span>
     </a>
     <span class="eyebrow">АККАУНТ</span>
@@ -42,6 +42,11 @@
     </form>
     <p id="authError" class="error" role="alert"></p>
     <p id="authSuccess" class="success-text"></p>
+    <div id="recoveryLinkWrap" class="account-note" hidden>
+      <strong id="recoveryLinkTitle">Ссылка</strong>
+      <a id="recoveryLink" href="#" rel="noopener">Открыть</a>
+    </div>
+    <p id="registerTrustNote" class="muted">Указывайте реальный email: после регистрации можно подтвердить его одноразовой ссылкой.</p>
     <div class="auth-links">
       <a href="/login">Уже есть аккаунт? Войти</a>
       <a href="/">← В Родной Агент</a>
@@ -54,6 +59,6 @@
     </div>
   </section>
 </main>
-<script src="/static/auth.js?v=1.0.0"></script>
+<script src="/static/auth.js?v=1.0.3"></script>
 </body>
 </html>

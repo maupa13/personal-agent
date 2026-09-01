@@ -8,7 +8,7 @@ services:
       POSTGRES_USER: ${PA_POSTGRES_USER:-personal_agent}
       POSTGRES_PASSWORD: ${PA_POSTGRES_PASSWORD:?PA_POSTGRES_PASSWORD is required}
     volumes:
-      - par-server-postgres:/var/lib/postgresql/data
+      - par-server-postgres:/var/lib/postgresql
       - ../../migrations/postgres:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${PA_POSTGRES_USER:-personal_agent} -d ${PA_POSTGRES_DB:-personal_agent}"]
@@ -25,6 +25,9 @@ services:
       PA_RUNTIME_PROFILE: server
       PA_AUTH_MODE: accounts
       PA_SECURE_COOKIES: "1"
+      PA_ADMIN_TOKEN: ${PA_ADMIN_TOKEN}
+      PA_BOOTSTRAP_MODEL: qwen3:0.6b
+      PA_OLLAMA_URL: http://ollama:11434
       PA_DATABASE_URL: postgresql://${PA_POSTGRES_USER:-personal_agent}:${PA_POSTGRES_PASSWORD}@postgres:5432/${PA_POSTGRES_DB:-personal_agent}
       PA_DB: /data/personal-agent-rus.db
     volumes:
@@ -33,6 +36,13 @@ services:
       postgres:
         condition: service_healthy
     expose: ["8080"]
+  ollama:
+    image: ollama/ollama:0.32.6
+    restart: unless-stopped
+    volumes:
+      - par-server-ollama:/root/.ollama
+    expose: ["11434"]
 volumes:
   par-server-postgres:
   par-server-data:
+  par-server-ollama:

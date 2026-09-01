@@ -131,6 +131,7 @@ services:
       PA_VPN_UPSTREAM_IP: ${PA_VPN_UPSTREAM_IP:-}
       PA_VPN_ALLOWED_IPS: ${PA_VPN_ALLOWED_IPS:-}
       PA_VPN_PROFILE_FILE: ${PA_VPN_PROFILE_FILE:-}
+      PA_VPN_IMPORT_URI_FILE: ${PA_VPN_IMPORT_URI_FILE:-/data/secrets/amnezia-import.vpnuri}
       PA_LAN_ENABLED: ${PA_LAN_ENABLED:-0}
       PA_LAN_PUBLIC_URL: ${PA_LAN_PUBLIC_URL:-}
       PA_SECRETS_DIR: /data/secrets

@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="app-version" content="1.0.0">
+  <meta name="app-version" content="1.0.3">
   <meta name="description" content="Личный кабинет Родного Агента: баланс, промокоды, YooMoney, темы, подписки, сессии и безопасность.">
   <title>Профиль — Родной Агент</title>
   <link rel="icon" href="/static/favicon.svg">
   <link rel="manifest" href="/static/manifest.webmanifest">
   <meta name="theme-color" content="#0b0c0f">
-  <link rel="stylesheet" href="/static/styles.css?v=1.0.0">
+  <link rel="stylesheet" href="/static/styles.css?v=1.0.3">
 </head>
 <body class="auth-page" data-auth-page="account">
 <main class="auth-shell">
@@ -19,12 +19,13 @@
       <span class="brand-mark">PA</span>
       <span>
         <strong class="localized-brand">Родной Агент</strong>
-        <small class="localized-edition">Локальная версия</small>
+        <small class="localized-edition">Версия</small>
       </span>
     </a>
     <span class="eyebrow">ПРОФИЛЬ</span>
     <h1 id="accountTitle">Профиль</h1>
     <div id="accountInfo" class="account-info">Загрузка…</div>
+    <p id="accountVerification" class="muted"></p>
 
     <section id="billingAccount" class="account-billing" hidden>
       <div class="account-plan-head">
@@ -37,15 +38,15 @@
       <p id="planDescription" class="muted"></p>
 
       <div class="usage-box">
-        <strong>Баланс запросов</strong>
+        <strong id="balanceTitle">Баланс запросов</strong>
         <div id="balanceSummary" class="usage-summary"></div>
         <p id="balanceState" class="job-state"></p>
       </div>
 
       <div class="usage-box">
-        <strong>Использование AI</strong>
+        <strong id="usageTitle">Использование AI</strong>
         <div id="usageSummary" class="usage-summary"></div>
-        <label class="token-toggle">
+        <label class="token-toggle" id="showTokensLabel">
           <input id="showTokens" type="checkbox">
           Показывать токены в ответах
         </label>
@@ -61,17 +62,24 @@
 
       <div class="usage-box">
         <strong>Темы интерфейса</strong>
-        <p class="muted">Базовые темы доступны сразу. Дополнительные цветовые темы можно купить один раз и использовать в профиле.</p>
+        <p id="themeIntro" class="muted">Базовые темы доступны всем. Дополнительные темы можно купить с баланса и затем выбрать в настройках интерфейса.</p>
         <div id="themeCatalog" class="plan-catalog"></div>
         <p id="themeState" class="job-state"></p>
       </div>
 
       <div class="usage-box">
         <strong>Пополнение баланса</strong>
-        <p class="muted">Пользователи пополняют баланс через YooMoney или промокод. Супер-администратор может увеличить баланс вручную из панели Admin и должен видеть источник операции.</p>
-        <a class="secondary-button" href="https://yoomoney.ru/fundraise/1JMGPM46A4L.260816" target="_blank" rel="noopener">Открыть YooMoney</a>
-        <div class="yoomoney-widget" style="margin-top:12px;overflow:hidden;max-width:520px">
-          <iframe src="https://yoomoney.ru/quickpay/fundraise/widget?billNumber=1JMGPM46A4L.260816&" width="500" height="480" frameborder="0" allowtransparency="true" scrolling="no"></iframe>
+        <p id="topupIntro" class="muted">Пользователи пополняют баланс через YooMoney или промокод. Супер-администратор может увеличить баланс вручную из панели Admin и должен видеть источник операции.</p>
+        <div class="account-note">
+          <strong id="topupBlockedTitle">YooMoney в браузере</strong>
+          <span id="topupBlockedDetail">Встроенная панель YooMoney может блокироваться браузером или провайдером. Откройте оплату в новой вкладке, затем вернитесь сюда и отправьте reference платежа для зачисления.</span>
+        </div>
+        <div class="panel-actions">
+          <a id="topupOpenLink" class="secondary-button" href="https://yoomoney.ru/fundraise/1JMGPM46A4L.260816" target="_blank" rel="noopener">Открыть YooMoney в новой вкладке</a>
+        </div>
+        <div class="account-note">
+          <strong id="topupStepsTitle">Как пополнить баланс</strong>
+          <span id="topupStepsDetail">1. Откройте YooMoney. 2. Выполните оплату. 3. Вернитесь на эту страницу и отправьте reference для ручного зачисления.</span>
         </div>
         <div class="provider-form" style="margin-top:12px">
           <label>
@@ -89,6 +97,7 @@
           <button id="requestTopup" class="primary-button" type="button">Сообщить об оплате</button>
         </div>
         <p id="topupState" class="job-state"></p>
+        <div id="topupHistory" class="usage-admin-list"></div>
       </div>
 
       <div class="usage-box">
@@ -128,6 +137,6 @@
     </div>
   </section>
 </main>
-<script src="/static/auth.js?v=1.0.0"></script>
+<script src="/static/auth.js?v=1.0.3"></script>
 </body>
 </html>

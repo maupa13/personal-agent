@@ -187,6 +187,11 @@ def run_command(job_id: str, command: list[str], cwd: Path, timeout_seconds: int
         'POWERSHELL_TELEMETRY_OPTOUT': '1',
         'DOTNET_CLI_TELEMETRY_OPTOUT': '1',
     }
+    if os.name == 'nt':
+        for key in ('SystemRoot', 'SYSTEMROOT', 'ComSpec', 'COMSPEC', 'PATHEXT', 'WINDIR', 'TEMP', 'TMP', 'USERPROFILE'):
+            value = os.getenv(key)
+            if value:
+                env[key] = value
     # Do not transfer UID ownership of HOME/TMP to the runner. On Docker Desktop
     # with restricted capabilities this can return EPERM even though the worker
     # itself is healthy. The job directory has SGID+runner group, so group access
@@ -221,6 +226,8 @@ def run_command(job_id: str, command: list[str], cwd: Path, timeout_seconds: int
                 terminate_process(job_id)
                 break
             if time.monotonic() >= deadline:
+                if proc.poll() is not None:
+                    break
                 timed_out = True
                 terminate_process(job_id)
                 break

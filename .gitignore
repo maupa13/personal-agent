@@ -1,5 +1,7 @@
 .env
+deploy/server/.env.vps
 __pycache__/
+.pytest_cache/
 *.pyc
 *.pyo
 backup-*/
@@ -12,3 +14,15 @@ release-evidence/_tmp/
 app/release-evidence/1.0.0-local/
 app/release-evidence/_tmp/
 pytest-cache-files-*/
+/deploy/server/.env.vps
+
+logs/
+_tmp_proxy_acceptance/
+par-egress-proxy-*/
+logs/*
+!logs/.gitkeep
+personal-agent-rus-v0.7.0-orchestrator-vps-deployment-release/
+personal-agent-rus-v0.7.0-release-evidence/
+personal-agent-rus-v0.7.1-release-evidence/
+backups/
+config/

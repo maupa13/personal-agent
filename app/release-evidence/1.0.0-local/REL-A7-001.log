@@ -1,4 +1,0 @@
-[PASS] REL-A7-001 - Installer derives release identity from signed product manifest
-[PASS] PERF-A7-001 - VERIFY uses bounded bootstrap inference instead of configured production route
-[PASS] OBS-A7-001 - Native inference timing is exposed for runtime diagnostics
-PAR_V080_ALPHA7_RUNTIME_TIMING_ACCEPTANCE PASS: 3 checks

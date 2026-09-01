@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import secrets
 import sqlite3
 import threading
@@ -23,11 +24,12 @@ DEFAULT_PREFERENCES: dict[str, Any] = {
     "execution_policy": "auto",
     "tone": "normal",
     "ui_scale": "normal",
+    "profile_notes": "",
 }
 
 UI_LANGUAGES = {"ru", "en"}
 RESPONSE_LANGUAGES = {"auto", "ru", "en"}
-THEMES = {"system", "dark", "light"}
+THEMES = {"system", "dark", "light", "ocean", "forest", "sunset", "sand", "coral"}
 EXECUTION_POLICIES = {"auto", "local_only", "prefer_local", "remote_allowed", "remote_only"}
 TONES = {"normal", "friendly", "ironic", "meme", "serious", "expert", "brief", "detailed"}
 UI_SCALES = {"compact", "normal", "large"}
@@ -54,6 +56,7 @@ class ExperienceService:
                   execution_policy TEXT NOT NULL DEFAULT 'auto',
                   tone TEXT NOT NULL DEFAULT 'normal',
                   ui_scale TEXT NOT NULL DEFAULT 'normal',
+                  profile_notes TEXT NOT NULL DEFAULT '',
                   updated_at INTEGER NOT NULL
                 );
                 CREATE TABLE IF NOT EXISTS feedback (
@@ -85,6 +88,8 @@ class ExperienceService:
             columns = {str(row[1]) for row in conn.execute("PRAGMA table_info(user_experience_preferences)").fetchall()}
             if "ui_scale" not in columns:
                 conn.execute("ALTER TABLE user_experience_preferences ADD COLUMN ui_scale TEXT NOT NULL DEFAULT 'normal'")
+            if "profile_notes" not in columns:
+                conn.execute("ALTER TABLE user_experience_preferences ADD COLUMN profile_notes TEXT NOT NULL DEFAULT ''")
             conn.commit()
 
     @staticmethod
@@ -97,6 +102,7 @@ class ExperienceService:
         value["execution_policy"] = str(value["execution_policy"]).strip().lower()
         value["tone"] = str(value["tone"]).strip().lower()
         value["ui_scale"] = str(value["ui_scale"]).strip().lower()
+        value["profile_notes"] = re.sub(r"\s+", " ", str(value.get("profile_notes") or "")).strip()[:1000]
         if value["ui_language"] not in UI_LANGUAGES:
             raise ExperienceError("unsupported UI language")
         if value["response_language"] not in RESPONSE_LANGUAGES:
@@ -114,7 +120,7 @@ class ExperienceService:
     def preferences(self, user_id: str) -> dict[str, Any]:
         with self.lock, self._db() as conn:
             row = conn.execute(
-                "SELECT ui_language,response_language,theme,execution_policy,tone,ui_scale,updated_at FROM user_experience_preferences WHERE user_id=?",
+                "SELECT ui_language,response_language,theme,execution_policy,tone,ui_scale,profile_notes,updated_at FROM user_experience_preferences WHERE user_id=?",
                 (user_id,),
             ).fetchone()
         return self._validate(dict(row) if row else DEFAULT_PREFERENCES) | {"updated_at": int(row["updated_at"]) if row else 0}
@@ -125,9 +131,9 @@ class ExperienceService:
         ts = int(time.time())
         with self.lock, self._db() as conn:
             conn.execute(
-                "INSERT INTO user_experience_preferences(user_id,ui_language,response_language,theme,execution_policy,tone,ui_scale,updated_at) VALUES(?,?,?,?,?,?,?,?) "
-                "ON CONFLICT(user_id) DO UPDATE SET ui_language=excluded.ui_language,response_language=excluded.response_language,theme=excluded.theme,execution_policy=excluded.execution_policy,tone=excluded.tone,ui_scale=excluded.ui_scale,updated_at=excluded.updated_at",
-                (user_id, cleaned["ui_language"], cleaned["response_language"], cleaned["theme"], cleaned["execution_policy"], cleaned["tone"], cleaned["ui_scale"], ts),
+                "INSERT INTO user_experience_preferences(user_id,ui_language,response_language,theme,execution_policy,tone,ui_scale,profile_notes,updated_at) VALUES(?,?,?,?,?,?,?,?,?) "
+                "ON CONFLICT(user_id) DO UPDATE SET ui_language=excluded.ui_language,response_language=excluded.response_language,theme=excluded.theme,execution_policy=excluded.execution_policy,tone=excluded.tone,ui_scale=excluded.ui_scale,profile_notes=excluded.profile_notes,updated_at=excluded.updated_at",
+                (user_id, cleaned["ui_language"], cleaned["response_language"], cleaned["theme"], cleaned["execution_policy"], cleaned["tone"], cleaned["ui_scale"], cleaned["profile_notes"], ts),
             )
             conn.commit()
         return cleaned | {"updated_at": ts}

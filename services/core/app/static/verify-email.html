@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="app-version" content="1.0.3">
+  <meta name="description" content="Подтверждение email для аккаунта Родного Агента.">
+  <title>Подтверждение email — Родной Агент</title>
+  <link rel="icon" href="/static/favicon.svg">
+  <link rel="manifest" href="/static/manifest.webmanifest">
+  <meta name="theme-color" content="#0b0c0f">
+  <link rel="stylesheet" href="/static/styles.css?v=1.0.3">
+</head>
+<body class="auth-page" data-auth-page="verify-email">
+<main class="auth-shell">
+  <section class="auth-card">
+    <button class="locale-toggle" id="localeToggle" type="button" aria-label="Switch language">EN</button>
+    <a class="auth-brand" href="/">
+      <span class="brand-mark">PA</span>
+      <span>
+        <strong class="localized-brand">Родной Агент</strong>
+        <small class="localized-edition">Версия</small>
+      </span>
+    </a>
+    <span class="eyebrow">АККАУНТ</span>
+    <h1 id="verifyTitle">Подтверждение email</h1>
+    <p id="verifyLead">Проверяю ссылку подтверждения и состояние аккаунта.</p>
+    <div id="tokenState" class="info-callout">Проверяю ссылку…</div>
+    <form id="authForm" hidden>
+      <button class="primary-button" type="submit">Подтвердить email</button>
+    </form>
+    <form id="requestVerificationForm" hidden>
+      <label>
+        Email
+        <input id="email" type="email" autocomplete="email" required placeholder="name@example.com">
+      </label>
+      <button class="primary-button" type="submit">Подготовить ссылку подтверждения</button>
+    </form>
+    <p id="authError" class="error" role="alert"></p>
+    <p id="authSuccess" class="success-text"></p>
+    <div id="recoveryLinkWrap" class="account-note" hidden>
+      <strong id="recoveryLinkTitle">Ссылка для подтверждения</strong>
+      <a id="recoveryLink" href="#" rel="noopener">Открыть</a>
+    </div>
+    <div class="auth-links">
+      <a href="/login">Ко входу</a>
+      <a href="/">← В Родной Агент</a>
+    </div>
+  </section>
+</main>
+<script src="/static/auth.js?v=1.0.3"></script>
+</body>
+</html>

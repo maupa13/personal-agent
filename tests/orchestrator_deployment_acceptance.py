@@ -50,14 +50,14 @@ def main():
         assert store.request_cancel('u1',task['id']) is True and store.cancelled(task['id']) is True
         assert store.get('u2',task['id']) is None
 
-    # DEPLOY bundle: server-lite never requires local Ollama/GPU/browser/code worker.
+    # DEPLOY bundle: server-lite includes a tiny local Ollama demo model, but still no browser/code worker.
     bundle=server_bundle('0.8.0-alpha.7','server-lite','agent.example.test','ADMIN_TOKEN_TEST')
     full=add_core_to_bundle(bundle,ROOT/'services'/'core')
     with tarfile.open(fileobj=io.BytesIO(full),mode='r:gz') as tf:
         names=set(tf.getnames());assert {'docker-compose-main.yaml','.env.server','Caddyfile','core/app/main.py','core/Dockerfile'}<=names
         compose=tf.extractfile('docker-compose-main.yaml').read().decode();env=tf.extractfile('.env.server').read().decode();caddy=tf.extractfile('Caddyfile').read().decode()
-        assert 'caddy:2.11.2' in compose and 'ollama:' not in compose and 'code-worker:' not in compose and 'browser:' not in compose
-        assert 'PA_RUNTIME_PROFILE=server' in env and 'PA_AUTH_MODE=accounts' in env and 'PA_SECURE_COOKIES=1' in env and 'PA_OLLAMA_URL=' in env
+        assert 'caddy:2.11.2' in compose and 'ollama/ollama:0.32.6' in compose and 'ollama pull' in compose and 'code-worker:' not in compose and 'browser:' not in compose
+        assert 'PA_RUNTIME_PROFILE=server' in env and 'PA_AUTH_MODE=accounts' in env and 'PA_SECURE_COOKIES=1' in env and 'PA_BOOTSTRAP_MODEL=qwen3:0.6b' in env and 'PA_OLLAMA_URL=http://ollama:11434' in env and 'PA_SEARXNG_URL=' in env and 'PA_BROWSER_URL=' in env
         assert 'agent.example.test' in caddy and 'reverse_proxy core:8080' in caddy
         assert 'ADMIN_TOKEN_TEST' in env
 

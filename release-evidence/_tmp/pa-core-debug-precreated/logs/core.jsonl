@@ -1,2 +1,0 @@
-{"timestamp":"2026-08-16T20:23:21Z","epoch_ms":1786911801552,"level":"INFO","service":"core","version":"test","event":"core.starting","runtime_profile":"local","auth_mode":"personal","registration_policy":"open"}
-{"timestamp":"2026-08-16T20:23:21Z","epoch_ms":1786911801560,"level":"INFO","service":"core","version":"test","event":"core.ready","host":"127.0.0.1","port":9999,"product":"Personal Agent Rus"}

@@ -70,6 +70,10 @@ def main() -> int:
     check("/api/admin/auth/registration-policy" in admin_js and "revoke-sessions" in admin_js, "ADMIN-002", "Admin UI controls registration and sessions")
     check("PA_LAN_PUBLIC_URL" in lan_ps and "PA_LAN_ENABLED" in lan_ps, "LAN-001", "LAN lifecycle persists product-visible state")
     check("/api/admin/lan/qr.svg" in main_py and "lanQr" in admin_js, "LAN-002", "Admin exposes LAN address and QR contract")
+    deployment_py = (CORE_APP / "deployment_service.py").read_text(encoding="utf-8")
+    check("/api/admin/vpn-routing/import-key" in main_py and "secret_never_returned" in main_py and "import-key/clear" in main_py and "validate_vpn_import_uri" in main_py, "VPN-001", "Admin validates, stores, checks and clears Amnezia key without returning the secret")
+    check("Проверить подключение" in admin_js and "INVALID_KEY" in admin_js and "NEEDS_PROFILE" in admin_js and "Сохранить ключ" in admin_js, "VPN-002", "Admin VPN panel exposes an honest connection check")
+    check("amnezia_uri_to_wireguard_config" in main_py and "action == \"vpn-apply\"" in main_py and "apply_vpn_plan" in deployment_py and "ip route get" in deployment_py, "VPN-003", "Deploy converts the saved key, raises the VPS1 tunnel and verifies routing")
 
     print("PAR_V080_ALPHA2_ACCOUNTS_ENTITLEMENTS_ACCEPTANCE PASS")
     return 0

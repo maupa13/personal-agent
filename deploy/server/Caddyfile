@@ -1,0 +1,12 @@
+{$PA_PUBLIC_DOMAIN} {
+	encode zstd gzip
+	@upload path /api/files/upload
+	request_body @upload {
+		max_size {$PA_FILE_MAX_BYTES}
+	}
+	@jsonapi path /api/chat /api/tasks /api/research /api/web/search /api/web/read /api/files/create /api/auth/*
+	request_body @jsonapi {
+		max_size 8MB
+	}
+	reverse_proxy 172.30.0.10:8080
+}

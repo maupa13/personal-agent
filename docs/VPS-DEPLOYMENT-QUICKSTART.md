@@ -128,8 +128,12 @@ PA_OPENAI_PROVIDER_ID=openai
 PA_OPENAI_PROVIDER_NAME=OpenAI
 PA_OPENAI_PROVIDER_TYPE=openai_responses
 PA_OPENAI_BASE_URL=https://api.openai.com/v1
+PA_EGRESS_HTTP_PROXY=
+PA_EGRESS_HTTPS_PROXY=
+PA_EGRESS_NO_PROXY=127.0.0.1,localhost,::1,ollama,searxng,browser,core,smtp,caddy
 
 PA_BOOTSTRAP_MODEL=qwen3:0.6b
+PA_OLLAMA_URL=http://ollama:11434
 PA_OLLAMA_IMAGE=ollama/ollama:0.32.6
 PA_CORE_IMAGE=personal-agent-core:0.8.0-alpha.8
 PA_BROWSER_IMAGE=personal-agent-browser:0.8.0-alpha.8
@@ -165,6 +169,7 @@ cp parent.env .env
 - `OPENAI_API_KEY` теперь можно указать для bootstrap: при старте создается provider `openai`, а ключ копируется в server-side secret storage. Для постоянной эксплуатации безопаснее добавить/обновить provider через `/admin`, чтобы не держать ключ в env.
 
 `PA_DATABASE_URL` для VPS должен быть заполнен. Именно он переключает live runtime на PostgreSQL. Пустое значение оставляет локальный SQLite-режим и для VPS больше не рекомендуется.
+`PA_BOOTSTRAP_MODEL=qwen3:0.6b` и `PA_OLLAMA_URL=http://ollama:11434` дают локальную демо-модель прямо на VPS.
 
 Посмотреть env без раскрытия токенов:
 
@@ -195,7 +200,7 @@ PA_REGISTRATION_POLICY=approval_required
 
 ## 8. Импорт Amnezia AWG на VPS1
 
-Env только сообщает сервису, какой VPN-профиль и маршрут используются. Сам VPN-интерфейс поднимается не Docker Compose, а Amnezia/AWG на VPS1.
+Env только сообщает сервису, какой VPN-профиль и маршрут используются. Сам VPN-интерфейс поднимается не Docker Compose, а Amnezia/AWG на VPS1. В админке можно сохранить полный текстовый `vpn://`-ключ и проверить его fingerprint, наличие backend, профиль и маршрут, но сохранение ключа не является автоматическим импортом и не поднимает туннель.
 
 Действия:
 
@@ -213,6 +218,14 @@ curl -4 https://api.deepseek.com/ -I
 ```
 
 Если `ip route get 203.0.113.50` не идет через AWG/WireGuard интерфейс, значит `.vpn` еще не импортирован или маршрут не применен. Наличие `PA_VPN_PROFILE_FILE` в env само по себе VPN не включает.
+
+### Ключ из админки
+
+В разделе Admin -> Deployment -> VPN routing вставьте полный `vpn://`-ключ и нажмите «Сохранить ключ». Сервис проверяет формат ключа, не возвращает его в API и показывает только короткий SHA-256 fingerprint. При включенном VPN routing обычная кнопка `Deploy + Hot Verify` автоматически декодирует ключ, устанавливает профиль на VPS1, запускает `awg-quick`/`wg-quick` и проверяет маршрут. Кнопка «Применить VPN VPS1» повторяет только VPN-шаг без пересборки приложения.
+
+Кнопка «Проверить подключение» проверяет фактическую готовность: сохраненный ключ, VPN backend, профиль/последний удаленный результат и маршрут `ip route get` через VPN-интерфейс. Если ключ больше не нужен, удалите его кнопкой «Удалить ключ». Ключ VPS1 нельзя использовать для настройки VPS2: для VPS2 нужен отдельный серверный профиль и отдельная пара ключей.
+
+Альтернативный env-вариант: оставьте `PA_VPN_IMPORT_URI_FILE=/data/secrets/amnezia-import.vpnuri` в `deploy/server/.env.vps`, создайте этот файл внутри volume данных Core с полным `vpn://`-ключом и установите права `600`. В этом режиме Admin только показывает статус; для применения на VPS используйте `Deploy + Hot Verify` или `Применить VPN VPS1`.
 
 ## 9. Запуск приложения
 

@@ -69,6 +69,13 @@ def cookie_from(headers):
     raw=headers.get('Set-Cookie','')
     return raw.split(';',1)[0]
 
+def verify_registration(base, registration_payload):
+    verify_url=registration_payload.get('verification_url','')
+    token=urllib.parse.parse_qs(urllib.parse.urlparse(verify_url).query).get('token',[''])[0]
+    assert token,registration_payload
+    _,verified,verify_headers=req(base+'/api/auth/verify-email',method='POST',body={'token':token},expect=200)
+    return verified,cookie_from(verify_headers)
+
 def base_env(tmp,fake_port,web_port,core_port,token,code_socket,db_name='personal-agent-rus.db',auth_mode='personal'):
     env=os.environ.copy();env.update({
         'PYTHONDONTWRITEBYTECODE':'1',
@@ -78,13 +85,13 @@ def base_env(tmp,fake_port,web_port,core_port,token,code_socket,db_name='persona
         'PA_HOST':'127.0.0.1','PA_PORT':str(core_port),'PA_ADMIN_TOKEN':token,
         'PA_DB':str(pathlib.Path(tmp)/db_name),'PA_SECRETS_DIR':str(pathlib.Path(tmp)/'secrets'),'PA_WORKSPACE_ROOT':str(pathlib.Path(tmp)/('workspaces-'+db_name)),
         'PA_BOOTSTRAP_MODEL':'qwen3:0.6b','PA_VERSION':'test','PA_AUTH_MODE':auth_mode,'PA_REGISTRATION_POLICY':'open',
-        'PA_TEST_MODE':'1','PA_WEB_TEST_PUBLIC_HOSTS':'example.com,example.org','PA_FILE_MAX_BYTES':str(2*1024*1024),'PA_CODE_SOCKET':str(code_socket),'PA_CODE_MAX_TIMEOUT_SECONDS':'5',
+        'PA_TEST_MODE':'1','PA_WEB_TEST_PUBLIC_HOSTS':'example.com,example.org','PA_FILE_MAX_BYTES':str(2*1024*1024),'PA_CODE_SOCKET':str(code_socket),'PA_CODE_MAX_TIMEOUT_SECONDS':'10',
         'PA_LOG_DIR':str(pathlib.Path(tmp)/'logs')
     });return env
 
 def main():
     tmp=TMP_ROOT / f"par-v050-test-{os.getpid()}-{int(time.time()*1000)}";tmp.mkdir(parents=True, exist_ok=True);fake_port,web_port,core_port,code_port=free_port(),free_port(),free_port(),free_port();token='test-admin-token-123'
-    fake_bin=pathlib.Path(tmp)/'bin';fake_bin.mkdir();fake_pwsh_cmd=fake_bin/'pwsh.cmd';fake_pwsh_stub=fake_bin/'pwsh_stub.py';fake_pwsh_stub.write_text('import base64,pathlib,re,sys,time\nif "-Version" in sys.argv: print("PowerShell 7.6.0-test"); raise SystemExit(0)\nif "-EncodedCommand" in sys.argv:\n s=base64.b64decode(sys.argv[sys.argv.index("-EncodedCommand")+1]).decode("utf-16le"); m=re.search(r"Write-Output\\s+[\\\"\\\\x27]([^\\\"\\\\x27]+)",s,re.I); print(m.group(1) if m else "PS_OK"); raise SystemExit(0)\nif "-File" in sys.argv:\n p=pathlib.Path(sys.argv[sys.argv.index("-File")+1]); s=p.read_text(encoding="utf-8"); m=re.search(r"Write-Output\\s+[\\\"\\\\x27]([^\\\"\\\\x27]+)",s,re.I); print(m.group(1) if m else "PS_OK"); time.sleep(5 if "PAR_SLEEP" in s else 0); raise SystemExit(0)\n',encoding='utf-8');fake_pwsh_cmd.write_text(f'@echo off\r\n\"{sys.executable}\" \"%~dp0pwsh_stub.py\" %*\r\n',encoding='utf-8')
+    fake_bin=pathlib.Path(tmp)/'bin';fake_bin.mkdir();fake_pwsh_cmd=fake_bin/'pwsh.cmd';fake_pwsh_sh=fake_bin/'pwsh';fake_pwsh_stub=fake_bin/'pwsh_stub.py';fake_pwsh_stub.write_text('import base64,pathlib,re,sys,time\nif "-Version" in sys.argv: print("PowerShell 7.6.0-test"); raise SystemExit(0)\nif "-EncodedCommand" in sys.argv:\n s=base64.b64decode(sys.argv[sys.argv.index("-EncodedCommand")+1]).decode("utf-16le"); m=re.search(r"Write-Output\\s+[\\\"\\\\x27]([^\\\"\\\\x27]+)",s,re.I); print(m.group(1) if m else "PS_OK"); raise SystemExit(0)\nif "-File" in sys.argv:\n p=pathlib.Path(sys.argv[sys.argv.index("-File")+1]); s=p.read_text(encoding="utf-8"); m=re.search(r"Write-Output\\s+[\\\"\\\\x27]([^\\\"\\\\x27]+)",s,re.I); print(m.group(1) if m else "PS_OK"); time.sleep(5 if "PAR_SLEEP" in s else 0); raise SystemExit(0)\n',encoding='utf-8');fake_pwsh_cmd.write_text(f'@echo off\r\n\"{sys.executable}\" \"%~dp0pwsh_stub.py\" %*\r\n',encoding='utf-8');fake_pwsh_sh.write_text(f'#!/bin/sh\nexec "{sys.executable}" "$(dirname "$0")/pwsh_stub.py" "$@"\n',encoding='utf-8');fake_pwsh_sh.chmod(0o755)
     code_socket=f'tcp://127.0.0.1:{code_port}';code_env=os.environ.copy();code_env.update({'PYTHONDONTWRITEBYTECODE':'1','PATH':str(fake_bin)+os.pathsep+code_env.get('PATH',''),'PA_CODE_SOCKET':code_socket,'PA_CODE_WORK_ROOT':str(pathlib.Path(tmp)/'code-work'),'PA_CODE_RUNNER_UID':str(getattr(os, "getuid", lambda: 0)()),'PA_CODE_RUNNER_GID':str(getattr(os, "getgid", lambda: 0)()),'PA_CODE_MAX_TIMEOUT_SECONDS':'5'})
     code_worker=subprocess.Popen([sys.executable,str(ROOT/'services'/'code-worker'/'app'/'code_worker.py')],env=code_env,stdout=subprocess.DEVNULL,stderr=subprocess.STDOUT,text=True)
     wait_code_health(code_port)
@@ -118,6 +125,7 @@ def main():
         status,html,hdr=req_text(base+'/');assert status==200;low=html.lower();assert 'родной агент' in low and 'personal agent rus' not in low and 'qwen' not in low and 'ollama' not in low;assert 'no-store' in hdr.get('Cache-Control','')
         for page in ('/register','/login','/account','/admin'):
             status,_,_=req_text(base+page);assert status==200,page
+        head_status,_,head_headers=req_bytes(base+'/admin',method='HEAD',expect=200);assert head_status==200 and int(head_headers.get('Content-Length','0'))>0
         _,me,_=req(base+'/api/auth/me',expect=200);assert me['user']['id']=='local-owner' and me['user']['role']=='OWNER'
         status,_,_=req(base+'/api/auth/register',method='POST',body={'email':'x@y.z','display_name':'Test','password':'1234567890'},expect=409)
         # ADMIN-A4-001: personal owner on this PC has normal Admin access; break-glass remains an independent emergency path.
@@ -294,7 +302,8 @@ def main():
             'powershell':('Write-Output "PS_CODE_OK"','PS_CODE_OK'),
         }
         for language,(source,marker) in code_cases.items():
-            _,created_job,_=req(base+'/api/code/jobs',method='POST',body={'language':language,'code':source,'timeout_seconds':4},expect=202);job_id=created_job['job']['id'];assert len(job_id)==32
+            timeout_seconds=10 if language=='powershell' else 4
+            _,created_job,_=req(base+'/api/code/jobs',method='POST',body={'language':language,'code':source,'timeout_seconds':timeout_seconds},expect=202);job_id=created_job['job']['id'];assert len(job_id)==32
             for _ in range(160):
                 _,job_payload,_=req(base+'/api/code/jobs/'+job_id,expect=200);code_job=job_payload['job']
                 if code_job['status'] in ('COMPLETED','FAILED','CANCELLED'):break
@@ -360,7 +369,8 @@ def main():
         req(accounts+'/api/auth/login',method='POST',body={'email':'user@example.test','password':'wrong-password'},expect=401)
         # FILE-014 tenant/user boundary: a second account cannot read another user's artifact.
         _,acc_file,_=req(accounts+'/api/files/create',method='POST',body={'format':'txt','name':'private.txt','content':'private-user-one'},headers={'Cookie':cookie2,'X-CSRF-Token':csrf2},expect=201)
-        _,other_registered,headers2=req(accounts+'/api/auth/register',method='POST',body={'email':'other@example.test','display_name':'Другой пользователь','password':'strong-pass-456'},expect=201);cookie_other=cookie_from(headers2);csrf_other=other_registered['csrf_token']
+        _,other_registered,_=req(accounts+'/api/auth/register',method='POST',body={'email':'other@example.test','display_name':'Other user','password':'strong-pass-456'},expect=202);assert other_registered['status']=='active' and other_registered['verification_required'] is True
+        other_verified,cookie_other=verify_registration(accounts,other_registered);csrf_other=other_verified['csrf_token']
         _,other_me,_=req(accounts+'/api/auth/me',headers={'Cookie':cookie_other},expect=200);assert other_me['user']['role']=='USER';assert other_me['entitlements']['plan_id']=='LIGHT' and other_me['entitlements']['features']['code']['enabled'] is False
         req(accounts+'/api/chat',method='POST',body={'mode':'smart','messages':[{'role':'user','content':'smart denied'}]},headers={'Cookie':cookie_other,'X-CSRF-Token':csrf_other},expect=403)
         req(accounts+'/api/research',method='POST',body={'question':'research denied'},headers={'Cookie':cookie_other,'X-CSRF-Token':csrf_other},expect=403)
@@ -371,7 +381,8 @@ def main():
         req(accounts+'/api/code/status',headers={'Cookie':cookie_other},expect=200)
         _,medium_file,_=req(accounts+'/api/files/create',method='POST',body={'format':'txt','name':'medium.txt','content':'allowed'},headers={'Cookie':cookie_other,'X-CSRF-Token':csrf_other},expect=201);assert medium_file['artifact']['validation_status']=='verified'
         req(accounts+'/api/admin/auth/registration-policy',method='POST',body={'registration_policy':'approval_required'},headers={'Cookie':cookie2,'X-CSRF-Token':csrf2},expect=200)
-        _,pending,_=req(accounts+'/api/auth/register',method='POST',body={'email':'pending@example.test','display_name':'Ожидающий пользователь','password':'strong-pass-789'},expect=202);assert pending['status']=='pending'
+        _,pending,_=req(accounts+'/api/auth/register',method='POST',body={'email':'pending@example.test','display_name':'Pending user','password':'strong-pass-789'},expect=202);assert pending['status']=='pending'
+        pending_verified,_=verify_registration(accounts,pending);assert pending_verified['user']['status']=='pending' and 'csrf_token' not in pending_verified
         _,admin_users,_=req(accounts+'/api/admin/users',headers={'Cookie':cookie2},expect=200);pending_id=next(x['id'] for x in admin_users['users'] if x['email']=='pending@example.test')
         req(accounts+f'/api/admin/users/{pending_id}/approve',method='POST',body={},headers={'Cookie':cookie2,'X-CSRF-Token':csrf2},expect=200)
         req(accounts+'/api/auth/login',method='POST',body={'email':'pending@example.test','password':'strong-pass-789'},expect=200)

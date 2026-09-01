@@ -5,6 +5,8 @@ import hashlib
 import hmac
 import json
 import os
+import re
+import secrets
 import sqlite3
 import threading
 import time
@@ -24,6 +26,14 @@ PLAN_SUPPORT = {"LIGHT": "community", "MEDIUM": "standard", "PRO": "priority"}
 BILLING_CLASSES = {"LOCAL", "BYOK", "PLATFORM_REMOTE", "PRIVATE_REMOTE"}
 SUBSCRIPTION_STATES = {"TRIAL", "ACTIVE", "PAST_DUE", "GRACE_PERIOD", "CANCEL_AT_PERIOD_END", "CANCELLED", "EXPIRED"}
 PAYMENT_STATES = {"CREATED", "PENDING", "PAID", "FAILED", "CANCELLED", "REFUNDED", "PARTIALLY_REFUNDED"}
+TOPUP_REQUEST_STATES = {"PENDING", "REVIEW_REQUIRED", "APPROVED", "REJECTED"}
+THEME_CATALOG = {
+    "ocean": {"name": "Голубая", "price_rub": 99},
+    "forest": {"name": "Светло-зелёная", "price_rub": 99},
+    "sunset": {"name": "Закат", "price_rub": 149},
+    "sand": {"name": "Песок", "price_rub": 149},
+    "coral": {"name": "Коралл", "price_rub": 149},
+}
 
 
 def now_ts() -> int:
@@ -152,6 +162,76 @@ class BillingService:
                   value TEXT NOT NULL,
                   updated_at INTEGER NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS user_balances (
+                  user_id TEXT PRIMARY KEY,
+                  balance_microrub INTEGER NOT NULL DEFAULT 0,
+                  updated_at INTEGER NOT NULL
+                );
+                CREATE TABLE IF NOT EXISTS balance_ledger (
+                  id TEXT PRIMARY KEY,
+                  user_id TEXT NOT NULL,
+                  delta_microrub INTEGER NOT NULL,
+                  source TEXT NOT NULL,
+                  source_ref TEXT,
+                  note TEXT,
+                  actor_user_id TEXT,
+                  meta_json TEXT NOT NULL DEFAULT '{}',
+                  created_at INTEGER NOT NULL
+                );
+                CREATE INDEX IF NOT EXISTS idx_balance_ledger_user_time ON balance_ledger(user_id,created_at DESC);
+                CREATE TABLE IF NOT EXISTS promo_codes (
+                  id TEXT PRIMARY KEY,
+                  code TEXT UNIQUE NOT NULL,
+                  kind TEXT NOT NULL DEFAULT 'general',
+                  amount_microrub INTEGER NOT NULL,
+                  uses_total INTEGER NOT NULL,
+                  uses_remaining INTEGER NOT NULL,
+                  active INTEGER NOT NULL DEFAULT 1,
+                  description TEXT NOT NULL DEFAULT '',
+                  created_by_user_id TEXT,
+                  expires_at INTEGER,
+                  email_sent INTEGER NOT NULL DEFAULT 0,
+                  created_at INTEGER NOT NULL,
+                  updated_at INTEGER NOT NULL
+                );
+                CREATE TABLE IF NOT EXISTS promo_redemptions (
+                  id TEXT PRIMARY KEY,
+                  promo_code_id TEXT NOT NULL,
+                  user_id TEXT NOT NULL,
+                  amount_microrub INTEGER NOT NULL,
+                  redeemed_at INTEGER NOT NULL,
+                  meta_json TEXT NOT NULL DEFAULT '{}',
+                  UNIQUE(promo_code_id,user_id)
+                );
+                CREATE INDEX IF NOT EXISTS idx_promo_redemptions_user_time ON promo_redemptions(user_id,redeemed_at DESC);
+                CREATE TABLE IF NOT EXISTS topup_requests (
+                  id TEXT PRIMARY KEY,
+                  user_id TEXT NOT NULL,
+                  source TEXT NOT NULL,
+                  amount_microrub INTEGER NOT NULL,
+                  payment_reference TEXT,
+                  note TEXT,
+                  status TEXT NOT NULL,
+                  requires_second_approval INTEGER NOT NULL DEFAULT 0,
+                  reviewer_user_id TEXT,
+                  second_reviewer_user_id TEXT,
+                  reconciled_by_user_id TEXT,
+                  reconciled_at INTEGER,
+                  reconciliation_note TEXT,
+                  review_note TEXT,
+                  created_at INTEGER NOT NULL,
+                  updated_at INTEGER NOT NULL
+                );
+                CREATE INDEX IF NOT EXISTS idx_topup_requests_status_time ON topup_requests(status,created_at DESC);
+                CREATE TABLE IF NOT EXISTS user_theme_entitlements (
+                  user_id TEXT NOT NULL,
+                  theme_id TEXT NOT NULL,
+                  source TEXT NOT NULL,
+                  ledger_entry_id TEXT,
+                  purchased_at INTEGER NOT NULL,
+                  PRIMARY KEY(user_id, theme_id)
+                );
+                CREATE INDEX IF NOT EXISTS idx_user_theme_entitlements_user ON user_theme_entitlements(user_id, purchased_at DESC);
                 """
             )
             ts = now_ts()
@@ -159,10 +239,26 @@ class BillingService:
                 # Safe-by-default: platform-funded remote AI is disabled until an admin sets a budget.
                 conn.execute(
                     "INSERT INTO plans(id,display_name,price_rub,support_level,local_unlimited,remote_token_limit,remote_cost_limit_microrub,enabled,updated_at) "
-                    "VALUES(?,?,?,?,1,0,0,1,?) ON CONFLICT(id) DO UPDATE SET display_name=excluded.display_name,price_rub=excluded.price_rub,support_level=excluded.support_level,local_unlimited=1",
+                    "VALUES(?,?,?,?,TRUE,0,0,TRUE,?) ON CONFLICT(id) DO UPDATE SET display_name=excluded.display_name,price_rub=excluded.price_rub,support_level=excluded.support_level,local_unlimited=TRUE",
                     (plan_id, PLAN_NAMES[plan_id], PLAN_PRICES_RUB[plan_id], PLAN_SUPPORT[plan_id], ts),
                 )
             conn.commit()
+
+    @staticmethod
+    def _rub_to_microrub(value: float | int) -> int:
+        return int(round(float(value) * 1_000_000))
+
+    @staticmethod
+    def _microrub_to_rub(value: int | None) -> float:
+        return round(int(value or 0) / 1_000_000, 6)
+
+    @staticmethod
+    def _clean_note(value: str, *, limit: int = 300) -> str:
+        return re.sub(r"\s+", " ", str(value or "").strip())[:limit]
+
+    @staticmethod
+    def _clean_code(value: str) -> str:
+        return re.sub(r"[^A-Z0-9-]", "", str(value or "").upper())[:40]
 
     def _setting(self, key: str, default: str = "") -> str:
         with self.lock, self.db() as conn:
@@ -176,6 +272,343 @@ class BillingService:
                 (key, value, now_ts()),
             )
             conn.commit()
+
+    def balance(self, user_id: str) -> dict[str, Any]:
+        with self.lock, self.db() as conn:
+            row = conn.execute("SELECT balance_microrub,updated_at FROM user_balances WHERE user_id=?", (user_id,)).fetchone()
+            sources = conn.execute(
+                "SELECT source,COUNT(*) count,SUM(delta_microrub) net_microrub FROM balance_ledger WHERE user_id=? GROUP BY source ORDER BY ABS(SUM(delta_microrub)) DESC, source",
+                (user_id,),
+            ).fetchall()
+        return {
+            "user_id": user_id,
+            "balance_rub": self._microrub_to_rub(row["balance_microrub"]) if row else 0.0,
+            "updated_at": int(row["updated_at"]) if row else 0,
+            "sources": [
+                {"source": str(item["source"]), "count": int(item["count"] or 0), "net_rub": self._microrub_to_rub(item["net_microrub"])}
+                for item in sources
+            ],
+        }
+
+    def _write_balance_entry(
+        self,
+        conn: sqlite3.Connection,
+        *,
+        user_id: str,
+        delta_microrub: int,
+        source: str,
+        source_ref: str = "",
+        note: str = "",
+        actor_user_id: str = "",
+        meta: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        ts = now_ts()
+        row = conn.execute("SELECT balance_microrub FROM user_balances WHERE user_id=?", (user_id,)).fetchone()
+        current = int(row["balance_microrub"] or 0) if row else 0
+        updated = current + int(delta_microrub)
+        if updated < 0:
+            raise BillingError("balance cannot become negative")
+        ledger_id = uuid.uuid4().hex
+        conn.execute(
+            "INSERT INTO balance_ledger(id,user_id,delta_microrub,source,source_ref,note,actor_user_id,meta_json,created_at) VALUES(?,?,?,?,?,?,?,?,?)",
+            (
+                ledger_id,
+                user_id,
+                int(delta_microrub),
+                str(source).strip().lower()[:40],
+                str(source_ref or "").strip()[:160] or None,
+                self._clean_note(note),
+                str(actor_user_id or "").strip()[:64] or None,
+                json.dumps(meta or {}, ensure_ascii=False),
+                ts,
+            ),
+        )
+        conn.execute(
+            "INSERT INTO user_balances(user_id,balance_microrub,updated_at) VALUES(?,?,?) "
+            "ON CONFLICT(user_id) DO UPDATE SET balance_microrub=excluded.balance_microrub,updated_at=excluded.updated_at",
+            (user_id, updated, ts),
+        )
+        return {"user_id": user_id, "balance_rub": self._microrub_to_rub(updated), "updated_at": ts, "ledger_entry_id": ledger_id}
+
+    def adjust_balance(self, *, user_id: str, delta_rub: float, reason: str, actor_user_id: str, source: str = "admin_manual") -> dict[str, Any]:
+        delta_microrub = self._rub_to_microrub(delta_rub)
+        if delta_microrub == 0:
+            raise BillingError("balance change cannot be zero")
+        with self.lock, self.db() as conn:
+            result = self._write_balance_entry(
+                conn,
+                user_id=user_id,
+                delta_microrub=delta_microrub,
+                source=source,
+                note=reason,
+                actor_user_id=actor_user_id,
+                meta={"kind": "admin_adjustment"},
+            )
+            conn.commit()
+        return result
+
+    def create_topup_request(self, *, user_id: str, amount_rub: float, payment_reference: str, note: str, source: str = "yoomoney") -> dict[str, Any]:
+        amount_microrub = self._rub_to_microrub(amount_rub)
+        if amount_microrub <= 0:
+            raise BillingError("top-up amount must be positive")
+        request_id = uuid.uuid4().hex
+        ts = now_ts()
+        clean_ref = self._clean_note(payment_reference, limit=160)
+        clean_note = self._clean_note(note)
+        requires_second_approval = amount_microrub >= self._rub_to_microrub(3000)
+        with self.lock, self.db() as conn:
+            conn.execute(
+                "INSERT INTO topup_requests(id,user_id,source,amount_microrub,payment_reference,note,status,requires_second_approval,created_at,updated_at) VALUES(?,?,?,?,?,?, 'PENDING', ?,?,?)",
+                (request_id, user_id, str(source).strip().lower()[:40], amount_microrub, clean_ref or None, clean_note or None, int(requires_second_approval), ts, ts),
+            )
+            conn.commit()
+            row = conn.execute("SELECT * FROM topup_requests WHERE id=?", (request_id,)).fetchone()
+        assert row is not None
+        return self._topup_row(dict(row))
+
+    def create_promo_code(
+        self,
+        *,
+        amount_rub: float,
+        uses_total: int,
+        created_by_user_id: str,
+        kind: str = "general",
+        description: str = "",
+        code: str = "",
+        expires_at: int | None = None,
+        send_to_email: str = "",
+    ) -> dict[str, Any]:
+        amount_microrub = self._rub_to_microrub(amount_rub)
+        if amount_microrub <= 0:
+            raise BillingError("promo amount must be positive")
+        uses_total = int(uses_total)
+        if uses_total < 1 or uses_total > 100000:
+            raise BillingError("invalid promo uses_total")
+        normalized_code = self._clean_code(code) or f"PA-{secrets.token_hex(3).upper()}"
+        kind = re.sub(r"[^a-z0-9_-]", "", str(kind).strip().lower())[:32] or "general"
+        ts = now_ts()
+        with self.lock, self.db() as conn:
+            try:
+                conn.execute(
+                    "INSERT INTO promo_codes(id,code,kind,amount_microrub,uses_total,uses_remaining,active,description,created_by_user_id,expires_at,email_sent,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    (
+                        uuid.uuid4().hex,
+                        normalized_code,
+                        kind,
+                        amount_microrub,
+                        uses_total,
+                        uses_total,
+                        1,
+                        self._clean_note(description, limit=200),
+                        created_by_user_id or None,
+                        int(expires_at) if expires_at else None,
+                        0,
+                        ts,
+                        ts,
+                    ),
+                )
+            except sqlite3.IntegrityError as exc:
+                raise BillingError("promo code already exists") from exc
+            conn.commit()
+            row = conn.execute("SELECT * FROM promo_codes WHERE code=?", (normalized_code,)).fetchone()
+        assert row is not None
+        result = self._promo_row(dict(row))
+        result["email_sent"] = False
+        result["send_to_email"] = send_to_email
+        return result
+
+    def redeem_promo_code(self, *, user_id: str, code: str) -> dict[str, Any]:
+        normalized_code = self._clean_code(code)
+        if not normalized_code:
+            raise BillingError("promo code is required")
+        ts = now_ts()
+        with self.lock, self.db() as conn:
+            row = conn.execute("SELECT * FROM promo_codes WHERE code=?", (normalized_code,)).fetchone()
+            if not row:
+                raise BillingError("promo code not found")
+            promo = dict(row)
+            if not bool(int(promo["active"])):
+                raise BillingError("promo code is disabled")
+            if int(promo["uses_remaining"] or 0) <= 0:
+                raise BillingError("promo code is exhausted")
+            if promo["expires_at"] is not None and int(promo["expires_at"]) <= ts:
+                raise BillingError("promo code expired")
+            duplicate = conn.execute("SELECT 1 FROM promo_redemptions WHERE promo_code_id=? AND user_id=?", (promo["id"], user_id)).fetchone()
+            if duplicate:
+                raise BillingError("promo code already redeemed")
+            conn.execute(
+                "INSERT INTO promo_redemptions(id,promo_code_id,user_id,amount_microrub,redeemed_at,meta_json) VALUES(?,?,?,?,?,?)",
+                (uuid.uuid4().hex, promo["id"], user_id, int(promo["amount_microrub"]), ts, json.dumps({"code": normalized_code}, ensure_ascii=False)),
+            )
+            conn.execute(
+                "UPDATE promo_codes SET uses_remaining=uses_remaining-1,updated_at=? WHERE id=? AND uses_remaining>0",
+                (ts, promo["id"]),
+            )
+            balance = self._write_balance_entry(
+                conn,
+                user_id=user_id,
+                delta_microrub=int(promo["amount_microrub"]),
+                source="promo",
+                source_ref=normalized_code,
+                note=f"promo {normalized_code}",
+                actor_user_id=str(promo.get("created_by_user_id") or ""),
+                meta={"promo_code_id": promo["id"], "code": normalized_code, "kind": promo["kind"]},
+            )
+            conn.commit()
+        return {"balance": balance, "code": normalized_code, "amount_rub": self._microrub_to_rub(promo["amount_microrub"])}
+
+    @staticmethod
+    def _topup_row(item: dict[str, Any]) -> dict[str, Any]:
+        item["amount_rub"] = int(item.pop("amount_microrub", 0) or 0) / 1_000_000
+        item["requires_second_approval"] = bool(int(item.get("requires_second_approval") or 0))
+        return item
+
+    @staticmethod
+    def _promo_row(item: dict[str, Any]) -> dict[str, Any]:
+        item["amount_rub"] = int(item.pop("amount_microrub", 0) or 0) / 1_000_000
+        item["active"] = bool(int(item.get("active") or 0))
+        return item
+
+    def _topup_with_user(self, row: sqlite3.Row | dict[str, Any]) -> dict[str, Any]:
+        item = dict(row)
+        item["amount_rub"] = self._microrub_to_rub(item.pop("amount_microrub", 0))
+        item["requires_second_approval"] = bool(int(item.get("requires_second_approval") or 0))
+        return item
+
+    def reconcile_topup_request(self, *, request_id: str, reviewer_user_id: str, review_note: str = "") -> dict[str, Any]:
+        ts = now_ts()
+        with self.lock, self.db() as conn:
+            row = conn.execute("SELECT * FROM topup_requests WHERE id=?", (request_id,)).fetchone()
+            if not row:
+                raise BillingError("top-up request not found")
+            item = dict(row)
+            if item["status"] not in {"PENDING", "REVIEW_REQUIRED"}:
+                raise BillingError("top-up request is already closed")
+            requires_second = bool(int(item["requires_second_approval"] or 0))
+            note = self._clean_note(review_note)
+            if requires_second and item["status"] == "PENDING":
+                conn.execute(
+                    "UPDATE topup_requests SET status='REVIEW_REQUIRED',reviewer_user_id=?,review_note=?,updated_at=? WHERE id=?",
+                    (reviewer_user_id, note or None, ts, request_id),
+                )
+                conn.commit()
+                updated = conn.execute("SELECT * FROM topup_requests WHERE id=?", (request_id,)).fetchone()
+                assert updated is not None
+                return self._topup_row(dict(updated))
+            if item.get("reviewer_user_id") and str(item["reviewer_user_id"]) == reviewer_user_id:
+                raise BillingError("a different administrator must complete this review")
+            self._write_balance_entry(
+                conn,
+                user_id=str(item["user_id"]),
+                delta_microrub=int(item["amount_microrub"]),
+                source="topup_request",
+                source_ref=str(item.get("payment_reference") or request_id),
+                note=note or str(item.get("note") or ""),
+                actor_user_id=reviewer_user_id,
+                meta={"topup_request_id": request_id, "source": item.get("source")},
+            )
+            conn.execute(
+                "UPDATE topup_requests SET status='APPROVED',second_reviewer_user_id=COALESCE(second_reviewer_user_id, ?),reconciled_by_user_id=?,reconciled_at=?,reconciliation_note=?,review_note=COALESCE(review_note, ?),updated_at=? WHERE id=?",
+                (reviewer_user_id if requires_second else None, reviewer_user_id, ts, note or None, note or None, ts, request_id),
+            )
+            conn.commit()
+            updated = conn.execute("SELECT * FROM topup_requests WHERE id=?", (request_id,)).fetchone()
+        assert updated is not None
+        return self._topup_row(dict(updated))
+
+    def reject_topup_request(self, *, request_id: str, reviewer_user_id: str, review_note: str = "") -> dict[str, Any]:
+        ts = now_ts()
+        with self.lock, self.db() as conn:
+            row = conn.execute("SELECT * FROM topup_requests WHERE id=?", (request_id,)).fetchone()
+            if not row:
+                raise BillingError("top-up request not found")
+            item = dict(row)
+            if item["status"] not in {"PENDING", "REVIEW_REQUIRED"}:
+                raise BillingError("top-up request is already closed")
+            conn.execute(
+                "UPDATE topup_requests SET status='REJECTED',reconciled_by_user_id=?,reconciled_at=?,review_note=?,updated_at=? WHERE id=?",
+                (reviewer_user_id, ts, self._clean_note(review_note) or None, ts, request_id),
+            )
+            conn.commit()
+            updated = conn.execute("SELECT * FROM topup_requests WHERE id=?", (request_id,)).fetchone()
+        assert updated is not None
+        return self._topup_row(dict(updated))
+
+    def user_billing_summary(self, user_id: str) -> dict[str, Any]:
+        with self.lock, self.db() as conn:
+            payment = conn.execute(
+                "SELECT COUNT(*) payments_total,SUM(CASE WHEN status='PAID' THEN 1 ELSE 0 END) payments_paid,SUM(CASE WHEN status='PAID' THEN amount_rub ELSE 0 END) payments_paid_rub,MAX(CASE WHEN status='PAID' THEN updated_at END) last_payment_at FROM payments WHERE user_id=?",
+                (user_id,),
+            ).fetchone()
+            promo = conn.execute(
+                "SELECT COUNT(*) promo_redemptions_total,SUM(amount_microrub) promo_redemptions_total_microrub,MAX(redeemed_at) last_promo_redeemed_at FROM promo_redemptions WHERE user_id=?",
+                (user_id,),
+            ).fetchone()
+            topup = conn.execute(
+                "SELECT COUNT(*) topup_requests_total,SUM(CASE WHEN status='APPROVED' THEN 1 ELSE 0 END) topup_requests_approved,MAX(created_at) last_topup_request_at FROM topup_requests WHERE user_id=?",
+                (user_id,),
+            ).fetchone()
+            sources = conn.execute(
+                "SELECT source,COUNT(*) count,SUM(delta_microrub) net_microrub FROM balance_ledger WHERE user_id=? GROUP BY source ORDER BY ABS(SUM(delta_microrub)) DESC, source LIMIT 6",
+                (user_id,),
+            ).fetchall()
+        return {
+            "payments_total": int(payment["payments_total"] or 0),
+            "payments_paid": int(payment["payments_paid"] or 0),
+            "payments_paid_rub": float(payment["payments_paid_rub"] or 0),
+            "last_payment_at": int(payment["last_payment_at"] or 0) if payment["last_payment_at"] else None,
+            "promo_redemptions_total": int(promo["promo_redemptions_total"] or 0),
+            "promo_redemptions_rub": self._microrub_to_rub(promo["promo_redemptions_total_microrub"]),
+            "last_promo_redeemed_at": int(promo["last_promo_redeemed_at"] or 0) if promo["last_promo_redeemed_at"] else None,
+            "topup_requests_total": int(topup["topup_requests_total"] or 0),
+            "topup_requests_approved": int(topup["topup_requests_approved"] or 0),
+            "last_topup_request_at": int(topup["last_topup_request_at"] or 0) if topup["last_topup_request_at"] else None,
+            "balance_sources": [
+                {"source": str(item["source"]), "count": int(item["count"] or 0), "net_rub": self._microrub_to_rub(item["net_microrub"])}
+                for item in sources
+            ],
+        }
+
+    @staticmethod
+    def _balance_from_connection(conn: sqlite3.Connection, user_id: str) -> dict[str, Any]:
+        row = conn.execute("SELECT balance_microrub,updated_at FROM user_balances WHERE user_id=?", (user_id,)).fetchone()
+        value = int(row["balance_microrub"] or 0) if row else 0
+        return {"user_id": user_id, "balance_rub": value / 1_000_000, "updated_at": int(row["updated_at"] or 0) if row else 0}
+
+    def owned_themes(self, user_id: str) -> set[str]:
+        with self.lock, self.db() as conn:
+            rows = conn.execute("SELECT theme_id FROM user_theme_entitlements WHERE user_id=?", (user_id,)).fetchall()
+        return {str(row["theme_id"]) for row in rows}
+
+    def theme_catalog(self, user_id: str) -> list[dict[str, Any]]:
+        owned = self.owned_themes(user_id)
+        return [{"id": theme_id, **details, "owned": theme_id in owned} for theme_id, details in THEME_CATALOG.items()]
+
+    def purchase_theme(self, *, user_id: str, theme_id: str) -> dict[str, Any]:
+        theme_id = str(theme_id or "").strip().lower()
+        item = THEME_CATALOG.get(theme_id)
+        if not item:
+            raise BillingError("unknown theme")
+        price_microrub = self._rub_to_microrub(item["price_rub"])
+        with self.lock, self.db() as conn:
+            existing = conn.execute("SELECT theme_id FROM user_theme_entitlements WHERE user_id=? AND theme_id=?", (user_id, theme_id)).fetchone()
+            if existing:
+                return {"theme": theme_id, **item, "owned": True, "already_owned": True, "balance": self._balance_from_connection(conn, user_id)}
+            balance = conn.execute("SELECT balance_microrub FROM user_balances WHERE user_id=?", (user_id,)).fetchone()
+            current = int(balance["balance_microrub"] or 0) if balance else 0
+            if current < price_microrub:
+                raise BillingError("insufficient balance for theme")
+            ledger = self._write_balance_entry(
+                conn, user_id=user_id, delta_microrub=-price_microrub, source="theme_purchase",
+                source_ref=theme_id, note=f"Покупка темы {theme_id}",
+                meta={"kind": "theme_purchase", "theme_id": theme_id},
+            )
+            conn.execute(
+                "INSERT INTO user_theme_entitlements(user_id,theme_id,source,ledger_entry_id,purchased_at) VALUES(?,?,?,?,?)",
+                (user_id, theme_id, "balance", ledger["ledger_entry_id"], now_ts()),
+            )
+            conn.commit()
+            return {"theme": theme_id, **item, "owned": True, "already_owned": False, "balance": self._balance_from_connection(conn, user_id)}
 
     def _payment_secret_path(self) -> Path:
         return self.secrets_dir / "payment-yookassa.secret"
@@ -369,6 +802,10 @@ class BillingService:
         sub = self.ensure_subscription(str(user["id"]), role=str(user.get("role", "USER")))
         usage = self.usage_summary(str(user["id"]), period_start=int(sub["period_start"]), period_end=int(sub["period_end"]))
         pref = self.preference(str(user["id"]))
+        balance = self.balance(str(user["id"]))
+        summary = self.user_billing_summary(str(user["id"]))
+        with self.lock, self.db() as conn:
+            topup_rows = conn.execute("SELECT * FROM topup_requests WHERE user_id=? ORDER BY created_at DESC LIMIT 10", (str(user["id"]),)).fetchall()
         if sub["plan_id"] == "ADMIN":
             plan = {
                 "id": "ADMIN", "display_name": "Администратор", "price_rub": 0, "support_level": "owner",
@@ -391,6 +828,8 @@ class BillingService:
                 "cancel_at_period_end": bool(sub.get("cancel_at_period_end")), "billing_exempt": bool(sub.get("billing_exempt")),
             },
             "usage": usage,
+            "balance": balance,
+            "billing_summary": summary,
             "quota": {
                 "platform_remote_tokens_used": int(remote.get("total_tokens", 0)),
                 "platform_remote_tokens_limit": token_limit,
@@ -401,6 +840,9 @@ class BillingService:
             },
             "preferences": pref,
             "payment": {"configured": self.payment_config()["configured"], "provider": self.payment_config()["provider"]},
+            "topup_requests": [self._topup_row(dict(row)) for row in topup_rows],
+            "themes": self.theme_catalog(str(user["id"])),
+            "owned_themes": sorted(self.owned_themes(str(user["id"]))),
         }
 
     def route_allowed(self, user: dict[str, Any], provider: dict[str, Any]) -> tuple[bool, str | None]:
@@ -655,12 +1097,55 @@ class BillingService:
             ).fetchall()
             subscriptions = conn.execute("SELECT plan_id,status,COUNT(*) count FROM subscriptions GROUP BY plan_id,status ORDER BY plan_id,status").fetchall()
             payments = conn.execute("SELECT status,COUNT(*) count,SUM(amount_rub) amount_rub FROM payments GROUP BY status").fetchall()
+            balances = conn.execute(
+                "SELECT u.id AS user_id,u.email,u.display_name,u.role,u.status,COALESCE(b.balance_microrub,0) AS balance_microrub "
+                "FROM users u LEFT JOIN user_balances b ON b.user_id=u.id ORDER BY COALESCE(b.balance_microrub,0) DESC,u.created_at DESC"
+            ).fetchall()
+            promo_codes = conn.execute(
+                "SELECT p.*,COUNT(r.id) redemption_count,COUNT(DISTINCT r.user_id) unique_user_count,MAX(r.redeemed_at) last_redeemed_at "
+                "FROM promo_codes p LEFT JOIN promo_redemptions r ON r.promo_code_id=p.id GROUP BY p.id ORDER BY p.created_at DESC LIMIT 100"
+            ).fetchall()
+            promo_redemptions = conn.execute(
+                "SELECT r.id,r.user_id,r.amount_microrub,r.redeemed_at,p.code,p.kind,p.created_by_user_id,u.email,u.display_name,u.role "
+                "FROM promo_redemptions r JOIN promo_codes p ON p.id=r.promo_code_id LEFT JOIN users u ON u.id=r.user_id "
+                "ORDER BY r.redeemed_at DESC LIMIT 100"
+            ).fetchall()
+            topup_requests = conn.execute(
+                "SELECT t.*,u.email,u.display_name,u.role,u.status AS user_status FROM topup_requests t "
+                "LEFT JOIN users u ON u.id=t.user_id ORDER BY t.created_at DESC LIMIT 100"
+            ).fetchall()
         return {
             "plans": self.plans(),
             "payment_config": self.payment_config(),
             "usage": [{"billing_class": r["billing_class"], "provider_id": r["provider_id"], "model_id": r["model_id"], "tokens": int(r["tokens"] or 0), "estimated_cost_rub": int(r["cost"] or 0) / 1_000_000, "events": int(r["events"])} for r in usage],
             "subscriptions": [{"plan_id": r["plan_id"], "status": r["status"], "count": int(r["count"])} for r in subscriptions],
             "payments": [{"status": r["status"], "count": int(r["count"]), "amount_rub": int(r["amount_rub"] or 0)} for r in payments],
+            "balances": [{k: row[k] for k in row.keys() if k != "balance_microrub"} | {"balance_rub": self._microrub_to_rub(row["balance_microrub"])} for row in balances],
+            "promo_codes": [
+                self._promo_row(dict(row))
+                | {
+                    "redemption_count": int(row["redemption_count"] or 0),
+                    "unique_user_count": int(row["unique_user_count"] or 0),
+                    "last_redeemed_at": int(row["last_redeemed_at"] or 0) if row["last_redeemed_at"] else None,
+                }
+                for row in promo_codes
+            ],
+            "promo_redemptions": [
+                {
+                    "id": row["id"],
+                    "user_id": row["user_id"],
+                    "email": row["email"],
+                    "display_name": row["display_name"],
+                    "role": row["role"],
+                    "code": row["code"],
+                    "kind": row["kind"],
+                    "created_by": row["created_by_user_id"],
+                    "amount_rub": self._microrub_to_rub(row["amount_microrub"]),
+                    "redeemed_at": int(row["redeemed_at"]),
+                }
+                for row in promo_redemptions
+            ],
+            "topup_requests": [self._topup_with_user(row) for row in topup_requests],
             "period_start": start,
             "period_end": end,
         }

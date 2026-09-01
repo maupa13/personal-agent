@@ -3,7 +3,7 @@ import json,pathlib,re,sys,yaml
 root=pathlib.Path(__file__).resolve().parents[1]
 errors=[]
 compose={}
-VERSION='1.0.0'
+VERSION='1.0.3'
 for p in root.rglob('*.py'):
     if '__pycache__' in p.parts: continue
     try: compile(p.read_text(encoding='utf-8'),str(p),'exec')

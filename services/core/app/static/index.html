@@ -3,10 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="app-version" content="1.0.0">
+  <meta name="app-version" content="1.0.3">
   <meta name="description" content="Локальный AI-помощник с чатами, файлами, кодом, web/research, балансами, темами, мониторингом и VPS-управлением.">
-  <title>Родной Агент</title><link rel="icon" href="/static/favicon.svg"><link rel="manifest" href="/static/manifest.webmanifest"><meta name="theme-color" content="#0b0c0f">
-  <link rel="stylesheet" href="/static/styles.css?v=1.0.0">
+  <link rel="canonical" href="https://rodnoi-agent.ru/">
+  <meta property="og:type" content="website"><meta property="og:url" content="https://rodnoi-agent.ru/"><meta property="og:title" content="Родной Агент"><meta property="og:description" content="AI-помощник для чатов, веб-поиска, файлов и проверяемых результатов.">
+  <meta name="twitter:card" content="summary">
+  <meta name="yandex-verification" content="b76432e377a94ad4" />
+  <meta name="google-site-verification" content="UB3AIdpCBuGsxousXDHJfquzx22Qb7z4Bg2hJhkFrwc" />
+  <title>Родной Агент</title><link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="manifest" href="/static/manifest.webmanifest"><meta name="theme-color" content="#0b0c0f">
+  <link rel="stylesheet" href="/static/styles.css?v=1.0.3">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Родной Агент","url":"https://rodnoi-agent.ru/","applicationCategory":"BusinessApplication","operatingSystem":"Web","description":"AI-помощник для чатов, веб-поиска, файлов и проверяемых результатов."}</script>
 </head>
 <body class="user-page">
   <div class="app-shell">
@@ -14,7 +20,7 @@
       <div class="brand-block">
         <button class="brand-home brand-help" id="brandHelp" type="button" aria-label="Открыть помощь Персонального агента">
           <div class="brand-mark" aria-hidden="true">PA</div>
-          <div class="brand-copy"><strong id="brandName">Родной Агент</strong><span id="brandEdition">Локальная версия</span></div>
+          <div class="brand-copy"><strong id="brandName">Родной Агент</strong><span id="brandEdition">Версия</span></div>
         </button>
         <button class="icon-button sidebar-collapse" id="collapseSidebar" type="button" aria-label="Свернуть боковую панель" title="Свернуть панель (Ctrl+B)">‹</button>
         <button class="icon-button sidebar-close" id="closeSidebar" type="button" aria-label="Закрыть меню">×</button>
@@ -49,10 +55,12 @@
       <button class="sidebar-link" id="tasksEntry" type="button" aria-label="Задачи"><span aria-hidden="true">✓</span><span>Задачи</span><span class="lock" aria-hidden="true">›</span></button>
       <button class="sidebar-link" id="settingsEntry" type="button" aria-label="Настройки"><span aria-hidden="true">⚙</span><span>Настройки</span><span class="lock" aria-hidden="true">›</span></button>
       <a class="sidebar-link" id="accountEntry" href="/account" aria-label="Профиль"><span aria-hidden="true">◎</span><span class="account-label">Профиль</span><span class="lock" aria-hidden="true">›</span></a>
+      <button class="sidebar-link" id="archiveEntry" type="button" aria-label="Архив"><span aria-hidden="true">🗄</span><span>Архив</span><span class="lock" aria-hidden="true">›</span></button>
+      <button class="sidebar-link" id="logoutEntry" type="button" aria-label="Выйти" hidden><span aria-hidden="true">↩</span><span>Выйти</span><span class="lock" aria-hidden="true">›</span></button>
       <button class="sidebar-link" id="helpEntry" type="button" aria-label="Помощь"><span aria-hidden="true">?</span><span>Помощь</span><span class="lock" aria-hidden="true">›</span></button>
       <button class="sidebar-link feedback-entry" id="feedbackEntry" type="button" aria-label="Обратная связь"><span aria-hidden="true">♡</span><span>Обратная связь</span><span class="lock" aria-hidden="true">›</span></button>
       <a class="sidebar-link admin-entry" id="adminEntry" href="/admin" aria-label="Открыть администрирование" hidden><span aria-hidden="true">◈</span><span>Администрирование</span><span class="lock" aria-hidden="true">›</span></a>
-      <div class="version-line"><span id="version">v1.0.0</span><span id="versionBrand">Родной Агент</span></div>
+      <div class="version-line"><span id="version">v1.0.3</span><span id="versionBrand">Родной Агент</span></div>
       <div class="sidebar-resizer" id="sidebarResizer" role="separator" aria-orientation="vertical" aria-label="Изменить ширину боковой панели" aria-valuemin="240" aria-valuemax="420" aria-valuenow="282"></div>
     </aside>
 
@@ -144,9 +152,11 @@
               <label>Где выполнять<select id="executionPolicy"><option value="auto">Авто</option><option value="local_only">Только локально</option><option value="prefer_local">Предпочитать локально</option><option value="remote_allowed">Можно удалённо</option><option value="remote_only">Только удалённо</option></select></label>
               <label class="experience-wide">Стиль ответа<select id="tonePreset"><option value="normal">Обычный</option><option value="friendly">Дружелюбный</option><option value="ironic">С иронией</option><option value="meme">Мемный ⚡</option><option value="serious">Очень серьёзный</option><option value="expert">Экспертный</option><option value="brief">Кратко</option><option value="detailed">Подробно</option></select></label>
             </div>
+            <label class="experience-wide">Личные предпочтения<textarea id="profileNotes" rows="3" maxlength="1000" placeholder="Например: отвечай кратко, цены показывай в рублях, сначала давай вывод, потом детали"></textarea></label>
+            <p class="muted" id="profileNotesHint">Эта заметка сохраняется в вашем профиле и используется как мягкая персональная инструкция в новых ответах.</p>
             <div class="settings-actions"><button type="button" class="primary-button" id="saveExperiencePreferences">Сохранить</button><span id="experienceState" class="job-state"></span></div>
             <div class="info-callout">«Только локально» запрещает скрытый remote fallback. «Мемный» меняет подачу, но не требования к точности и проверке.</div>
-            <div class="setting-row"><div><strong>Версия интерфейса</strong><span>Должна совпадать с Core</span></div><span class="setting-value" id="settingsVersion">v1.0.0</span></div>
+            <div class="setting-row"><div><strong>Версия интерфейса</strong><span>Должна совпадать с Core</span></div><span class="setting-value" id="settingsVersion">v1.0.3</span></div>
           </section>
           <section class="settings-panel" data-settings-panel="data">
             <h3>История и данные</h3>
@@ -179,7 +189,8 @@
           </section>
           <section class="settings-panel" data-settings-panel="files">
             <h3>Workspace и артефакты</h3>
-            <p class="muted">Загруженные и созданные файлы хранятся в изолированном workspace вашего профиля и проверяются перед выдачей.</p>
+            <p class="muted" id="artifactPanelLead">Загруженные и созданные файлы хранятся в изолированном workspace вашего профиля и проверяются перед выдачей.</p>
+            <div class="info-callout" id="artifactPanelHint">Здесь можно и загрузить свой файл, и создать новый документ прямо в приложении, а затем прикрепить его в чат.</div>
             <div class="preset-row" id="artifactPresetRow" role="group" aria-label="Типы файлов">
               <button type="button" class="preset-chip" data-artifact-preset="txt">TXT</button>
               <button type="button" class="preset-chip" data-artifact-preset="md">MD</button>
@@ -275,6 +286,6 @@
   </div>
 
   <div class="toast-region" id="toasts" aria-live="polite" aria-atomic="true"></div>
-  <script src="/static/app.js?v=1.0.0"></script>
+  <script src="/static/app.js?v=1.0.3"></script>
 </body>
 </html>

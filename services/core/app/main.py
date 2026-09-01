@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import base64
+import configparser
+import datetime
+import email.utils
 import hashlib
 import html
 import io
@@ -10,15 +14,22 @@ import json
 import os
 import re
 import secrets
+import shutil
+import smtplib
 import socket
 import sqlite3
 import threading
 import time
+import subprocess
+import zlib
 import urllib.error
 import urllib.parse
 import urllib.request
 import uuid
 import zipfile
+from email import policy
+from email.message import EmailMessage
+from email.parser import BytesParser
 from html.parser import HTMLParser
 from dataclasses import dataclass
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -31,7 +42,7 @@ from artifact_service import ArtifactError, ArtifactService, SUPPORTED_FORMATS
 from code_service import CodeWorkerClient, CodeWorkerError
 from billing_service import BillingService, BillingError, PaymentConfigurationError, InferenceUsage
 from orchestrator_service import TaskStore, TaskRuntime, TaskError, TERMINAL_STATES
-from deployment_service import (DeploymentError, SSHCredentials, ParamikoSession, fetch_host_fingerprint, preflight as deployment_preflight, deploy as deploy_to_vps, rollback as rollback_vps, server_bundle, add_core_to_bundle, public_hot_verify, resolve_remote_root, bootstrap_runtime)
+from deployment_service import (DeploymentError, SSHCredentials, ParamikoSession, fetch_host_fingerprint, preflight as deployment_preflight, deploy as deploy_to_vps, rollback as rollback_vps, apply_vpn_plan, server_bundle, add_core_to_bundle, public_hot_verify, resolve_remote_root, bootstrap_runtime)
 from conversation_service import ConversationStore, ConversationError
 from observability_service import StructuredLogger
 from entitlement_service import EntitlementService, EntitlementError, MODE_FEATURE
@@ -56,12 +67,22 @@ PRODUCT_FAMILY = os.getenv("PA_PRODUCT_FAMILY", "Personal Agent").strip() or "Pe
 EDITION = os.getenv("PA_EDITION", "rus").strip() or "rus"
 PRODUCT = os.getenv("PA_PRODUCT_NAME", "Personal Agent Rus").strip() or "Personal Agent Rus"
 LOCALE = os.getenv("PA_LOCALE", "ru-RU").strip() or "ru-RU"
-VERSION = os.getenv("PA_VERSION", "1.0.0")
+VERSION = os.getenv("PA_VERSION", "1.0.3")
 RUNTIME_PROFILE = os.getenv("PA_RUNTIME_PROFILE", "local").strip().lower() or "local"
 STARTED_AT = int(time.time())
 OLLAMA_URL = os.getenv("PA_OLLAMA_URL", "http://ollama:11434").rstrip("/")
 SEARXNG_URL = os.getenv("PA_SEARXNG_URL", "http://searxng:8080").rstrip("/")
 BROWSER_URL = os.getenv("PA_BROWSER_URL", "http://browser:8000").rstrip("/")
+EGRESS_HTTP_PROXY_ENV = os.getenv("PA_EGRESS_HTTP_PROXY", "").strip()
+EGRESS_HTTPS_PROXY_ENV = os.getenv("PA_EGRESS_HTTPS_PROXY", "").strip()
+EGRESS_PROXY_BYPASS_DEFAULT = tuple(
+    item.strip().lower()
+    for item in os.getenv(
+        "PA_EGRESS_NO_PROXY",
+        "127.0.0.1,localhost,::1,ollama,searxng,browser,core,smtp,caddy",
+    ).split(",")
+    if item.strip()
+)
 WEB_MAX_BYTES = int(os.getenv("PA_WEB_MAX_BYTES", str(3 * 1024 * 1024)))
 WEB_MAX_SOURCES = int(os.getenv("PA_WEB_MAX_SOURCES", "8"))
 LIST_RESULT_MINIMUM = max(1, min(int(os.getenv("PA_LIST_RESULT_MINIMUM", "7")), WEB_MAX_SOURCES))
@@ -71,6 +92,8 @@ ADMIN_TOKEN = os.getenv("PA_ADMIN_TOKEN", "").strip()
 DB_PATH = Path(os.getenv("PA_DB", "/data/personal-agent-rus.db"))
 WORKSPACE_ROOT = Path(os.getenv("PA_WORKSPACE_ROOT", "/data/workspaces"))
 FILE_MAX_BYTES = int(os.getenv("PA_FILE_MAX_BYTES", str(20 * 1024 * 1024)))
+FILE_MAX_COUNT = int(os.getenv("PA_FILE_MAX_COUNT", "500"))
+FILE_MAX_TOTAL_BYTES = int(os.getenv("PA_FILE_MAX_TOTAL_BYTES", str(512 * 1024 * 1024)))
 CODE_SOCKET = os.getenv("PA_CODE_SOCKET", "/run/personal-agent-code/code-worker.sock")
 CODE_MAX_TIMEOUT_SECONDS = int(os.getenv("PA_CODE_MAX_TIMEOUT_SECONDS", "30"))
 SECRETS_DIR = Path(os.getenv("PA_SECRETS_DIR", "/data/secrets"))
@@ -85,6 +108,38 @@ SESSION_TTL_SECONDS = int(os.getenv("PA_SESSION_TTL_SECONDS", str(30 * 24 * 60 *
 SESSION_SHORT_TTL_SECONDS = int(os.getenv("PA_SESSION_SHORT_TTL_SECONDS", str(24 * 60 * 60)))
 LOGIN_WINDOW_SECONDS = int(os.getenv("PA_LOGIN_WINDOW_SECONDS", "900"))
 LOGIN_MAX_FAILURES = int(os.getenv("PA_LOGIN_MAX_FAILURES", "8"))
+AUTH_HONEYPOT_FIELD = os.getenv("PA_AUTH_HONEYPOT_FIELD", "company").strip() or "company"
+AUTH_ABUSE_WINDOW_SECONDS = int(os.getenv("PA_AUTH_ABUSE_WINDOW_SECONDS", "3600"))
+AUTH_ABUSE_MIN_INTERVAL_SECONDS = int(os.getenv("PA_AUTH_ABUSE_MIN_INTERVAL_SECONDS", "20"))
+AUTH_REGISTER_MAX_PER_IP = int(os.getenv("PA_AUTH_REGISTER_MAX_PER_IP", "6"))
+AUTH_RESET_MAX_PER_IP = int(os.getenv("PA_AUTH_RESET_MAX_PER_IP", "8"))
+AUTH_VERIFY_MAX_PER_IP = int(os.getenv("PA_AUTH_VERIFY_MAX_PER_IP", "8"))
+AUTH_LOGIN_MAX_PER_IP = int(os.getenv("PA_AUTH_LOGIN_MAX_PER_IP", "25"))
+AUTH_EMAIL_MAX_PER_WINDOW = int(os.getenv("PA_AUTH_EMAIL_MAX_PER_WINDOW", "5"))
+UPLOAD_WINDOW_SECONDS = int(os.getenv("PA_UPLOAD_WINDOW_SECONDS", "300"))
+UPLOAD_MAX_PER_WINDOW = int(os.getenv("PA_UPLOAD_MAX_PER_WINDOW", "20"))
+FILE_CREATE_WINDOW_SECONDS = int(os.getenv("PA_FILE_CREATE_WINDOW_SECONDS", "300"))
+FILE_CREATE_MAX_PER_WINDOW = int(os.getenv("PA_FILE_CREATE_MAX_PER_WINDOW", "20"))
+CHAT_WINDOW_SECONDS = int(os.getenv("PA_CHAT_WINDOW_SECONDS", "60"))
+CHAT_MAX_PER_WINDOW = int(os.getenv("PA_CHAT_MAX_PER_WINDOW", "45"))
+CHAT_MIN_INTERVAL_SECONDS = int(os.getenv("PA_CHAT_MIN_INTERVAL_SECONDS", "0" if os.getenv("PA_TEST_MODE", "0") == "1" else "1"))
+TASK_WINDOW_SECONDS = int(os.getenv("PA_TASK_WINDOW_SECONDS", "300"))
+TASK_MAX_PER_WINDOW = int(os.getenv("PA_TASK_MAX_PER_WINDOW", "8"))
+EMAIL_VERIFICATION_REQUIRED = os.getenv("PA_EMAIL_VERIFICATION_REQUIRED", "1" if AUTH_MODE == "accounts" else "0").strip().lower() in {"1", "true", "yes", "on"}
+EMAIL_VERIFICATION_TTL_SECONDS = int(os.getenv("PA_EMAIL_VERIFICATION_TTL_SECONDS", str(24 * 60 * 60)))
+PASSWORD_RESET_TTL_SECONDS = int(os.getenv("PA_PASSWORD_RESET_TTL_SECONDS", str(2 * 60 * 60)))
+SMTP_HOST = os.getenv("PA_SMTP_HOST", "").strip()
+SMTP_PORT = int(os.getenv("PA_SMTP_PORT", "587"))
+SMTP_USERNAME = os.getenv("PA_SMTP_USERNAME", "").strip()
+SMTP_PASSWORD = os.getenv("PA_SMTP_PASSWORD", "")
+SMTP_FROM = os.getenv("PA_SMTP_FROM", SMTP_USERNAME).strip()
+SMTP_USE_SSL = os.getenv("PA_SMTP_USE_SSL", "0").strip().lower() in {"1", "true", "yes", "on"}
+SMTP_STARTTLS = os.getenv("PA_SMTP_STARTTLS", "1").strip().lower() in {"1", "true", "yes", "on"}
+SUPPORT_EMAIL = os.getenv("PA_SUPPORT_EMAIL", "support@rodnoi-agent.ru").strip() or "support@rodnoi-agent.ru"
+SUPPORT_INBOX_DIR = Path(os.getenv("PA_SUPPORT_INBOX_DIR", "/data/support-mail/Maildir"))
+TURNSTILE_SITE_KEY = os.getenv("PA_TURNSTILE_SITE_KEY", "").strip()
+TURNSTILE_SECRET_KEY = os.getenv("PA_TURNSTILE_SECRET_KEY", "").strip()
+TURNSTILE_ENFORCED = os.getenv("PA_TURNSTILE_ENFORCED", "0").strip().lower() in {"1", "true", "yes", "on"}
 SECURE_COOKIES = os.getenv("PA_SECURE_COOKIES", "1" if RUNTIME_PROFILE == "server" else "0").strip().lower() in {"1", "true", "yes", "on"}
 LAN_ENABLED = os.getenv("PA_LAN_ENABLED", "0").strip().lower() in {"1", "true", "yes", "on"}
 LAN_PUBLIC_URL = os.getenv("PA_LAN_PUBLIC_URL", "").strip().rstrip("/")
@@ -94,6 +149,7 @@ WEB_USER_AGENT = "PersonalAgent/0.8 (+source-integrity)"
 TEST_MODE = os.getenv("PA_TEST_MODE", "0") == "1"
 DEBUG_DIAGNOSTICS = os.getenv("PA_DEBUG_DIAGNOSTICS", "0").strip().lower() in {"1", "true", "yes", "on"}
 TEST_PUBLIC_HOSTS = {host.strip().lower() for host in os.getenv("PA_WEB_TEST_PUBLIC_HOSTS", "").split(",") if host.strip()} if TEST_MODE else set()
+AUTH_EXPOSE_MAGIC_LINKS = TEST_MODE or os.getenv("PA_AUTH_EXPOSE_MAGIC_LINKS", "0").strip().lower() in {"1", "true", "yes", "on"}
 MODEL_ID_RE = re.compile(r"^[A-Za-z0-9._/<>='\- ]+(?::[A-Za-z0-9._<>='\- ]+)?$")
 PROVIDER_ID_RE = re.compile(r"^[a-z0-9][a-z0-9._-]{1,63}$")
 EMAIL_RE = re.compile(r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
@@ -146,7 +202,13 @@ SYSTEM_PROMPT = (
 
 DB_LOCK = threading.RLock()
 PULL_LOCK = threading.Lock()
-ARTIFACTS = ArtifactService(DB_PATH, WORKSPACE_ROOT, max_bytes=FILE_MAX_BYTES)
+ARTIFACTS = ArtifactService(
+    DB_PATH,
+    WORKSPACE_ROOT,
+    max_bytes=FILE_MAX_BYTES,
+    max_files_per_user=FILE_MAX_COUNT,
+    max_total_bytes_per_user=FILE_MAX_TOTAL_BYTES,
+)
 CODE_WORKER = CodeWorkerClient(CODE_SOCKET)
 BILLING = BillingService(DB_PATH, SECRETS_DIR, test_mode=TEST_MODE)
 TASKS = TaskStore(DB_PATH)
@@ -158,6 +220,8 @@ EXPERIENCE = ExperienceService(DB_PATH)
 PASSWORD_HASHER = PasswordHasher(time_cost=3, memory_cost=65536, parallelism=2) if PasswordHasher else None
 TRACE_CONTEXT = threading.local()
 TRACE_ID_RE = re.compile(r"^[A-Za-z0-9._:-]{1,128}$")
+SECRET_ID_RE = re.compile(r"^[a-z0-9][a-z0-9._-]{1,63}$")
+DIRECT_URL_OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
 def env_vpn_routing_config() -> dict[str, Any] | None:
     enabled = os.getenv("PA_VPN_ROUTING_ENABLED", "0").strip().lower() in {"1", "true", "yes", "on"}
@@ -320,6 +384,75 @@ def _is_internal_service_url(url: str) -> bool:
         return False
     return False
 
+
+def _build_proxy_url(base_url: str, username: str, password: str) -> str:
+    parsed = urlparse(base_url)
+    host = parsed.hostname or ""
+    if not host:
+        return base_url
+    netloc = host
+    if parsed.port:
+        netloc = f"{netloc}:{parsed.port}"
+    if username or password:
+        creds = urllib.parse.quote(username, safe="")
+        if password:
+            creds += ":" + urllib.parse.quote(password, safe="")
+        netloc = f"{creds}@{netloc}"
+    return urllib.parse.urlunparse((parsed.scheme, netloc, parsed.path, parsed.params, parsed.query, parsed.fragment))
+
+
+def _effective_proxy_config() -> tuple[dict[str, str], tuple[str, ...]]:
+    config = egress_proxy_settings()
+    if not config.get("enabled"):
+        return {}, tuple(config.get("no_proxy") or EGRESS_PROXY_BYPASS_DEFAULT)
+    password = read_named_secret(EGRESS_PROXY_SECRET_ID)
+    username = str(config.get("username") or "")
+    mapping: dict[str, str] = {}
+    for scheme, key in (("http", "http_proxy_url"), ("https", "https_proxy_url")):
+        url = str(config.get(key) or "").strip()
+        if url:
+            mapping[scheme] = _build_proxy_url(url, username, password)
+    return mapping, tuple(_split_egress_no_proxy(config.get("no_proxy")))
+
+
+def _hostname_matches_proxy_bypass(hostname: str, bypass_list: tuple[str, ...]) -> bool:
+    host = hostname.strip().lower().strip(".")
+    if not host:
+        return False
+    if host in bypass_list:
+        return True
+    for item in bypass_list:
+        if item.startswith(".") and host.endswith(item):
+            return True
+    if host.endswith(".local") or host.endswith(".internal"):
+        return True
+    try:
+        ip = ipaddress.ip_address(host)
+    except ValueError:
+        return False
+    return ip.is_loopback or ip.is_private or ip.is_link_local
+
+
+def _should_bypass_proxy(url: str, bypass_list: tuple[str, ...]) -> bool:
+    if _is_internal_service_url(url):
+        return True
+    try:
+        parsed = urllib.parse.urlparse(url)
+    except Exception:
+        return True
+    if parsed.scheme.lower() not in {"http", "https"}:
+        return True
+    return _hostname_matches_proxy_bypass(parsed.hostname or "", bypass_list)
+
+
+def urlopen_with_egress(req: urllib.request.Request, *, timeout: float):
+    proxy_config, bypass_list = _effective_proxy_config()
+    if _should_bypass_proxy(req.full_url, bypass_list) or not proxy_config:
+        opener = DIRECT_URL_OPENER
+    else:
+        opener = urllib.request.build_opener(urllib.request.ProxyHandler(proxy_config))
+    return opener.open(req, timeout=timeout)
+
 def log_event(event: str, *, level: str = "INFO", **fields: Any) -> None:
     trace = current_trace_headers()
     if "request_id" not in fields and trace.get("X-Request-ID"):
@@ -334,6 +467,585 @@ CORE_SOURCE_ROOT = Path(__file__).resolve().parents[1]
 
 def now_ts() -> int:
     return int(time.time())
+
+
+EMAIL_SETTINGS_KEY = "email_settings"
+EGRESS_PROXY_SETTINGS_KEY = "egress_proxy_settings"
+EGRESS_PROXY_SECRET_ID = "egress-proxy"
+EMAIL_TEMPLATE_KINDS = {"verify", "reset"}
+
+
+def _default_email_templates() -> dict[str, dict[str, str]]:
+    return {
+        "verify": {
+            "subject": "Подтверждение email — {product_name}",
+            "text": (
+                "Здравствуйте!\n\n"
+                "Чтобы подтвердить email в {product_name}, откройте ссылку:\n"
+                "{url}\n\n"
+                "Ссылка действует до {expires_at_utc}.\n"
+                "Если вы не запрашивали это действие, просто проигнорируйте письмо."
+            ),
+            "html": (
+                "<h1 style=\"margin:0 0 16px;font-size:24px;line-height:1.2;\">Подтверждение email</h1>"
+                "<p style=\"margin:0 0 14px;\">Здравствуйте!</p>"
+                "<p style=\"margin:0 0 14px;\">Чтобы подтвердить email в <strong>{product_name}</strong>, нажмите кнопку ниже.</p>"
+                "<p style=\"margin:20px 0;\"><a href=\"{url}\" style=\"display:inline-block;padding:12px 20px;border-radius:12px;background:#111827;color:#ffffff;text-decoration:none;font-weight:600;\">Подтвердить email</a></p>"
+                "<p style=\"margin:0 0 10px;color:#475467;\">Если кнопка не открывается, используйте прямую ссылку:</p>"
+                "<p style=\"margin:0 0 14px;word-break:break-word;\"><a href=\"{url}\">{url}</a></p>"
+                "<p style=\"margin:0;color:#475467;\">Ссылка действует до {expires_at_utc}. Если вы не запрашивали это действие, просто проигнорируйте письмо.</p>"
+            ),
+        },
+        "reset": {
+            "subject": "Восстановление доступа — {product_name}",
+            "text": (
+                "Здравствуйте!\n\n"
+                "Чтобы задать новый пароль для {product_name}, откройте ссылку:\n"
+                "{url}\n\n"
+                "Ссылка действует до {expires_at_utc}.\n"
+                "Если вы не запрашивали восстановление доступа, проигнорируйте письмо."
+            ),
+            "html": (
+                "<h1 style=\"margin:0 0 16px;font-size:24px;line-height:1.2;\">Восстановление доступа</h1>"
+                "<p style=\"margin:0 0 14px;\">Здравствуйте!</p>"
+                "<p style=\"margin:0 0 14px;\">Чтобы задать новый пароль для <strong>{product_name}</strong>, нажмите кнопку ниже.</p>"
+                "<p style=\"margin:20px 0;\"><a href=\"{url}\" style=\"display:inline-block;padding:12px 20px;border-radius:12px;background:#7c2d12;color:#ffffff;text-decoration:none;font-weight:600;\">Сменить пароль</a></p>"
+                "<p style=\"margin:0 0 10px;color:#475467;\">Если кнопка не открывается, используйте прямую ссылку:</p>"
+                "<p style=\"margin:0 0 14px;word-break:break-word;\"><a href=\"{url}\">{url}</a></p>"
+                "<p style=\"margin:0;color:#475467;\">Ссылка действует до {expires_at_utc}. Если вы не запрашивали восстановление доступа, проигнорируйте письмо.</p>"
+            ),
+        },
+    }
+
+
+def default_email_settings() -> dict[str, Any]:
+    product_name = PRODUCT.strip() or "Родной Агент"
+    support_email = SUPPORT_EMAIL.strip() or "support@rodnoi-agent.ru"
+    sender_email = (SMTP_FROM or support_email).strip() or support_email
+    return {
+        "support_email": support_email,
+        "support_name": "Поддержка",
+        "sender_email": sender_email,
+        "sender_name": product_name,
+        "reply_to_email": support_email,
+        "product_name": product_name,
+        "public_base_url": "",
+        "footer_text": "Поддержка: {support_email}\n{product_name}",
+        "footer_html": (
+            "<hr style=\"margin:24px 0;border:none;border-top:1px solid #e4e7ec;\">"
+            "<p style=\"margin:0;color:#667085;font-size:13px;line-height:1.5;\">"
+            "Поддержка: <a href=\"mailto:{support_email}\">{support_email}</a><br>{product_name}"
+            "</p>"
+        ),
+        "templates": _default_email_templates(),
+    }
+
+
+def _split_egress_no_proxy(value: str | list[str] | tuple[str, ...] | None) -> list[str]:
+    if isinstance(value, (list, tuple)):
+        raw_items = value
+    else:
+        raw_items = str(value or "").split(",")
+    result: list[str] = []
+    seen: set[str] = set()
+    for item in raw_items:
+        normalized = str(item or "").strip().lower()
+        if not normalized or normalized in seen:
+            continue
+        seen.add(normalized)
+        result.append(normalized)
+    return result
+
+
+def default_egress_proxy_settings() -> dict[str, Any]:
+    return {
+        "enabled": bool(EGRESS_HTTP_PROXY_ENV or EGRESS_HTTPS_PROXY_ENV),
+        "label": "",
+        "http_proxy_url": EGRESS_HTTP_PROXY_ENV,
+        "https_proxy_url": EGRESS_HTTPS_PROXY_ENV,
+        "username": "",
+        "no_proxy": _split_egress_no_proxy(EGRESS_PROXY_BYPASS_DEFAULT),
+    }
+
+
+def validate_egress_proxy_settings(value: dict[str, Any], *, existing_secret: str = "", inherit_env: bool = True) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        raise ValueError("egress proxy settings object required")
+    base = default_egress_proxy_settings() if inherit_env else {
+        "enabled": False,
+        "label": "",
+        "http_proxy_url": "",
+        "https_proxy_url": "",
+        "username": "",
+        "no_proxy": list(EGRESS_PROXY_BYPASS_DEFAULT),
+    }
+    merged = {
+        "enabled": bool(value.get("enabled", base["enabled"])),
+        "label": str(value.get("label", base["label"]) or "").strip()[:120],
+        "http_proxy_url": str(value.get("http_proxy_url", base["http_proxy_url"]) or "").strip(),
+        "https_proxy_url": str(value.get("https_proxy_url", base["https_proxy_url"]) or "").strip(),
+        "username": str(value.get("username", base["username"]) or "").strip()[:200],
+        "no_proxy": _split_egress_no_proxy(value.get("no_proxy", base["no_proxy"])),
+    }
+    for key in ("http_proxy_url", "https_proxy_url"):
+        url = merged[key].rstrip("/")
+        if url:
+            parsed = urlparse(url)
+            if parsed.scheme not in {"http", "https", "socks5"} or not parsed.netloc or parsed.username or parsed.password:
+                raise ValueError(f"{key} must be http(s)/socks5 without embedded credentials")
+        merged[key] = url
+    if merged["enabled"] and not (merged["http_proxy_url"] or merged["https_proxy_url"]):
+        raise ValueError("enabled egress proxy requires http_proxy_url or https_proxy_url")
+    password = str(value.get("password", "") or "")
+    clear_secret = bool(value.get("clear_secret"))
+    if clear_secret:
+        password = ""
+    merged["has_secret"] = bool(password or existing_secret)
+    merged["password"] = password if password or clear_secret else existing_secret
+    return merged
+
+
+def egress_proxy_settings() -> dict[str, Any]:
+    stored = None
+    raw = setting(EGRESS_PROXY_SETTINGS_KEY, "")
+    if raw:
+        try:
+            loaded = json.loads(raw)
+            if isinstance(loaded, dict):
+                stored = loaded
+        except Exception:
+            stored = None
+    secret = read_named_secret(EGRESS_PROXY_SECRET_ID)
+    try:
+        config = validate_egress_proxy_settings(stored or {}, existing_secret=secret, inherit_env=not bool(stored))
+    except Exception:
+        config = validate_egress_proxy_settings({}, existing_secret=secret)
+    return {
+        "enabled": bool(config["enabled"]),
+        "label": str(config["label"]),
+        "http_proxy_url": str(config["http_proxy_url"]),
+        "https_proxy_url": str(config["https_proxy_url"]),
+        "username": str(config["username"]),
+        "no_proxy": list(config["no_proxy"]),
+        "has_secret": bool(config["password"]),
+    }
+
+
+def set_egress_proxy_settings(value: dict[str, Any], *, actor_user_id: str = "") -> dict[str, Any]:
+    existing_secret = read_named_secret(EGRESS_PROXY_SECRET_ID)
+    current = egress_proxy_settings()
+    merged_input = {
+        "enabled": value.get("enabled", current["enabled"]),
+        "label": value.get("label", current["label"]),
+        "http_proxy_url": value.get("http_proxy_url", current["http_proxy_url"]),
+        "https_proxy_url": value.get("https_proxy_url", current["https_proxy_url"]),
+        "username": value.get("username", current["username"]),
+        "no_proxy": value.get("no_proxy", current["no_proxy"]),
+        "password": value.get("password", ""),
+        "clear_secret": value.get("clear_secret", False),
+    }
+    config = validate_egress_proxy_settings(merged_input, existing_secret=existing_secret, inherit_env=False)
+    password = str(config.pop("password", "") or "")
+    safe = {k: v for k, v in config.items() if k != "has_secret"}
+    with DB_LOCK, db() as conn:
+        conn.execute(
+            "INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+            (EGRESS_PROXY_SETTINGS_KEY, json.dumps(safe, ensure_ascii=False)),
+        )
+        conn.execute(
+            "INSERT INTO audit(action,details,created_at) VALUES(?,?,?)",
+            (
+                "egress.proxy.settings",
+                json.dumps(
+                    {
+                        "actor": actor_user_id,
+                        "enabled": safe["enabled"],
+                        "label": safe["label"],
+                        "http_proxy_url": safe["http_proxy_url"],
+                        "https_proxy_url": safe["https_proxy_url"],
+                        "username": safe["username"],
+                        "has_secret": bool(password),
+                    },
+                    ensure_ascii=False,
+                ),
+                now_ts(),
+            ),
+        )
+        conn.commit()
+    write_named_secret(EGRESS_PROXY_SECRET_ID, password)
+    return egress_proxy_settings()
+
+
+def test_egress_proxy_request(url: str, *, timeout: int = 12) -> dict[str, Any]:
+    target = str(url or "").strip()
+    if not target:
+        target = "https://api.openai.com/v1/models"
+    parsed = urlparse(target)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        raise ValueError("test URL must be absolute http(s)")
+    req = urllib.request.Request(target, headers={"Accept": "application/json, text/plain;q=0.9, */*;q=0.8"}, method="GET")
+    started = time.time()
+    try:
+        with urlopen_with_egress(req, timeout=timeout) as resp:
+            raw = resp.read(400).decode("utf-8", errors="replace")
+            return {
+                "ok": True,
+                "url": target,
+                "http_status": int(getattr(resp, "status", 200)),
+                "duration_ms": int((time.time() - started) * 1000),
+                "body_preview": raw[:400],
+            }
+    except urllib.error.HTTPError as exc:
+        raw = exc.read(400).decode("utf-8", errors="replace")
+        return {
+            "ok": False,
+            "url": target,
+            "http_status": int(exc.code),
+            "duration_ms": int((time.time() - started) * 1000),
+            "error": f"HTTP {exc.code}",
+            "body_preview": raw[:400],
+        }
+    except Exception as exc:
+        return {
+            "ok": False,
+            "url": target,
+            "duration_ms": int((time.time() - started) * 1000),
+            "error": f"{type(exc).__name__}: {exc}",
+        }
+
+
+def _merge_email_settings(stored: dict[str, Any] | None) -> dict[str, Any]:
+    settings = default_email_settings()
+    if not isinstance(stored, dict):
+        return settings
+    for key in ["support_email", "support_name", "sender_email", "sender_name", "reply_to_email", "product_name", "public_base_url", "footer_text", "footer_html"]:
+        if key in stored and isinstance(stored[key], str):
+            settings[key] = stored[key]
+    templates = stored.get("templates")
+    if isinstance(templates, dict):
+        for kind in EMAIL_TEMPLATE_KINDS:
+            template = templates.get(kind)
+            if not isinstance(template, dict):
+                continue
+            for part in ["subject", "text", "html"]:
+                if part in template and isinstance(template[part], str):
+                    settings["templates"][kind][part] = template[part]
+    return settings
+
+
+def validate_email_settings(value: dict[str, Any]) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        raise ValueError("email settings object required")
+    merged = _merge_email_settings(value)
+    for key, limit in {
+        "support_email": 200,
+        "support_name": 120,
+        "sender_email": 200,
+        "sender_name": 120,
+        "reply_to_email": 200,
+        "product_name": 120,
+        "public_base_url": 400,
+        "footer_text": 4000,
+        "footer_html": 12000,
+    }.items():
+        merged[key] = str(merged.get(key, "") or "").strip()[:limit]
+    for key in ["support_email", "sender_email", "reply_to_email"]:
+        if merged[key] and not EMAIL_RE.fullmatch(merged[key]):
+            raise ValueError(f"{key} must be a valid email")
+    if merged["public_base_url"] and not re.fullmatch(r"https?://[^\s]+", merged["public_base_url"]):
+        raise ValueError("public_base_url must start with http:// or https://")
+    templates = merged.get("templates") or {}
+    for kind in EMAIL_TEMPLATE_KINDS:
+        template = templates.get(kind) or {}
+        template["subject"] = str(template.get("subject", "") or "").strip()[:200]
+        template["text"] = str(template.get("text", "") or "").strip()[:12000]
+        template["html"] = str(template.get("html", "") or "").strip()[:24000]
+        if not template["subject"]:
+            raise ValueError(f"{kind} subject is required")
+        if not template["text"]:
+            raise ValueError(f"{kind} text template is required")
+        templates[kind] = template
+    merged["templates"] = templates
+    return merged
+
+
+def email_settings() -> dict[str, Any]:
+    raw = setting(EMAIL_SETTINGS_KEY, "")
+    if raw:
+        try:
+            return validate_email_settings(json.loads(raw))
+        except Exception:
+            pass
+    return default_email_settings()
+
+
+def set_email_settings(value: dict[str, Any], *, actor_user_id: str = "") -> dict[str, Any]:
+    config = validate_email_settings(value)
+    with DB_LOCK, db() as conn:
+        conn.execute(
+            "INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+            (EMAIL_SETTINGS_KEY, json.dumps(config, ensure_ascii=False)),
+        )
+        conn.execute(
+            "INSERT INTO audit(action,details,created_at) VALUES(?,?,?)",
+            (
+                "email.settings",
+                json.dumps({"actor": actor_user_id, "support_email": config["support_email"], "sender_email": config["sender_email"], "product_name": config["product_name"]}, ensure_ascii=False),
+                now_ts(),
+            ),
+        )
+        conn.commit()
+    return config
+
+
+def render_email_template(template: str, values: dict[str, Any]) -> str:
+    return re.sub(r"\{([a-z_]+)\}", lambda match: str(values.get(match.group(1), match.group(0))), str(template or ""))
+
+
+def text_to_basic_html(value: str) -> str:
+    blocks = [block.strip() for block in str(value or "").split("\n\n") if block.strip()]
+    if not blocks:
+        return ""
+    return "".join(
+        f"<p style=\"margin:0 0 14px;line-height:1.6;\">{html.escape(block).replace(chr(10), '<br>')}</p>"
+        for block in blocks
+    )
+
+
+def email_context(*, url: str, expires_at: int, kind: str) -> dict[str, Any]:
+    config = email_settings()
+    return {
+        "product_name": config["product_name"],
+        "support_email": config["support_email"],
+        "support_name": config["support_name"],
+        "sender_name": config["sender_name"],
+        "sender_email": config["sender_email"],
+        "reply_to_email": config["reply_to_email"],
+        "url": url,
+        "expires_at_utc": time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime(expires_at)),
+        "action": "подтвердить email" if kind == "verify" else "сменить пароль",
+        "year": str(datetime.datetime.utcnow().year),
+    }
+
+
+def build_auth_email(*, kind: str, url: str, expires_at: int) -> dict[str, Any]:
+    config = email_settings()
+    template = dict((config.get("templates") or {}).get(kind) or {})
+    context = email_context(url=url, expires_at=expires_at, kind=kind)
+    subject = render_email_template(template.get("subject", ""), context).strip()
+    text_body = render_email_template(template.get("text", ""), context).strip()
+    html_body = render_email_template(template.get("html", ""), context).strip()
+    footer_text = render_email_template(config.get("footer_text", ""), context).strip()
+    footer_html = render_email_template(config.get("footer_html", ""), context).strip()
+    if footer_text:
+        text_body = f"{text_body}\n\n{footer_text}" if text_body else footer_text
+    if not html_body:
+        html_body = text_to_basic_html(text_body)
+    if footer_html:
+        html_body = f"{html_body}{footer_html}"
+    if html_body:
+        html_body = (
+            "<html><body style=\"margin:0;padding:24px;background:#f5f7fb;font-family:Arial,sans-serif;color:#101828;\">"
+            "<div style=\"max-width:680px;margin:0 auto;background:#ffffff;border:1px solid #eaecf0;border-radius:18px;padding:28px;\">"
+            f"{html_body}"
+            "</div></body></html>"
+        )
+    return {
+        "subject": subject,
+        "text": text_body,
+        "html": html_body,
+        "sender_email": config["sender_email"],
+        "sender_name": config["sender_name"],
+        "reply_to_email": config["reply_to_email"] or config["support_email"],
+    }
+
+
+def smtp_configured() -> bool:
+    try:
+        sender_email = str(email_settings().get("sender_email") or SMTP_FROM).strip()
+    except Exception:
+        sender_email = SMTP_FROM
+    return bool(SMTP_HOST and sender_email)
+
+
+def support_inbox_enabled() -> bool:
+    return SUPPORT_INBOX_DIR.exists()
+
+
+def _maildir_bucket(name: str) -> list[Path]:
+    bucket = SUPPORT_INBOX_DIR / name
+    if not bucket.is_dir():
+        return []
+    return [item for item in bucket.iterdir() if item.is_file()]
+
+
+def support_inbox_stats() -> dict[str, Any]:
+    unread = len(_maildir_bucket("new"))
+    total = unread + len(_maildir_bucket("cur"))
+    return {"enabled": support_inbox_enabled(), "email": email_settings()["support_email"], "unread": unread, "total": total}
+
+
+def _support_message_preview(message: Any) -> str:
+    body = ""
+    try:
+        if message.is_multipart():
+            for part in message.walk():
+                if part.get_content_type() == "text/plain" and "attachment" not in str(part.get("Content-Disposition") or "").lower():
+                    body = part.get_content()
+                    break
+        else:
+            body = message.get_content()
+    except Exception:
+        body = ""
+    return " ".join(str(body or "").split())[:400]
+
+
+def support_inbox_list(limit: int = 50) -> list[dict[str, Any]]:
+    if not support_inbox_enabled():
+        return []
+    files = [(path, "unread") for path in _maildir_bucket("new")] + [(path, "read") for path in _maildir_bucket("cur")]
+    files.sort(key=lambda item: item[0].stat().st_mtime, reverse=True)
+    result: list[dict[str, Any]] = []
+    for path, state in files[: max(1, min(limit, 200))]:
+        try:
+            raw = path.read_bytes()
+            message = BytesParser(policy=policy.default).parsebytes(raw)
+            stat = path.stat()
+            result.append({
+                "id": path.name,
+                "state": state,
+                "received_at": int(stat.st_mtime),
+                "from": str(message.get("from") or "").strip(),
+                "to": str(message.get("to") or "").strip(),
+                "subject": str(message.get("subject") or "").strip(),
+                "preview": _support_message_preview(message),
+            })
+        except Exception as exc:
+            result.append({
+                "id": path.name,
+                "state": state,
+                "received_at": int(path.stat().st_mtime),
+                "from": "",
+                "to": email_settings()["support_email"],
+                "subject": "(parse error)",
+                "preview": f"Could not parse message: {type(exc).__name__}",
+            })
+    return result
+
+
+def smtp_error_details(exc: BaseException) -> dict[str, Any]:
+    details = {"error": type(exc).__name__}
+    if isinstance(exc, smtplib.SMTPResponseException):
+        details["smtp_code"] = int(getattr(exc, "smtp_code", 0) or 0)
+        raw = getattr(exc, "smtp_error", b"")
+        if isinstance(raw, bytes):
+            details["smtp_message"] = raw.decode("utf-8", errors="replace")[:500]
+        else:
+            details["smtp_message"] = str(raw)[:500]
+    else:
+        details["smtp_message"] = str(exc)[:500]
+    return details
+
+
+def send_auth_email(
+    *,
+    recipient: str,
+    subject: str,
+    body: str,
+    html_body: str = "",
+    sender_email: str = "",
+    sender_name: str = "",
+    reply_to: str = "",
+) -> bool:
+    if not smtp_configured():
+        return False
+    sender_email = (sender_email or SMTP_FROM).strip()
+    message = EmailMessage()
+    message["From"] = email.utils.formataddr((sender_name, sender_email)) if sender_name else sender_email
+    message["To"] = recipient
+    message["Subject"] = subject
+    if reply_to:
+        message["Reply-To"] = reply_to
+    domain = (sender_email.split("@", 1)[1].strip() if "@" in sender_email else "").strip() or None
+    message["Date"] = email.utils.formatdate(localtime=False)
+    message["Message-ID"] = email.utils.make_msgid(domain=domain)
+    message.set_content(body)
+    if html_body:
+        message.add_alternative(html_body, subtype="html")
+    client: smtplib.SMTP | smtplib.SMTP_SSL
+    if SMTP_USE_SSL:
+        client = smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, timeout=15)
+    else:
+        client = smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=15)
+    with client:
+        client.ehlo()
+        if SMTP_STARTTLS and not SMTP_USE_SSL:
+            client.starttls()
+            client.ehlo()
+        if SMTP_USERNAME:
+            client.login(SMTP_USERNAME, SMTP_PASSWORD)
+        client.send_message(message)
+    return True
+
+
+def auth_link_delivery(*, recipient: str, subject: str, url: str, expires_at: int, kind: str) -> bool:
+    if not smtp_configured():
+        return False
+    action = "подтвердить email" if kind == "verify" else "сменить пароль"
+    body = (
+        f"Здравствуйте!\n\nЧтобы {action}, откройте ссылку:\n{url}\n\n"
+        f"Ссылка действует до {time.strftime('%Y-%m-%d %H:%M UTC', time.gmtime(expires_at))}.\n"
+        "Если вы не запрашивали это действие, проигнорируйте письмо."
+    )
+    try:
+        delivered = send_auth_email(recipient=recipient, subject=subject, body=body)
+    except (OSError, smtplib.SMTPException) as exc:
+        log_event("auth.email_delivery_failed", recipient=recipient, kind=kind, status="ERROR", **smtp_error_details(exc))
+        return False
+    if delivered:
+        log_event("auth.email_delivered", recipient=recipient, kind=kind, status="SUCCESS")
+    return delivered
+
+
+def deliver_auth_email_v2(*, recipient: str, subject: str, url: str, expires_at: int, kind: str) -> bool:
+    if not smtp_configured():
+        return False
+    payload = build_auth_email(kind=kind, url=url, expires_at=expires_at)
+    try:
+        delivered = send_auth_email(
+            recipient=recipient,
+            subject=payload["subject"] or subject,
+            body=payload["text"],
+            html_body=payload["html"],
+            sender_email=payload["sender_email"],
+            sender_name=payload["sender_name"],
+            reply_to=payload["reply_to_email"],
+        )
+    except (OSError, smtplib.SMTPException) as exc:
+        log_event("auth.email_delivery_failed", recipient=recipient, kind=kind, status="ERROR", **smtp_error_details(exc))
+        return False
+    if delivered:
+        log_event("auth.email_delivered", recipient=recipient, kind=kind, status="SUCCESS")
+    return delivered
+
+
+auth_link_delivery = deliver_auth_email_v2
+
+
+def public_magic_link(url: str, *, delivered: bool) -> str:
+    if delivered or not AUTH_EXPOSE_MAGIC_LINKS:
+        return ""
+    return url
+
+
+def auth_delivery_mode(*, smtp_ready: bool, delivered: bool, attempted: bool = True) -> str:
+    if not attempted:
+        return "skipped"
+    if delivered:
+        return "smtp"
+    if smtp_ready:
+        return "failed"
+    return "debug_link" if AUTH_EXPOSE_MAGIC_LINKS else "disabled"
 
 
 def db() -> Any:
@@ -395,6 +1107,8 @@ def init_db() -> None:
               password_hash TEXT NOT NULL,
               role TEXT NOT NULL DEFAULT 'USER',
               status TEXT NOT NULL DEFAULT 'active',
+              email_verified INTEGER NOT NULL DEFAULT 1,
+              email_verified_at INTEGER,
               created_at INTEGER NOT NULL,
               updated_at INTEGER NOT NULL
             );
@@ -416,6 +1130,37 @@ def init_db() -> None:
               created_at INTEGER NOT NULL
             );
             CREATE INDEX IF NOT EXISTS idx_auth_attempts_time ON auth_login_attempts(created_at);
+            CREATE TABLE IF NOT EXISTS auth_abuse_events (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              action TEXT NOT NULL,
+              ip_hash TEXT NOT NULL,
+              email_hash TEXT,
+              created_at INTEGER NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_auth_abuse_action_time ON auth_abuse_events(action, created_at);
+            CREATE INDEX IF NOT EXISTS idx_auth_abuse_ip_time ON auth_abuse_events(ip_hash, created_at);
+            CREATE TABLE IF NOT EXISTS auth_email_verification_tokens (
+              id TEXT PRIMARY KEY,
+              user_id TEXT NOT NULL,
+              token_hash TEXT UNIQUE NOT NULL,
+              created_at INTEGER NOT NULL,
+              expires_at INTEGER NOT NULL,
+              used_at INTEGER,
+              requested_by_ip TEXT,
+              FOREIGN KEY(user_id) REFERENCES users(id)
+            );
+            CREATE INDEX IF NOT EXISTS idx_auth_email_verification_user ON auth_email_verification_tokens(user_id, created_at DESC);
+            CREATE TABLE IF NOT EXISTS auth_password_reset_tokens (
+              id TEXT PRIMARY KEY,
+              user_id TEXT NOT NULL,
+              token_hash TEXT UNIQUE NOT NULL,
+              created_at INTEGER NOT NULL,
+              expires_at INTEGER NOT NULL,
+              used_at INTEGER,
+              requested_by_ip TEXT,
+              FOREIGN KEY(user_id) REFERENCES users(id)
+            );
+            CREATE INDEX IF NOT EXISTS idx_auth_password_reset_user ON auth_password_reset_tokens(user_id, created_at DESC);
             CREATE TABLE IF NOT EXISTS code_jobs (
               id TEXT PRIMARY KEY,
               user_id TEXT NOT NULL,
@@ -453,6 +1198,13 @@ def init_db() -> None:
             conn.execute("ALTER TABLE sessions ADD COLUMN user_agent TEXT")
         if "remember_me" not in session_cols:
             conn.execute("ALTER TABLE sessions ADD COLUMN remember_me INTEGER NOT NULL DEFAULT 0")
+        user_cols = table_columns(conn, "users")
+        if "email_verified" not in user_cols:
+            conn.execute("ALTER TABLE users ADD COLUMN email_verified INTEGER NOT NULL DEFAULT 1")
+        if "email_verified_at" not in user_cols:
+            conn.execute("ALTER TABLE users ADD COLUMN email_verified_at INTEGER")
+        conn.execute("UPDATE users SET email_verified=1 WHERE email_verified IS NULL")
+        conn.execute("UPDATE users SET email_verified_at=created_at WHERE email_verified=1 AND email_verified_at IS NULL")
         provider_cols = table_columns(conn, "providers")
         if "billing_class" not in provider_cols:
             conn.execute("ALTER TABLE providers ADD COLUMN billing_class TEXT NOT NULL DEFAULT 'BYOK'")
@@ -505,6 +1257,38 @@ def setting(key: str, default: str = "") -> str:
         return row["value"] if row else default
 
 
+def secret_path_for_name(name: str) -> Path:
+    if not SECRET_ID_RE.fullmatch(name):
+        raise ValueError("invalid secret id")
+    return SECRETS_DIR / f"{name}.secret"
+
+
+def write_named_secret(name: str, value: str) -> str | None:
+    path = secret_path_for_name(name)
+    if not value:
+        try:
+            path.unlink(missing_ok=True)
+        except OSError:
+            pass
+        return None
+    path.write_text(value, encoding="utf-8")
+    try:
+        os.chmod(path, 0o600)
+    except OSError:
+        pass
+    return path.name
+
+
+def read_named_secret(name: str) -> str:
+    path = secret_path_for_name(name).resolve()
+    if SECRETS_DIR.resolve() not in path.parents:
+        return ""
+    try:
+        return path.read_text(encoding="utf-8").strip()
+    except OSError:
+        return ""
+
+
 def registration_policy() -> str:
     value = setting("registration_policy", REGISTRATION_POLICY).strip().lower()
     return value if value in {"open", "approval_required", "closed"} else REGISTRATION_POLICY
@@ -546,6 +1330,157 @@ def set_vpn_routing_config(value: dict[str, Any]) -> dict[str, Any]:
     return config
 
 
+VPN_IMPORT_URI_PATH = Path(os.getenv("PA_VPN_IMPORT_URI_FILE", str(SECRETS_DIR / "amnezia-import.vpnuri"))).expanduser()
+
+
+def save_vpn_import_uri(value: str) -> dict[str, Any]:
+    value = str(value or "").strip()
+    if not value.startswith("vpn://") or len(value) < 16 or len(value) > 200_000 or any(ch.isspace() for ch in value):
+        raise ValueError("invalid Amnezia vpn:// import key")
+    valid, detail = validate_vpn_import_uri(value)
+    if not valid:
+        raise ValueError(f"invalid Amnezia vpn:// import key: {detail}")
+    SECRETS_DIR.mkdir(parents=True, exist_ok=True)
+    tmp = VPN_IMPORT_URI_PATH.with_suffix(".tmp")
+    tmp.write_text(value, encoding="utf-8")
+    try:
+        os.chmod(tmp, 0o600)
+    except OSError:
+        pass
+    tmp.replace(VPN_IMPORT_URI_PATH)
+    return vpn_import_status()
+
+
+def clear_vpn_import_uri() -> None:
+    try:
+        VPN_IMPORT_URI_PATH.unlink()
+    except FileNotFoundError:
+        pass
+
+
+def validate_vpn_import_uri(value: str) -> tuple[bool, str]:
+    try:
+        encoded = value[6:]
+        raw = base64.urlsafe_b64decode(encoded + "=" * (-len(encoded) % 4))
+        candidates = [raw[4:]] if len(raw) >= 4 else []
+        candidates.append(raw)
+        for candidate in candidates:
+            try:
+                payload = zlib.decompress(candidate)
+            except zlib.error:
+                payload = candidate
+            decoded = json.loads(payload.decode("utf-8"))
+            if isinstance(decoded, dict):
+                containers = decoded.get("containers")
+                if isinstance(containers, list) and containers and isinstance(containers[-1], dict) and isinstance(containers[-1].get("awg"), dict):
+                    return True, "amnezia-awg"
+                return False, "payload does not contain an AWG container"
+        return False, "payload must contain an AWG container"
+    except (ValueError, UnicodeDecodeError, json.JSONDecodeError, zlib.error, base64.binascii.Error):
+        return False, "invalid Base64/JSON payload"
+
+
+def amnezia_uri_to_wireguard_config(value: str) -> str:
+    encoded = value[6:]
+    raw = base64.urlsafe_b64decode(encoded + "=" * (-len(encoded) % 4))
+    payload = zlib.decompress(raw[4:]).decode("utf-8")
+    source = json.loads(payload)
+    containers = source.get("containers") if isinstance(source, dict) else None
+    if not isinstance(containers, list) or not containers or not isinstance(containers[-1], dict):
+        raise ValueError("Amnezia key does not contain an AWG container")
+    awg = containers[-1].get("awg")
+    if not isinstance(awg, dict):
+        raise ValueError("Amnezia key does not contain AWG configuration")
+    last_config = json.loads(str(awg.get("last_config") or ""))
+    wireguard_config = str(last_config.get("config") or "").strip()
+    if not wireguard_config:
+        raise ValueError("Amnezia AWG configuration is empty")
+    wireguard_config = wireguard_config.replace("$PRIMARY_DNS", str(source.get("dns1") or "")).replace("$SECONDARY_DNS", str(source.get("dns2") or ""))
+    parser = configparser.ConfigParser(interpolation=None)
+    parser.optionxform = str
+    parser.read_string(wireguard_config)
+    if "Interface" not in parser or "Peer" not in parser or not parser["Interface"].get("PrivateKey"):
+        raise ValueError("decoded Amnezia profile is not a client WireGuard config")
+    if last_config.get("mtu") is not None:
+        parser["Interface"]["MTU"] = str(last_config["mtu"])
+    if last_config.get("port") is not None:
+        parser["Interface"]["ListenPort"] = str(last_config["port"])
+    output = io.StringIO()
+    parser.write(output, space_around_delimiters=True)
+    return output.getvalue()
+
+
+def vpn_import_status() -> dict[str, Any]:
+    configured = VPN_IMPORT_URI_PATH.is_file()
+    fingerprint = ""
+    key_valid = False
+    key_format = ""
+    if configured:
+        try:
+            value = VPN_IMPORT_URI_PATH.read_text(encoding="utf-8")
+            fingerprint = hashlib.sha256(value.encode("utf-8")).hexdigest()[:16]
+            key_valid, key_format = validate_vpn_import_uri(value)
+        except OSError:
+            configured = False
+    backend = shutil.which("awg") or shutil.which("wg") or shutil.which("amneziawg")
+    config = vpn_routing_config()
+    remote_check: dict[str, Any] = {}
+    try:
+        saved_remote = json.loads(setting("vpn_remote_status", ""))
+        if isinstance(saved_remote, dict):
+            remote_check = saved_remote
+    except (TypeError, json.JSONDecodeError):
+        remote_check = {}
+    remote_ready = bool(
+        configured
+        and key_valid
+        and fingerprint
+        and remote_check.get("status") == "READY"
+        and remote_check.get("key_fingerprint") == fingerprint
+    )
+    upstream = config.get("upstream") or {}
+    vps1 = config.get("vps1") or {}
+    interface = str(vps1.get("interface") or "wg0")
+    profile_file = str(config.get("client_profile_file") or "")
+    profile_exists = bool(profile_file and Path(profile_file).is_file())
+    route = {"status": "NOT_CHECKED", "detail": "Проверка маршрута доступна на Linux VPS."}
+    target_ip = str(upstream.get("ip") or "").strip()
+    if remote_ready:
+        checked_at = str(remote_check.get("checked_at") or "").strip()
+        target_id = str(remote_check.get("target_id") or "").strip()
+        detail = "VPN confirmed on VPS1"
+        if target_id:
+            detail += f" ({target_id})"
+        if checked_at:
+            detail += f", checked {checked_at}"
+        route = {"status": "READY", "detail": detail, "source": "remote"}
+    elif target_ip and backend and shutil.which("ip"):
+        try:
+            result = subprocess.run(["ip", "route", "get", target_ip], capture_output=True, text=True, timeout=5, check=False)
+            output = (result.stdout or result.stderr).strip()[:500]
+            via_interface = bool(re.search(rf"\bdev\s+{re.escape(interface)}\b", output))
+            route = {"status": "READY" if result.returncode == 0 and via_interface else ("ROUTE_NOT_VPN" if result.returncode == 0 else "NOT_READY"), "detail": output, "via_interface": via_interface}
+        except (OSError, subprocess.SubprocessError) as exc:
+            route = {"status": "ERROR", "detail": type(exc).__name__}
+    elif not backend:
+        route = {"status": "BACKEND_MISSING", "detail": "Не найден awg/wg/amneziawg backend."}
+    return {
+        "configured": configured,
+        "key_valid": key_valid,
+        "key_format": key_format,
+        "key_fingerprint": fingerprint,
+        "key_path": str(VPN_IMPORT_URI_PATH) if configured else "",
+        "backend": Path(backend).name if backend else "",
+        "backend_status": "installed" if backend else "missing",
+        "profile_file": profile_file,
+        "profile_exists": profile_exists,
+        "route": route,
+        "remote_check": remote_check,
+        "connection_status": "READY" if (remote_ready or (configured and key_valid and backend and profile_exists and route["status"] == "READY")) else ("NOT_CONFIGURED" if not configured else ("INVALID_KEY" if not key_valid else ("NEEDS_BACKEND" if not backend else ("NEEDS_PROFILE" if not profile_exists else "ROUTE_NOT_VPN")))),
+        "secret_never_returned": True,
+    }
+
+
 def vpn_routing_plan() -> dict[str, Any]:
     config = vpn_routing_config()
     vps1 = config.get("vps1", {})
@@ -563,9 +1498,9 @@ def vpn_routing_plan() -> dict[str, Any]:
             "allowed_ips": upstream.get("allowed_ips") or [],
         },
         "vps1_client_steps": [
-            "Copy the exported amnezia_config.vpn file to VPS1 outside the Git checkout.",
-            "Import that .vpn profile on VPS1 using Amnezia/AWG tooling.",
-            f"Enable autostart for interface {interface}.",
+            "Save the full vpn:// key in Admin -> Deployment -> VPN routing.",
+            "Deploy decodes the key and installs the client profile on VPS1 outside the Git checkout.",
+            f"Deploy enables autostart for interface {interface} and verifies its handshake/route.",
             f"Verify route: ip route get {upstream_ip or '<UPSTREAM_IP>'}",
             f"Verify API: curl -4 https://{upstream_host or '<UPSTREAM_HOST>'}/ -I",
         ],
@@ -588,6 +1523,10 @@ def entitlement_snapshot(user: dict[str, Any]) -> dict[str, Any]:
     snap = BILLING.snapshot(user)
     plan_id = str(snap.get("plan", {}).get("id") or "LIGHT")
     effective = ENTITLEMENTS.effective(plan_id=plan_id, privileged=privileged, personal=personal)
+    for theme_id in snap.get("owned_themes", []):
+        feature_key = THEME_ENTITLEMENTS.get(str(theme_id))
+        if feature_key:
+            effective[feature_key] = {"enabled": True, "limit": None}
     return {"plan_id": plan_id, "features": effective}
 
 
@@ -595,6 +1534,21 @@ def require_entitlement(user: dict[str, Any], feature_key: str) -> None:
     snapshot = entitlement_snapshot(user)
     if not ENTITLEMENTS.allowed(snapshot["features"], feature_key):
         raise ApiError(403, "Эта возможность недоступна на текущем тарифе")
+
+
+THEME_ENTITLEMENTS = {
+    "ocean": "theme_ocean",
+    "forest": "theme_forest",
+    "sunset": "theme_sunset",
+    "sand": "theme_sand",
+    "coral": "theme_coral",
+}
+
+
+def require_theme_entitlement(user: dict[str, Any], theme: str) -> None:
+    feature_key = THEME_ENTITLEMENTS.get(str(theme).strip().lower())
+    if feature_key:
+        require_entitlement(user, feature_key)
 
 
 def experience_preferences(user: dict[str, Any]) -> dict[str, Any]:
@@ -605,6 +1559,7 @@ def apply_response_preferences(messages: list[dict[str, str]], preferences: dict
     result = [dict(item) for item in messages]
     language = str(preferences.get("response_language") or "auto")
     tone = str(preferences.get("tone") or "normal")
+    profile_notes = str(preferences.get("profile_notes") or "").strip()
     instructions: list[str] = []
     if language == "ru":
         instructions.append("Отвечай на русском языке, если пользователь прямо не попросил иное в текущем запросе.")
@@ -612,6 +1567,8 @@ def apply_response_preferences(messages: list[dict[str, str]], preferences: dict
         instructions.append("Respond in English unless the user explicitly asks for another language in the current request.")
     tone_spec = TONE_DEFS.get(tone) or TONE_DEFS["normal"]
     instructions.append(tone_spec["instruction"])
+    if profile_notes:
+        instructions.append(f"Дополнительные предпочтения пользователя: {profile_notes}")
     if instructions:
         position = 1 if result and result[0].get("role") == "system" else 0
         result.insert(position, {"role": "system", "content": "USER EXPERIENCE PREFERENCES: " + " ".join(instructions)})
@@ -674,7 +1631,7 @@ def request_json(url: str, payload: dict[str, Any] | None = None, timeout: int =
         for key, value in current_trace_headers().items():
             req_headers.setdefault(key, value)
     req = urllib.request.Request(url, data=data, headers=req_headers, method=method)
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
+    with urlopen_with_egress(req, timeout=timeout) as resp:
         raw = resp.read().decode("utf-8")
         return json.loads(raw) if raw else {}
 
@@ -685,7 +1642,7 @@ def request_reachable(url: str, timeout: float = 1.5) -> bool:
     if _is_internal_service_url(url):
         headers.update(current_trace_headers())
     req = urllib.request.Request(url, headers=headers, method="GET")
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
+    with urlopen_with_egress(req, timeout=timeout) as resp:
         resp.read(1)
         return 200 <= int(getattr(resp, "status", 200)) < 500
 
@@ -712,19 +1669,7 @@ def secret_path_for(provider_id: str) -> Path:
 
 
 def write_provider_secret(provider_id: str, value: str) -> str | None:
-    path = secret_path_for(provider_id)
-    if not value:
-        try:
-            path.unlink(missing_ok=True)
-        except OSError:
-            pass
-        return None
-    path.write_text(value, encoding="utf-8")
-    try:
-        os.chmod(path, 0o600)
-    except OSError:
-        pass
-    return path.name
+    return write_named_secret(f"provider-{provider_id}", value)
 
 
 def read_provider_secret(provider: dict[str, Any]) -> str:
@@ -1725,7 +2670,7 @@ def _append_verified_materials(text: str, sources: list[dict[str, Any]], *, kind
     # Keep only a compact synthesis before the canonical evidence list. This
     # avoids the confusing UX where the LLM prints three invented/duplicate
     # examples while the structured evidence contains a different count.
-    summary = re.sub(r"\s+", " ", str(text or "")).strip()
+    summary = "\n".join(re.sub(r"[ \t]+", " ", line).strip() for line in str(text or "").splitlines()).strip()
     if len(summary) > 600:
         summary = summary[:597].rstrip() + "…"
     lines = []
@@ -1854,6 +2799,112 @@ def password_needs_rehash(encoded: str) -> bool:
     except Exception:
         return True
 
+
+def auth_token_hash(token: str) -> str:
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+def create_email_verification_token(user_id: str, *, ip: str = "") -> tuple[str, int]:
+    token = secrets.token_urlsafe(32)
+    ts = now_ts()
+    expires = ts + EMAIL_VERIFICATION_TTL_SECONDS
+    with DB_LOCK, db() as conn:
+        conn.execute("UPDATE auth_email_verification_tokens SET used_at=? WHERE user_id=? AND used_at IS NULL", (ts, user_id))
+        conn.execute(
+            "INSERT INTO auth_email_verification_tokens(id,user_id,token_hash,created_at,expires_at,used_at,requested_by_ip) VALUES(?,?,?,?,?,?,?)",
+            (uuid.uuid4().hex, user_id, auth_token_hash(token), ts, expires, None, ip[:128] or None),
+        )
+        conn.commit()
+    return token, expires
+
+
+def create_password_reset_token(user_id: str, *, ip: str = "") -> tuple[str, int]:
+    token = secrets.token_urlsafe(32)
+    ts = now_ts()
+    expires = ts + PASSWORD_RESET_TTL_SECONDS
+    with DB_LOCK, db() as conn:
+        conn.execute("UPDATE auth_password_reset_tokens SET used_at=? WHERE user_id=? AND used_at IS NULL", (ts, user_id))
+        conn.execute(
+            "INSERT INTO auth_password_reset_tokens(id,user_id,token_hash,created_at,expires_at,used_at,requested_by_ip) VALUES(?,?,?,?,?,?,?)",
+            (uuid.uuid4().hex, user_id, auth_token_hash(token), ts, expires, None, ip[:128] or None),
+        )
+        conn.commit()
+    return token, expires
+
+
+def email_verification_status(token: str) -> dict[str, Any] | None:
+    if not token or len(token) > 256:
+        return None
+    with DB_LOCK, db() as conn:
+        row = conn.execute(
+            "SELECT t.user_id,t.created_at,t.expires_at,t.used_at,u.email,u.display_name,u.status,u.email_verified "
+            "FROM auth_email_verification_tokens t JOIN users u ON u.id=t.user_id WHERE t.token_hash=?",
+            (auth_token_hash(token),),
+        ).fetchone()
+    if not row:
+        return None
+    item = dict(row)
+    now = now_ts()
+    item["expired"] = int(item["expires_at"]) <= now
+    item["usable"] = item["used_at"] is None and not item["expired"] and not bool(int(item["email_verified"] or 0))
+    return item
+
+
+def password_reset_status(token: str) -> dict[str, Any] | None:
+    if not token or len(token) > 256:
+        return None
+    with DB_LOCK, db() as conn:
+        row = conn.execute(
+            "SELECT t.user_id,t.created_at,t.expires_at,t.used_at,u.email,u.display_name,u.status "
+            "FROM auth_password_reset_tokens t JOIN users u ON u.id=t.user_id WHERE t.token_hash=?",
+            (auth_token_hash(token),),
+        ).fetchone()
+    if not row:
+        return None
+    item = dict(row)
+    now = now_ts()
+    item["expired"] = int(item["expires_at"]) <= now
+    item["usable"] = item["used_at"] is None and not item["expired"] and str(item["status"]) == "active"
+    return item
+
+
+def mark_email_verified(user_id: str, *, token: str) -> dict[str, Any]:
+    status = email_verification_status(token)
+    if not status or str(status["user_id"]) != user_id:
+        raise ApiError(400, "invalid verification token")
+    if status["used_at"] is not None or status["expired"]:
+        raise ApiError(400, "verification token expired")
+    ts = now_ts()
+    with DB_LOCK, db() as conn:
+        conn.execute("UPDATE auth_email_verification_tokens SET used_at=? WHERE token_hash=? AND used_at IS NULL", (ts, auth_token_hash(token)))
+        conn.execute("UPDATE users SET email_verified=1,email_verified_at=?,updated_at=? WHERE id=?", (ts, ts, user_id))
+        conn.commit()
+    log_event("auth.email_verified", user_id=user_id)
+    with DB_LOCK, db() as conn:
+        row = conn.execute("SELECT id,email,display_name,role,status,email_verified,email_verified_at FROM users WHERE id=?", (user_id,)).fetchone()
+    return dict(row) if row else {"id": user_id}
+
+
+def apply_password_reset(token: str, new_password: str) -> dict[str, Any]:
+    status = password_reset_status(token)
+    if not status:
+        raise ApiError(400, "invalid password reset token")
+    if status["used_at"] is not None or status["expired"] or not status["usable"]:
+        raise ApiError(400, "password reset token expired")
+    if len(new_password) < 10 or not re.search(r"[A-Za-zА-Яа-я]", new_password) or not re.search(r"\d", new_password):
+        raise ApiError(400, "Пароль должен содержать минимум 10 символов, буквы и цифры")
+    ts = now_ts()
+    user_id = str(status["user_id"])
+    with DB_LOCK, db() as conn:
+        conn.execute("UPDATE auth_password_reset_tokens SET used_at=? WHERE token_hash=? AND used_at IS NULL", (ts, auth_token_hash(token)))
+        conn.execute("UPDATE users SET password_hash=?,updated_at=? WHERE id=?", (password_hash(new_password), ts, user_id))
+        conn.execute("UPDATE sessions SET revoked_at=? WHERE user_id=? AND revoked_at IS NULL", (ts, user_id))
+        conn.commit()
+    log_event("auth.password_reset_completed", user_id=user_id)
+    with DB_LOCK, db() as conn:
+        row = conn.execute("SELECT id,email,display_name,role,status,email_verified,email_verified_at FROM users WHERE id=?", (user_id,)).fetchone()
+    return dict(row) if row else {"id": user_id}
+
 def session_cookie_value(headers: Any) -> str:
     cookie = http.cookies.SimpleCookie()
     try:
@@ -1877,14 +2928,14 @@ def session_cookie(token: str, *, max_age: int) -> str:
 
 def current_user(headers: Any) -> dict[str, Any] | None:
     if AUTH_MODE == "personal":
-        return {"id": "local-owner", "display_name": "Локальный владелец", "role": "OWNER", "status": "active"}
+        return {"id": "local-owner", "display_name": "Локальный владелец", "role": "OWNER", "status": "active", "email_verified": 1}
     token = session_cookie_value(headers)
     if not token:
         return None
     digest = hashlib.sha256(token.encode("utf-8")).hexdigest()
     with DB_LOCK, db() as conn:
         row = conn.execute(
-            "SELECT u.id,u.email,u.display_name,u.role,u.status,s.id AS session_id,s.expires_at "
+            "SELECT u.id,u.email,u.display_name,u.role,u.status,u.email_verified,u.email_verified_at,s.id AS session_id,s.expires_at "
             "FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=? AND s.revoked_at IS NULL",
             (digest,),
         ).fetchone()
@@ -1892,7 +2943,7 @@ def current_user(headers: Any) -> dict[str, Any] | None:
             return None
         conn.execute("UPDATE sessions SET last_seen_at=? WHERE id=?", (now_ts(), row["session_id"]))
         conn.commit()
-        return {"id": row["id"], "email": row["email"], "display_name": row["display_name"], "role": row["role"], "status": row["status"], "session_id": row["session_id"]}
+        return {"id": row["id"], "email": row["email"], "display_name": row["display_name"], "role": row["role"], "status": row["status"], "email_verified": row["email_verified"], "email_verified_at": row["email_verified_at"], "session_id": row["session_id"]}
 
 
 def create_session(user_id: str, *, remember_me: bool = False, ip: str = "", user_agent: str = "") -> tuple[str, int]:
@@ -1936,6 +2987,162 @@ def record_login_attempt(email: str, ip: str, success: bool) -> None:
             conn.execute("DELETE FROM auth_login_attempts WHERE email_hash=? AND ip_hash=? AND success=0", (login_key(email), login_key(ip or "unknown")))
         conn.commit()
 
+
+def turnstile_enabled() -> bool:
+    return bool(TURNSTILE_SITE_KEY and TURNSTILE_SECRET_KEY)
+
+
+def client_ip(handler: Any) -> str:
+    return handler.client_address[0] if getattr(handler, "client_address", None) else ""
+
+
+def auth_honeypot_triggered(body: dict[str, Any]) -> bool:
+    if not AUTH_HONEYPOT_FIELD:
+        return False
+    return bool(str(body.get(AUTH_HONEYPOT_FIELD, "")).strip())
+
+
+def record_auth_abuse_event(action: str, ip: str, email: str = "") -> None:
+    ts = now_ts()
+    with DB_LOCK, db() as conn:
+        conn.execute(
+            "INSERT INTO auth_abuse_events(action,ip_hash,email_hash,created_at) VALUES(?,?,?,?)",
+            (action, login_key(ip or "unknown"), login_key(email) if email else None, ts),
+        )
+        conn.execute("DELETE FROM auth_abuse_events WHERE created_at<?", (ts - max(AUTH_ABUSE_WINDOW_SECONDS * 3, 3600),))
+        conn.commit()
+
+
+def public_auth_rate_allowed(action: str, ip: str, *, email: str = "", per_ip_limit: int, per_email_limit: int, min_interval_seconds: int) -> tuple[bool, str]:
+    ts = now_ts()
+    cutoff = ts - AUTH_ABUSE_WINDOW_SECONDS
+    ip_hash = login_key(ip or "unknown")
+    email_hash = login_key(email) if email else None
+    with DB_LOCK, db() as conn:
+        conn.execute("DELETE FROM auth_abuse_events WHERE created_at<?", (cutoff - AUTH_ABUSE_WINDOW_SECONDS,))
+        ip_count = conn.execute(
+            "SELECT COUNT(*) FROM auth_abuse_events WHERE action=? AND ip_hash=? AND created_at>=?",
+            (action, ip_hash, cutoff),
+        ).fetchone()
+        recent = conn.execute(
+            "SELECT MAX(created_at) FROM auth_abuse_events WHERE action=? AND ip_hash=?",
+            (action, ip_hash),
+        ).fetchone()
+        email_count = None
+        if email_hash:
+            email_count = conn.execute(
+                "SELECT COUNT(*) FROM auth_abuse_events WHERE action=? AND email_hash=? AND created_at>=?",
+                (action, email_hash, cutoff),
+            ).fetchone()
+        conn.commit()
+    if int(ip_count[0] if ip_count else 0) >= max(1, per_ip_limit):
+        return False, "ip_limit"
+    last_seen = int(recent[0] or 0)
+    if last_seen and min_interval_seconds > 0 and ts - last_seen < min_interval_seconds:
+        return False, "cooldown"
+    if email_hash and int(email_count[0] if email_count else 0) >= max(1, per_email_limit):
+        return False, "email_limit"
+    return True, "ok"
+
+
+def ip_action_rate_allowed(action: str, ip: str, *, window_seconds: int, limit: int, min_interval_seconds: int = 0) -> tuple[bool, str]:
+    ts = now_ts()
+    cutoff = ts - max(1, window_seconds)
+    ip_hash = login_key(ip or "unknown")
+    with DB_LOCK, db() as conn:
+        conn.execute("DELETE FROM auth_abuse_events WHERE created_at<?", (cutoff - max(window_seconds, 60),))
+        count_row = conn.execute(
+            "SELECT COUNT(*) FROM auth_abuse_events WHERE action=? AND ip_hash=? AND created_at>=?",
+            (action, ip_hash, cutoff),
+        ).fetchone()
+        recent_row = conn.execute(
+            "SELECT MAX(created_at) FROM auth_abuse_events WHERE action=? AND ip_hash=?",
+            (action, ip_hash),
+        ).fetchone()
+        conn.commit()
+    if int(count_row[0] if count_row else 0) >= max(1, limit):
+        return False, "ip_limit"
+    last_seen = int(recent_row[0] or 0)
+    if last_seen and min_interval_seconds > 0 and ts - last_seen < min_interval_seconds:
+        return False, "cooldown"
+    return True, "ok"
+
+
+def verify_turnstile_token(token: str, ip: str) -> bool:
+    if not turnstile_enabled():
+        return False
+    payload = urllib.parse.urlencode({
+        "secret": TURNSTILE_SECRET_KEY,
+        "response": token,
+        "remoteip": ip or "",
+    }).encode("utf-8")
+    req = urllib.request.Request(
+        "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+        data=payload,
+        headers={"Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json"},
+        method="POST",
+    )
+    try:
+        with urlopen_with_egress(req, timeout=8) as resp:
+            result = json.loads(resp.read().decode("utf-8"))
+    except Exception as exc:
+        log_event("auth.turnstile_error", level="ERROR", error=type(exc).__name__)
+        return False
+    return bool(result.get("success"))
+
+
+def enforce_public_auth_security(
+    handler: Any,
+    body: dict[str, Any],
+    *,
+    action: str,
+    email: str = "",
+    per_ip_limit: int,
+    per_email_limit: int = AUTH_EMAIL_MAX_PER_WINDOW,
+    min_interval_seconds: int = AUTH_ABUSE_MIN_INTERVAL_SECONDS,
+    require_turnstile: bool = False,
+) -> None:
+    ip = client_ip(handler)
+    if TEST_MODE:
+        min_interval_seconds = 0
+    if auth_honeypot_triggered(body):
+        log_event("auth.honeypot_blocked", level="WARN", action=action, ip_hash=login_key(ip or "unknown")[:16])
+        raise ApiError(429, "Сработала защита от спама. Повторите попытку чуть позже.")
+    allowed, reason = public_auth_rate_allowed(
+        action,
+        ip,
+        email=email,
+        per_ip_limit=per_ip_limit,
+        per_email_limit=per_email_limit,
+        min_interval_seconds=min_interval_seconds,
+    )
+    if not allowed:
+        log_event("auth.public_rate_limited", level="WARN", action=action, reason=reason, ip_hash=login_key(ip or "unknown")[:16], email_hash=login_key(email)[:16] if email else "")
+        raise ApiError(429, "Слишком много попыток. Подождите немного и повторите снова.")
+    record_auth_abuse_event(action, ip, email)
+    if require_turnstile and turnstile_enabled():
+        token = str(body.get("captcha_token") or body.get("turnstile_token") or "").strip()
+        if not token:
+            raise ApiError(400, "Подтвердите, что вы не робот.")
+        if not verify_turnstile_token(token, ip):
+            log_event("auth.turnstile_failed", level="WARN", action=action, ip_hash=login_key(ip or "unknown")[:16])
+            raise ApiError(400, "Не удалось пройти проверку защиты. Обновите страницу и повторите попытку.")
+
+
+def enforce_ip_request_limit(*, handler: Any, action: str, window_seconds: int, limit: int, min_interval_seconds: int = 0) -> None:
+    ip = client_ip(handler)
+    allowed, reason = ip_action_rate_allowed(
+        action,
+        ip,
+        window_seconds=window_seconds,
+        limit=limit,
+        min_interval_seconds=min_interval_seconds,
+    )
+    if not allowed:
+        log_event("security.request_rate_limited", level="WARN", action=action, reason=reason, ip_hash=login_key(ip or "unknown")[:16])
+        raise ApiError(429, "Слишком много запросов. Подождите немного и повторите снова.")
+    record_auth_abuse_event(action, ip)
+
 def revoke_session(headers: Any) -> None:
     token = session_cookie_value(headers)
     if not token:
@@ -1974,7 +3181,7 @@ def pull_model_job(job_id: str, provider_id: str, model: str) -> None:
         update_job(job_id, status="running", progress=1, message="Подключаемся к каталогу модели")
         payload = json.dumps({"model": model, "stream": True}).encode("utf-8")
         req = urllib.request.Request(f"{str(provider['base_url']).rstrip('/')}/api/pull", data=payload, headers={"Content-Type": "application/json", **provider_headers(provider)})
-        with urllib.request.urlopen(req, timeout=3600) as resp:
+        with urlopen_with_egress(req, timeout=3600) as resp:
             for raw in resp:
                 if not raw.strip():
                     continue
@@ -2003,9 +3210,9 @@ class ApiError(Exception):
 
 def task_user(user_id: str) -> dict[str, Any]:
     if user_id == "local-owner":
-        return {"id": "local-owner", "display_name": "Локальный владелец", "role": "OWNER", "status": "active"}
+        return {"id": "local-owner", "display_name": "Локальный владелец", "role": "OWNER", "status": "active", "email_verified": 1}
     with DB_LOCK, db() as conn:
-        row = conn.execute("SELECT id,email,display_name,role,status FROM users WHERE id=?", (user_id,)).fetchone()
+        row = conn.execute("SELECT id,email,display_name,role,status,email_verified,email_verified_at FROM users WHERE id=?", (user_id,)).fetchone()
     if not row:
         raise TaskError("task user no longer exists")
     return dict(row)
@@ -2150,6 +3357,8 @@ def credentials_from_body(target: dict[str, Any], body: dict[str, Any]) -> SSHCr
 
 
 def observability_snapshot() -> dict[str, Any]:
+    proxy_config, bypass_list = _effective_proxy_config()
+    proxy_settings = egress_proxy_settings()
     with DB_LOCK, db() as conn:
         table_names = set(list_tables(conn))
         counts = {
@@ -2190,6 +3399,9 @@ def observability_snapshot() -> dict[str, Any]:
         "code_configured": bool(CODE_SOCKET),
         "local_ai_required": RUNTIME_PROFILE in {"local", "edge"},
         "secure_cookies": SECURE_COOKIES,
+        "egress_proxy_enabled": bool(proxy_config),
+        "egress_proxy_schemes": sorted(proxy_config.keys()),
+        "egress_proxy_source": "admin" if proxy_settings.get("label") or proxy_settings.get("username") or proxy_settings.get("http_proxy_url") or proxy_settings.get("https_proxy_url") else ("env" if bool(EGRESS_HTTP_PROXY_ENV or EGRESS_HTTPS_PROXY_ENV) else "disabled"),
     }
     return {
         "timestamp": now_ts(), "version": VERSION, "runtime_profile": RUNTIME_PROFILE,
@@ -2225,7 +3437,7 @@ def public_admin_json(domain: str, admin_token: str, path: str, *, method: str =
         headers["Content-Type"] = "application/json"
     req = urllib.request.Request(url, data=raw, headers=headers, method=method)
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
+        with urlopen_with_egress(req, timeout=timeout) as resp:
             return int(resp.status), json.loads(resp.read().decode("utf-8") or "{}")
     except urllib.error.HTTPError as exc:
         payload = {}
@@ -2302,6 +3514,31 @@ def run_deployment_job(job_id: str, target_id: str, credential_body: dict[str, A
             result = deploy_to_vps(session, bundle, VERSION, remote_root=remote_root)
             result["preflight"] = preflight_result
             result["remote_root"] = remote_root
+            vpn_config = vpn_routing_config()
+            if vpn_config.get("enabled"):
+                update_job(job_id, progress=68, message="Поднимаю настроенный VPN-маршрут на VPS1")
+                if not VPN_IMPORT_URI_PATH.is_file():
+                    raise DeploymentError("VPN routing is enabled, but Amnezia vpn:// key is not saved in Admin")
+                try:
+                    imported_profile = amnezia_uri_to_wireguard_config(VPN_IMPORT_URI_PATH.read_text(encoding="utf-8"))
+                except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError, zlib.error, configparser.Error) as exc:
+                    raise DeploymentError(f"Amnezia key cannot be converted to a client profile: {type(exc).__name__}") from exc
+                vps1 = vpn_config.get("vps1") or {}
+                upstream = vpn_config.get("upstream") or {}
+                allowed_ips = upstream.get("allowed_ips") or []
+                upstream_ip = str(upstream.get("ip") or (str(allowed_ips[0]).split("/", 1)[0] if allowed_ips else ""))
+                result["vpn"] = apply_vpn_plan(session, {
+                    "client_config": imported_profile,
+                    "verification": {
+                        "vps1_interface": str(vps1.get("interface") or "wg0"),
+                        "mode": str(vpn_config.get("mode") or "amneziawg"),
+                        "upstream_ip": upstream_ip,
+                    },
+                }, role="vps1")
+                key_fingerprint = vpn_import_status().get("key_fingerprint", "")
+                with DB_LOCK, db() as conn:
+                    conn.execute("INSERT INTO settings(key,value) VALUES('vpn_remote_status',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value", (json.dumps({"status": "READY", "key_fingerprint": key_fingerprint, "target_id": target_id, "service_name": result["vpn"].get("service_name", ""), "remote_target": result["vpn"].get("remote_target", ""), "checked_at": now_ts()}, ensure_ascii=False),))
+                    conn.commit()
             update_job(job_id, progress=82, message="Проверяю публичный HTTPS и версию")
             public_result = public_hot_verify(str(target["domain"]), VERSION, timeout_seconds=int(credential_body.get("public_verify_timeout") or 120))
             result["public_hot_verify"] = public_result
@@ -2311,9 +3548,44 @@ def run_deployment_job(job_id: str, target_id: str, credential_body: dict[str, A
                 result["provider_bootstrap"] = seed_remote_provider_to_vps(str(target["domain"]), admin_token, deploy_provider_id)
             result["admin_token"] = admin_token if not credential_body.get("server_admin_token") else "provided"
             result["public_url"] = "https://" + str(target["domain"])
-            update_job(job_id, status="completed", progress=100, message="VPS опубликован и проверен через HTTPS", result=result)
+            update_job(job_id, status="completed", progress=100, message="VPS опубликован, VPN применен и проверен через HTTPS", result=result)
             with DB_LOCK, db() as conn:
                 conn.execute("UPDATE deployment_targets SET last_status='PASS',last_message=?,updated_at=? WHERE id=?", (f"v{VERSION} hot verify PASS", now_ts(), target_id)); conn.commit()
+        elif action == "vpn-apply":
+            update_job(job_id, progress=20, message="Проверяю сохраненный Amnezia ключ")
+            config = vpn_routing_config()
+            if not config.get("enabled"):
+                raise DeploymentError("VPN routing is disabled in Admin settings")
+            if not VPN_IMPORT_URI_PATH.is_file():
+                raise DeploymentError("Amnezia vpn:// key is not saved in Admin")
+            try:
+                imported_profile = amnezia_uri_to_wireguard_config(VPN_IMPORT_URI_PATH.read_text(encoding="utf-8"))
+            except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError, zlib.error, configparser.Error) as exc:
+                raise DeploymentError(f"Amnezia key cannot be converted to a client profile: {type(exc).__name__}") from exc
+            vps1 = config.get("vps1") or {}
+            upstream = config.get("upstream") or {}
+            interface = str(vps1.get("interface") or "wg0")
+            allowed_ips = upstream.get("allowed_ips") or []
+            upstream_ip = str(upstream.get("ip") or (str(allowed_ips[0]).split("/", 1)[0] if allowed_ips else ""))
+            plan = {
+                "client_config": imported_profile,
+                "verification": {
+                    "vps1_interface": interface,
+                    "mode": str(config.get("mode") or "amneziawg"),
+                    "upstream_ip": upstream_ip,
+                },
+            }
+            update_job(job_id, progress=45, message="Устанавливаю профиль и поднимаю VPN на VPS1")
+            result = apply_vpn_plan(session, plan, role="vps1")
+            result["key_fingerprint"] = vpn_import_status().get("key_fingerprint", "")
+            with DB_LOCK, db() as conn:
+                conn.execute("INSERT INTO settings(key,value) VALUES('vpn_remote_status',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value", (json.dumps({"status": "READY", "key_fingerprint": result["key_fingerprint"], "target_id": target_id, "service_name": result.get("service_name", ""), "remote_target": result.get("remote_target", ""), "checked_at": now_ts()}, ensure_ascii=False),))
+                conn.commit()
+            update_job(job_id, status="completed", progress=100, message="VPN VPS1 поднят и проверен", result=result)
+            with DB_LOCK, db() as conn:
+                conn.execute("UPDATE deployment_targets SET last_status='PASS',last_message=?,updated_at=? WHERE id=?", (f"vpn apply PASS ({config.get('mode')})", now_ts(), target_id)); conn.commit()
+        elif action == "vpn-apply-server":
+            raise DeploymentError("VPS2 requires a separate concrete server profile; the Admin vpn:// key is a VPS1 client profile")
         elif action == "rollback":
             update_job(job_id, progress=35, message="Переключаю на предыдущий release")
             remote_root = resolve_remote_root(session)
@@ -2333,6 +3605,8 @@ def run_deployment_job(job_id: str, target_id: str, credential_body: dict[str, A
             except Exception: pass
 
 def diagnostics_snapshot() -> dict[str, Any]:
+    proxy_config, bypass_list = _effective_proxy_config()
+    proxy_settings = egress_proxy_settings()
     return {
         "product": PRODUCT,
         "version": VERSION,
@@ -2347,6 +3621,10 @@ def diagnostics_snapshot() -> dict[str, Any]:
             "port": PORT,
             "secure_cookies": SECURE_COOKIES,
             "bootstrap_model_configured": bool(BOOTSTRAP_MODEL),
+            "egress_proxy_enabled": bool(proxy_config),
+            "egress_proxy_schemes": sorted(proxy_config.keys()),
+            "egress_proxy_no_proxy": list(bypass_list),
+            "egress_proxy_source": "admin" if proxy_settings.get("label") or proxy_settings.get("username") or proxy_settings.get("http_proxy_url") or proxy_settings.get("https_proxy_url") else ("env" if bool(EGRESS_HTTP_PROXY_ENV or EGRESS_HTTPS_PROXY_ENV) else "disabled"),
         },
     }
 
@@ -2381,6 +3659,19 @@ def diagnostics_bundle() -> bytes:
 
 class Handler(SimpleHTTPRequestHandler):
     server_version = "Personal-Agent-Core"
+    _utf8_static_types = {
+        "text/html",
+        "text/plain",
+        "text/css",
+        "text/javascript",
+        "application/javascript",
+        "application/x-javascript",
+        "application/json",
+        "application/manifest+json",
+        "image/svg+xml",
+        "application/xml",
+        "text/xml",
+    }
 
     def _begin_trace(self) -> None:
         request_id = _valid_trace_id(self.headers.get("X-Request-ID")) or uuid.uuid4().hex
@@ -2390,6 +3681,13 @@ class Handler(SimpleHTTPRequestHandler):
         self.request_started = time.monotonic()
         TRACE_CONTEXT.request_id = request_id
         TRACE_CONTEXT.correlation_id = correlation_id
+
+    def guess_type(self, path: str) -> str:
+        content_type = super().guess_type(path)
+        base_type = content_type.split(";", 1)[0].strip().lower()
+        if "charset=" not in content_type.lower() and base_type in self._utf8_static_types:
+            return f"{content_type}; charset=utf-8"
+        return content_type
 
     def log_message(self, fmt: str, *args: Any) -> None:
         log_event("http.access", method=getattr(self, "command", ""), path=getattr(self, "path", ""), remote=self.client_address[0] if self.client_address else "", message=fmt % args)
@@ -2586,6 +3884,13 @@ class Handler(SimpleHTTPRequestHandler):
                 {"id": "remote_only", "label": "Только удалённо"},
             ],
             "languages": {"ui": ["ru", "en"], "response": ["auto", "ru", "en"]},
+            "support_email": email_settings()["support_email"],
+            "auth_security": {
+                "honeypot_field": AUTH_HONEYPOT_FIELD,
+                "turnstile_enabled": turnstile_enabled(),
+                "turnstile_required": bool(TURNSTILE_ENFORCED and turnstile_enabled()),
+                "turnstile_site_key": TURNSTILE_SITE_KEY if turnstile_enabled() else "",
+            },
             "capabilities": {
                 "chat": {"status": "ready", "label": "Чат"},
                 "web": {"status": "ready" if SEARXNG_URL and BROWSER_URL else "unavailable", "label": "Веб"},
@@ -2599,6 +3904,7 @@ class Handler(SimpleHTTPRequestHandler):
                 "media": {"status": "planned", "label": "Медиа"},
             },
             "auth": {"mode": AUTH_MODE, "registration_policy": registration_policy()},
+            "support_inbox": {"enabled": support_inbox_enabled()},
             "setup_complete": setting("setup_complete", "0") == "1",
             "database": validate_server_database_config(),
             "lan": {"enabled": LAN_ENABLED, "url": LAN_PUBLIC_URL, "secure_context": bool(LAN_PUBLIC_URL.startswith("https://"))},
@@ -2662,6 +3968,20 @@ class Handler(SimpleHTTPRequestHandler):
                 csrf_token = csrf_token_for_session(session_cookie_value(self.headers)) if user and AUTH_MODE == "accounts" else ""
                 self._json(200 if user else 401, {"ok": bool(user), "mode": AUTH_MODE, "registration_policy": registration_policy(), "user": user, "csrf_token": csrf_token, "entitlements": entitlement_snapshot(user) if user else None})
                 return
+            if path == "/api/auth/verify-email":
+                token = str(urllib.parse.parse_qs(parsed.query).get("token", [""])[0]).strip()
+                item = email_verification_status(token)
+                if not item:
+                    raise ApiError(404, "verification token not found")
+                self._json(200, {"ok": True, "token_status": {"email": item["email"], "display_name": item["display_name"], "status": item["status"], "email_verified": bool(int(item["email_verified"] or 0)), "expires_at": int(item["expires_at"]), "used_at": item["used_at"], "expired": bool(item["expired"]), "usable": bool(item["usable"])}})
+                return
+            if path == "/api/auth/password-reset":
+                token = str(urllib.parse.parse_qs(parsed.query).get("token", [""])[0]).strip()
+                item = password_reset_status(token)
+                if not item:
+                    raise ApiError(404, "password reset token not found")
+                self._json(200, {"ok": True, "token_status": {"email": item["email"], "display_name": item["display_name"], "status": item["status"], "expires_at": int(item["expires_at"]), "used_at": item["used_at"], "expired": bool(item["expired"]), "usable": bool(item["usable"])}})
+                return
             if path == "/api/auth/sessions":
                 user = self._user()
                 with DB_LOCK, db() as conn:
@@ -2694,6 +4014,15 @@ class Handler(SimpleHTTPRequestHandler):
             if path == "/api/admin/feedback":
                 self._admin()
                 self._json(200, {"ok": True, "items": EXPERIENCE.feedback_list(limit=200)})
+                return
+            if path == "/api/admin/support-inbox":
+                self._admin()
+                limit = int(urllib.parse.parse_qs(parsed.query).get("limit", ["50"])[0] or "50")
+                self._json(200, {"ok": True, "support_email": email_settings()["support_email"], "inbox": support_inbox_stats(), "items": support_inbox_list(limit=limit)})
+                return
+            if path == "/api/admin/email-settings":
+                self._admin()
+                self._json(200, {"ok": True, "settings": email_settings(), "smtp": {"configured": smtp_configured(), "host": SMTP_HOST, "port": SMTP_PORT}})
                 return
             if path == "/api/admin/auth-status":
                 user = current_user(self.headers)
@@ -2911,6 +4240,9 @@ class Handler(SimpleHTTPRequestHandler):
                     "auth_mode": AUTH_MODE,
                     "registration_policy": registration_policy(),
                     "setup_complete": setting("setup_complete", "0") == "1",
+                    "support_email": email_settings()["support_email"],
+                    "support_inbox": support_inbox_stats(),
+                    "egress_proxy": egress_proxy_settings(),
                 })
                 return
             if path == "/api/admin/providers":
@@ -2934,7 +4266,7 @@ class Handler(SimpleHTTPRequestHandler):
                 self._admin()
                 with DB_LOCK, db() as conn:
                     rows = conn.execute(
-                        "SELECT u.id,u.email,u.display_name,u.role,u.status,u.created_at,u.updated_at, "
+                        "SELECT u.id,u.email,u.display_name,u.role,u.status,u.email_verified,u.email_verified_at,u.created_at,u.updated_at, "
                         "(SELECT COUNT(*) FROM sessions s WHERE s.user_id=u.id AND s.revoked_at IS NULL AND s.expires_at>?) AS active_sessions "
                         "FROM users u ORDER BY u.created_at DESC", (now_ts(),)
                     ).fetchall()
@@ -2945,12 +4277,22 @@ class Handler(SimpleHTTPRequestHandler):
                         item["billing"] = BILLING.snapshot(item)["subscription"]
                     except Exception:
                         item["billing"] = None
+                    try:
+                        item["balance"] = BILLING.balance(str(item["id"]))
+                        item["billing_summary"] = BILLING.user_billing_summary(str(item["id"]))
+                    except Exception:
+                        item["balance"] = None
+                        item["billing_summary"] = {}
                     users.append(item)
                 self._json(200, {"users": users, "auth_mode": AUTH_MODE, "registration_policy": registration_policy()})
                 return
             if path == "/api/admin/observability":
                 self._admin()
                 self._json(200, {"ok": True, "observability": observability_snapshot()})
+                return
+            if path == "/api/admin/egress-proxy":
+                self._admin()
+                self._json(200, {"ok": True, "egress_proxy": egress_proxy_settings()})
                 return
             if path == "/api/admin/logs":
                 self._admin()
@@ -3011,6 +4353,10 @@ class Handler(SimpleHTTPRequestHandler):
                 self._admin()
                 self._json(200, {"ok": True, "vpn_plan": vpn_routing_plan()})
                 return
+            if path == "/api/admin/vpn-routing/status":
+                self._admin()
+                self._json(200, {"ok": True, "vpn_status": vpn_import_status()})
+                return
             if path.startswith("/api/admin/jobs/"):
                 self._admin()
                 job_id = path.rsplit("/", 1)[-1]
@@ -3022,21 +4368,82 @@ class Handler(SimpleHTTPRequestHandler):
                 payload["result"] = json.loads(payload.pop("result_json") or "null") if "result_json" in payload else None
                 self._json(200, payload)
                 return
-            if path in {"/", "/index.html"}:
-                self.path = "/index.html"
-            elif path in {"/admin", "/admin/", "/admin.html"}:
-                self.path = "/admin.html"
-            elif path in {"/register", "/register/", "/register.html"}:
-                self.path = "/register.html"
-            elif path in {"/login", "/login/", "/login.html"}:
-                self.path = "/login.html"
-            elif path in {"/account", "/account/", "/account.html"}:
-                self.path = "/account.html"
-            elif not path.startswith("/static/"):
+            if not self._rewrite_static_page_path(path):
                 raise ApiError(404, "not found")
             return super().do_GET()
         except ApiError as exc:
             self._json(exc.status, self._error_payload(exc.status, exc.message, error_type=type(exc).__name__))
+
+    def do_HEAD(self) -> None:
+        self._begin_trace()
+        path = urlparse(self.path).path
+        try:
+            if not self._rewrite_static_page_path(path):
+                raise ApiError(404, "not found")
+            return super().do_HEAD()
+        except ApiError as exc:
+            self.send_response(exc.status)
+            self._send_common_headers()
+            payload = json.dumps(self._error_payload(exc.status, exc.message, error_type=type(exc).__name__), ensure_ascii=False).encode("utf-8")
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(payload)))
+            self.end_headers()
+
+    def _rewrite_static_page_path(self, path: str) -> bool:
+        rewrites = {
+            "/": "/index.html",
+            "/index.html": "/index.html",
+            "/admin": "/admin.html",
+            "/admin/": "/admin.html",
+            "/admin.html": "/admin.html",
+            "/register": "/register.html",
+            "/register/": "/register.html",
+            "/register.html": "/register.html",
+            "/login": "/login.html",
+            "/login/": "/login.html",
+            "/login.html": "/login.html",
+            "/account": "/account.html",
+            "/account/": "/account.html",
+            "/account.html": "/account.html",
+            "/forgot-password": "/forgot-password.html",
+            "/forgot-password/": "/forgot-password.html",
+            "/forgot-password.html": "/forgot-password.html",
+            "/reset-password": "/reset-password.html",
+            "/reset-password/": "/reset-password.html",
+            "/reset-password.html": "/reset-password.html",
+            "/verify-email": "/verify-email.html",
+            "/verify-email/": "/verify-email.html",
+            "/verify-email.html": "/verify-email.html",
+            "/terms": "/terms.html",
+            "/terms/": "/terms.html",
+            "/terms.html": "/terms.html",
+            "/privacy": "/privacy.html",
+            "/privacy/": "/privacy.html",
+            "/privacy.html": "/privacy.html",
+            "/cookies": "/cookies.html",
+            "/cookies/": "/cookies.html",
+            "/cookies.html": "/cookies.html",
+            "/disclaimer": "/disclaimer.html",
+            "/disclaimer/": "/disclaimer.html",
+            "/disclaimer.html": "/disclaimer.html",
+        }
+        passthrough = {
+            "/google09554f0b584f0549.html",
+            "/yandex_b76432e377a94ad4.html",
+            "/favicon.ico",
+            "/favicon-32.png",
+            "/apple-touch-icon.png",
+            "/favicon.svg",
+            "/robots.txt",
+            "/sitemap.xml",
+        }
+        if path in rewrites:
+            self.path = rewrites[path]
+            return True
+        if path in passthrough or path.startswith("/static/"):
+            self.path = path
+            return True
+        return False
 
     def translate_path(self, path: str) -> str:
         clean = urlparse(path).path
@@ -3138,6 +4545,7 @@ class Handler(SimpleHTTPRequestHandler):
                 return
             if path == "/api/tasks":
                 user = self._user()
+                enforce_ip_request_limit(handler=self, action="tasks_create", window_seconds=TASK_WINDOW_SECONDS, limit=TASK_MAX_PER_WINDOW, min_interval_seconds=2)
                 body = self._body()
                 task_type = str(body.get("type", "research_report")).strip().lower()
                 if task_type != "research_report":
@@ -3220,6 +4628,13 @@ class Handler(SimpleHTTPRequestHandler):
             if path == "/api/files/upload":
                 user = self._user()
                 require_entitlement(user, "files_create")
+                enforce_ip_request_limit(
+                    handler=self,
+                    action="files_upload",
+                    window_seconds=UPLOAD_WINDOW_SECONDS,
+                    limit=UPLOAD_MAX_PER_WINDOW,
+                    min_interval_seconds=0 if TEST_MODE else 1,
+                )
                 encoded_name = self.headers.get("X-PA-Filename", "")
                 name = urllib.parse.unquote(encoded_name).strip()
                 requested_format = self.headers.get("X-PA-Format", "").strip()
@@ -3235,6 +4650,13 @@ class Handler(SimpleHTTPRequestHandler):
             if path == "/api/files/create":
                 user = self._user()
                 require_entitlement(user, "files_create")
+                enforce_ip_request_limit(
+                    handler=self,
+                    action="files_create",
+                    window_seconds=FILE_CREATE_WINDOW_SECONDS,
+                    limit=FILE_CREATE_MAX_PER_WINDOW,
+                    min_interval_seconds=0 if TEST_MODE else 1,
+                )
                 body = self._body()
                 fmt = str(body.get("format", "")).strip().lower().lstrip(".")
                 name = str(body.get("name", f"artifact.{fmt}"))
@@ -3353,6 +4775,7 @@ class Handler(SimpleHTTPRequestHandler):
                 web_ms = 0
                 inference_ms = 0
                 user = self._user()
+                enforce_ip_request_limit(handler=self, action="chat", window_seconds=CHAT_WINDOW_SECONDS, limit=CHAT_MAX_PER_WINDOW, min_interval_seconds=CHAT_MIN_INTERVAL_SECONDS)
                 body = self._body()
                 conversation_id = str(body.get("conversation_id", "")).strip()
                 persist_user = bool(body.get("persist_user", False))
@@ -3562,7 +4985,10 @@ class Handler(SimpleHTTPRequestHandler):
             if path == "/api/preferences/experience":
                 user = self._user()
                 try:
-                    preferences = EXPERIENCE.set_preferences(str(user["id"]), self._body())
+                    body = self._body()
+                    if "theme" in body:
+                        require_theme_entitlement(user, str(body.get("theme") or "system"))
+                    preferences = EXPERIENCE.set_preferences(str(user["id"]), body)
                 except ExperienceError as exc:
                     raise ApiError(400, str(exc)) from exc
                 log_event("preferences.experience.updated", user_id=user["id"], execution_policy=preferences.get("execution_policy"), tone=preferences.get("tone"), status="SUCCESS")
@@ -3624,12 +5050,68 @@ class Handler(SimpleHTTPRequestHandler):
                     conn.commit()
                 self._json(200, {"ok": True, "profile": profile})
                 return
+            if path == "/api/admin/site-profiles/bulk-add":
+                admin = self._admin()
+                body = self._body()
+                try:
+                    result = SCENARIOS.add_site_profiles(
+                        str(body.get("domains", "")),
+                        category=str(body.get("category", "search")),
+                        acquisition_order=str(body.get("acquisition_order", "search,browser,static")),
+                        egress_region=str(body.get("egress_region", "auto")),
+                    )
+                except ScenarioError as exc:
+                    raise ApiError(400, str(exc)) from exc
+                with DB_LOCK, db() as conn:
+                    conn.execute(
+                        "INSERT INTO audit(action,details,created_at) VALUES(?,?,?)",
+                        ("site_profile.bulk_add", json.dumps({"actor": admin.get("id"), "count": result["count"]}, ensure_ascii=False), now_ts()),
+                    )
+                    conn.commit()
+                self._json(201, {"ok": True, **result})
+                return
             if path == "/api/billing/preferences":
                 user = self._user()
                 body = self._body()
                 if not isinstance(body.get("show_token_usage"), bool):
                     raise ApiError(400, "show_token_usage boolean required")
                 self._json(200, {"ok": True, "preferences": BILLING.set_preference(str(user["id"]), show_token_usage=bool(body["show_token_usage"]))})
+                return
+            if path == "/api/billing/topup-requests":
+                user = self._user()
+                body = self._body()
+                try:
+                    request = BILLING.create_topup_request(
+                        user_id=str(user["id"]),
+                        amount_rub=float(body.get("amount_rub", 0)),
+                        payment_reference=str(body.get("payment_reference", "")),
+                        note=str(body.get("note", "")),
+                        source=str(body.get("source", "yoomoney")),
+                    )
+                except (BillingError, TypeError, ValueError) as exc:
+                    raise ApiError(400, str(exc)) from exc
+                log_event("billing.topup_requested", user_id=user["id"], amount_rub=request["amount_rub"], source=request["source"])
+                self._json(201, {"ok": True, "topup_request": request})
+                return
+            if path == "/api/billing/promocodes/redeem":
+                user = self._user()
+                body = self._body()
+                try:
+                    result = BILLING.redeem_promo_code(user_id=str(user["id"]), code=str(body.get("code", "")))
+                except BillingError as exc:
+                    raise ApiError(400, str(exc)) from exc
+                log_event("billing.promo_redeemed", user_id=user["id"], code=result["code"], amount_rub=result["amount_rub"])
+                self._json(200, {"ok": True, **result})
+                return
+            if path == "/api/billing/themes/purchase":
+                user = self._user()
+                body = self._body()
+                try:
+                    result = BILLING.purchase_theme(user_id=str(user["id"]), theme_id=str(body.get("theme_id", "")))
+                except BillingError as exc:
+                    raise ApiError(400, str(exc)) from exc
+                log_event("billing.theme_purchased", user_id=user["id"], theme_id=result["theme"], amount_rub=result["price_rub"])
+                self._json(200, {"ok": True, **result})
                 return
             if path == "/api/billing/checkout":
                 user = self._user()
@@ -3711,6 +5193,64 @@ class Handler(SimpleHTTPRequestHandler):
                     raise ApiError(400, str(exc)) from exc
                 self._json(200, {"ok": True, "plan": plan})
                 return
+            if path == "/api/admin/billing/balance":
+                admin = self._admin()
+                body = self._body()
+                user_id = str(body.get("user_id", "")).strip()
+                if not re.fullmatch(r"[0-9a-f]{32}", user_id):
+                    raise ApiError(400, "user_id is required")
+                try:
+                    balance = BILLING.adjust_balance(
+                        user_id=user_id,
+                        delta_rub=float(body.get("delta_rub", 0)),
+                        reason=str(body.get("reason", "")),
+                        actor_user_id=str(admin.get("id", "")),
+                    )
+                except (BillingError, TypeError, ValueError) as exc:
+                    raise ApiError(400, str(exc)) from exc
+                log_event("admin.billing.balance_adjusted", user_id=admin.get("id"), target_user_id=user_id, delta_rub=float(body.get("delta_rub", 0)))
+                self._json(200, {"ok": True, "balance": balance})
+                return
+            if path == "/api/admin/billing/promocodes":
+                admin = self._admin()
+                body = self._body()
+                try:
+                    promo = BILLING.create_promo_code(
+                        amount_rub=float(body.get("amount_rub", 0)),
+                        uses_total=int(body.get("uses_total", 1)),
+                        created_by_user_id=str(admin.get("id", "")),
+                        kind=str(body.get("kind", "general")),
+                        description=str(body.get("description", "")),
+                        code=str(body.get("code", "")),
+                        send_to_email=str(body.get("send_to_email", "")),
+                    )
+                except (BillingError, TypeError, ValueError) as exc:
+                    raise ApiError(400, str(exc)) from exc
+                log_event("admin.billing.promo_created", user_id=admin.get("id"), code=promo["code"], amount_rub=promo["amount_rub"])
+                self._json(201, {"ok": True, "promo_code": promo})
+                return
+            if path.startswith("/api/admin/billing/topup-requests/") and path.endswith("/reconcile"):
+                admin = self._admin()
+                request_id = path.strip("/").split("/")[-2]
+                body = self._body()
+                try:
+                    request = BILLING.reconcile_topup_request(request_id=request_id, reviewer_user_id=str(admin.get("id", "")), review_note=str(body.get("review_note", "")))
+                except BillingError as exc:
+                    raise ApiError(400, str(exc)) from exc
+                log_event("admin.billing.topup_reconciled", user_id=admin.get("id"), request_id=request_id, status=request["status"])
+                self._json(200, {"ok": True, "topup_request": request})
+                return
+            if path.startswith("/api/admin/billing/topup-requests/") and path.endswith("/reject"):
+                admin = self._admin()
+                request_id = path.strip("/").split("/")[-2]
+                body = self._body()
+                try:
+                    request = BILLING.reject_topup_request(request_id=request_id, reviewer_user_id=str(admin.get("id", "")), review_note=str(body.get("review_note", "")))
+                except BillingError as exc:
+                    raise ApiError(400, str(exc)) from exc
+                log_event("admin.billing.topup_rejected", user_id=admin.get("id"), request_id=request_id)
+                self._json(200, {"ok": True, "topup_request": request})
+                return
             if path.startswith("/api/admin/users/") and path.endswith("/plan"):
                 self._admin()
                 parts = path.strip("/").split("/")
@@ -3742,6 +5282,7 @@ class Handler(SimpleHTTPRequestHandler):
                     raise ApiError(403, "registration is closed")
                 body = self._body()
                 email = str(body.get("email", "")).strip().lower()
+                enforce_public_auth_security(self, body, action="register", email=email, per_ip_limit=AUTH_REGISTER_MAX_PER_IP, require_turnstile=TURNSTILE_ENFORCED)
                 display_name = str(body.get("display_name", "")).strip()[:80]
                 password = str(body.get("password", ""))
                 if not EMAIL_RE.fullmatch(email):
@@ -3755,20 +5296,119 @@ class Handler(SimpleHTTPRequestHandler):
                 first_owner = user_count == 0
                 status = "active" if first_owner else ("pending" if registration_policy() == "approval_required" else "active")
                 role = "OWNER" if first_owner else "USER"
+                email_verified = bool(first_owner or not EMAIL_VERIFICATION_REQUIRED)
                 user_id = uuid.uuid4().hex
                 ts = now_ts()
                 try:
                     with DB_LOCK, db() as conn:
-                        conn.execute("INSERT INTO users(id,email,display_name,password_hash,role,status,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?)", (user_id, email, display_name, password_hash(password), role, status, ts, ts))
+                        conn.execute(
+                            "INSERT INTO users(id,email,display_name,password_hash,role,status,email_verified,email_verified_at,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)",
+                            (user_id, email, display_name, password_hash(password), role, status, int(email_verified), ts if email_verified else None, ts, ts),
+                        )
                         conn.commit()
                 except integrity_error_types() as exc:
                     raise ApiError(409, "account already exists") from exc
-                if status != "active":
-                    self._json(202, {"ok": True, "status": status})
+                verification_url = ""
+                verification_expires_at = None
+                verification_delivered = False
+                if not email_verified:
+                    verify_token, verification_expires_at = create_email_verification_token(user_id, ip=self.client_address[0] if self.client_address else "")
+                    verification_url = f"{self._request_origin()}/verify-email?token={urllib.parse.quote(verify_token, safe='')}"
+                    verification_delivered = auth_link_delivery(recipient=email, subject="Подтверждение email — Родной Агент", url=verification_url, expires_at=verification_expires_at, kind="verify")
+                if status != "active" or not email_verified:
+                    self._json(202, {
+                        "ok": True,
+                        "status": status,
+                        "verification_required": not email_verified,
+                        "verification_url": public_magic_link(verification_url, delivered=verification_delivered),
+                        "verification_expires_at": verification_expires_at,
+                        "email_delivery": auth_delivery_mode(smtp_ready=smtp_configured(), delivered=verification_delivered, attempted=not email_verified),
+                    })
                     return
                 token, expires = create_session(user_id, remember_me=True, ip=self.client_address[0] if self.client_address else "", user_agent=self.headers.get("User-Agent", ""))
                 cookie = session_cookie(token, max_age=SESSION_TTL_SECONDS)
                 self._json(201, {"ok": True, "status": status, "expires_at": expires, "csrf_token": csrf_token_for_session(token)}, {"Set-Cookie": cookie})
+                return
+            if path == "/api/auth/verify-email":
+                body = self._body()
+                token = str(body.get("token", "")).strip()
+                status_info = email_verification_status(token)
+                if not status_info:
+                    raise ApiError(400, "invalid verification token")
+                user = mark_email_verified(str(status_info["user_id"]), token=token)
+                login_allowed = str(user.get("status", "")) == "active"
+                payload = {"ok": True, "verified": True, "user": user}
+                if login_allowed:
+                    session_token, expires = create_session(str(user["id"]), remember_me=True, ip=self.client_address[0] if self.client_address else "", user_agent=self.headers.get("User-Agent", ""))
+                    cookie = session_cookie(session_token, max_age=SESSION_TTL_SECONDS)
+                    payload["csrf_token"] = csrf_token_for_session(session_token)
+                    payload["expires_at"] = expires
+                    self._json(200, payload, {"Set-Cookie": cookie})
+                    return
+                self._json(200, payload)
+                return
+            if path == "/api/auth/verify-email/request":
+                if AUTH_MODE != "accounts":
+                    raise ApiError(409, "email verification is disabled in personal mode")
+                body = self._body()
+                email = str(body.get("email", "")).strip().lower()
+                enforce_public_auth_security(self, body, action="verify_email_request", email=email, per_ip_limit=AUTH_VERIFY_MAX_PER_IP, require_turnstile=TURNSTILE_ENFORCED)
+                if not EMAIL_RE.fullmatch(email):
+                    raise ApiError(400, "invalid email")
+                verification_url = ""
+                verification_expires_at = None
+                verification_delivered = False
+                with DB_LOCK, db() as conn:
+                    row = conn.execute("SELECT id,email_verified,status FROM users WHERE email=?", (email,)).fetchone()
+                if row and str(row["status"]) != "disabled" and not bool(int(row["email_verified"] or 0)):
+                    verify_token, verification_expires_at = create_email_verification_token(str(row["id"]), ip=self.client_address[0] if self.client_address else "")
+                    verification_url = f"{self._request_origin()}/verify-email?token={urllib.parse.quote(verify_token, safe='')}"
+                    verification_delivered = auth_link_delivery(recipient=email, subject="Подтверждение email — Родной Агент", url=verification_url, expires_at=verification_expires_at, kind="verify")
+                    log_event("auth.email_verification_requested", user_id=row["id"])
+                self._json(200, {
+                    "ok": True,
+                    "message": "Если аккаунт существует, письмо для подтверждения отправлено.",
+                    "verification_url": public_magic_link(verification_url, delivered=verification_delivered),
+                    "verification_expires_at": verification_expires_at,
+                    "email_delivery": auth_delivery_mode(smtp_ready=smtp_configured(), delivered=verification_delivered, attempted=bool(row and str(row["status"]) != "disabled" and not bool(int(row["email_verified"] or 0)))),
+                })
+                return
+            if path == "/api/auth/password-reset/request":
+                if AUTH_MODE != "accounts":
+                    raise ApiError(409, "password reset is disabled in personal mode")
+                body = self._body()
+                email = str(body.get("email", "")).strip().lower()
+                enforce_public_auth_security(self, body, action="password_reset_request", email=email, per_ip_limit=AUTH_RESET_MAX_PER_IP, require_turnstile=TURNSTILE_ENFORCED)
+                if not EMAIL_RE.fullmatch(email):
+                    raise ApiError(400, "invalid email")
+                reset_url = ""
+                reset_expires_at = None
+                reset_delivered = False
+                with DB_LOCK, db() as conn:
+                    row = conn.execute("SELECT id,status,email_verified FROM users WHERE email=?", (email,)).fetchone()
+                if row and str(row["status"]) == "active" and bool(int(row["email_verified"] or 0)):
+                    reset_token, reset_expires_at = create_password_reset_token(str(row["id"]), ip=self.client_address[0] if self.client_address else "")
+                    reset_url = f"{self._request_origin()}/reset-password?token={urllib.parse.quote(reset_token, safe='')}"
+                    reset_delivered = auth_link_delivery(recipient=email, subject="Восстановление доступа — Родной Агент", url=reset_url, expires_at=reset_expires_at, kind="reset")
+                    log_event("auth.password_reset_requested", user_id=row["id"])
+                self._json(200, {
+                    "ok": True,
+                    "message": "Если аккаунт существует и готов к восстановлению, письмо для сброса отправлено.",
+                    "reset_url": public_magic_link(reset_url, delivered=reset_delivered),
+                    "reset_expires_at": reset_expires_at,
+                    "email_delivery": auth_delivery_mode(smtp_ready=smtp_configured(), delivered=reset_delivered, attempted=bool(row and str(row["status"]) == "active" and bool(int(row["email_verified"] or 0)))),
+                })
+                return
+            if path == "/api/auth/password-reset/confirm":
+                if AUTH_MODE != "accounts":
+                    raise ApiError(409, "password reset is disabled in personal mode")
+                body = self._body()
+                token = str(body.get("token", "")).strip()
+                password = str(body.get("password", ""))
+                user = apply_password_reset(token, password)
+                session_token, expires = create_session(str(user["id"]), remember_me=True, ip=self.client_address[0] if self.client_address else "", user_agent=self.headers.get("User-Agent", ""))
+                cookie = session_cookie(session_token, max_age=SESSION_TTL_SECONDS)
+                self._json(200, {"ok": True, "user": user, "expires_at": expires, "csrf_token": csrf_token_for_session(session_token)}, {"Set-Cookie": cookie})
                 return
             if path == "/api/auth/login":
                 if AUTH_MODE != "accounts":
@@ -3776,16 +5416,31 @@ class Handler(SimpleHTTPRequestHandler):
                 body = self._body()
                 email = str(body.get("email", "")).strip().lower()
                 password = str(body.get("password", ""))
-                ip = self.client_address[0] if self.client_address else ""
+                ip = client_ip(self)
+                enforce_public_auth_security(
+                    self,
+                    body,
+                    action="login",
+                    email=email,
+                    per_ip_limit=AUTH_LOGIN_MAX_PER_IP,
+                    per_email_limit=max(LOGIN_MAX_FAILURES, AUTH_EMAIL_MAX_PER_WINDOW),
+                    min_interval_seconds=0 if TEST_MODE else 2,
+                )
                 if not login_rate_allowed(email, ip):
                     log_event("auth.login_rate_limited", level="WARN", email_hash=login_key(email)[:16], ip_hash=login_key(ip or "unknown")[:16])
                     raise ApiError(429, "Слишком много попыток входа. Повторите позже")
                 with DB_LOCK, db() as conn:
                     row = conn.execute("SELECT * FROM users WHERE email=?", (email,)).fetchone()
-                if not row or row["status"] != "active" or not password_ok(password, row["password_hash"]):
+                if not row or not password_ok(password, row["password_hash"]):
                     record_login_attempt(email, ip, False)
                     log_event("auth.login_failed", level="WARN", email_hash=login_key(email)[:16])
                     raise ApiError(401, "invalid credentials")
+                if row["status"] != "active":
+                    record_login_attempt(email, ip, False)
+                    raise ApiError(403, "Аккаунт ещё не активирован администратором")
+                if not bool(int(row["email_verified"] or 0)):
+                    record_login_attempt(email, ip, False)
+                    raise ApiError(403, "Подтвердите email перед входом")
                 record_login_attempt(email, ip, True)
                 if password_needs_rehash(str(row["password_hash"])):
                     with DB_LOCK, db() as conn:
@@ -3840,6 +5495,89 @@ class Handler(SimpleHTTPRequestHandler):
                     raise ApiError(400, str(exc)) from exc
                 log_event("admin.registration_policy_changed", user_id=admin.get("id"), registration_policy=value)
                 self._json(200, {"ok": True, "registration_policy": value})
+                return
+            if path == "/api/admin/email-settings":
+                admin = self._admin()
+                body = self._body()
+                try:
+                    config = set_email_settings(body, actor_user_id=str(admin.get("id", "")))
+                except ValueError as exc:
+                    raise ApiError(400, str(exc)) from exc
+                log_event("admin.email_settings.updated", user_id=admin.get("id"), support_email=config["support_email"], sender_email=config["sender_email"], status="SUCCESS")
+                self._json(200, {"ok": True, "settings": config})
+                return
+            if path == "/api/admin/email-settings/test":
+                admin = self._admin()
+                body = self._body()
+                recipient = str(body.get("recipient", "")).strip().lower()
+                kind = str(body.get("kind", "verify")).strip().lower()
+                if not EMAIL_RE.fullmatch(recipient):
+                    raise ApiError(400, "recipient must be a valid email")
+                if kind not in EMAIL_TEMPLATE_KINDS:
+                    raise ApiError(400, "kind must be verify or reset")
+                expires_at = now_ts() + max(600, min(7 * 24 * 60 * 60, EMAIL_VERIFICATION_TTL_SECONDS))
+                base_url = str(email_settings().get("public_base_url") or "").strip().rstrip("/")
+                if not base_url:
+                    base_url = self._request_origin()
+                path_suffix = "/verify-email?token=TEST-LINK" if kind == "verify" else "/reset-password?token=TEST-LINK"
+                payload = build_auth_email(kind=kind, url=f"{base_url}{path_suffix}", expires_at=expires_at)
+                try:
+                    delivered = send_auth_email(
+                        recipient=recipient,
+                        subject=payload["subject"],
+                        body=payload["text"],
+                        html_body=payload["html"],
+                        sender_email=payload["sender_email"],
+                        sender_name=payload["sender_name"],
+                        reply_to=payload["reply_to_email"],
+                    )
+                except (OSError, smtplib.SMTPException) as exc:
+                    log_event("admin.email_settings.test_failed", user_id=admin.get("id"), recipient=recipient, kind=kind, status="ERROR", **smtp_error_details(exc))
+                    raise ApiError(502, smtp_error_details(exc).get("smtp_message") or "SMTP delivery failed") from exc
+                log_event("admin.email_settings.test_sent", user_id=admin.get("id"), recipient=recipient, kind=kind, status="SUCCESS")
+                self._json(200, {"ok": True, "delivered": bool(delivered)})
+                return
+            if path == "/api/admin/egress-proxy":
+                admin = self._admin()
+                body = self._body()
+                try:
+                    config = set_egress_proxy_settings(body, actor_user_id=str(admin.get("id", "")))
+                except ValueError as exc:
+                    raise ApiError(400, str(exc)) from exc
+                log_event(
+                    "admin.egress_proxy.updated",
+                    user_id=admin.get("id"),
+                    enabled=config["enabled"],
+                    http_proxy_url=config["http_proxy_url"],
+                    https_proxy_url=config["https_proxy_url"],
+                    has_secret=config["has_secret"],
+                    status="SUCCESS",
+                )
+                self._json(200, {"ok": True, "egress_proxy": config})
+                return
+            if path == "/api/admin/egress-proxy/test":
+                admin = self._admin()
+                body = self._body()
+                try:
+                    result = test_egress_proxy_request(str(body.get("url", "") or "").strip(), timeout=max(3, min(int(body.get("timeout_seconds", 12) or 12), 30)))
+                except (ValueError, TypeError) as exc:
+                    raise ApiError(400, str(exc)) from exc
+                log_event(
+                    "admin.egress_proxy.test",
+                    user_id=admin.get("id"),
+                    url=result.get("url"),
+                    http_status=result.get("http_status"),
+                    duration_ms=result.get("duration_ms"),
+                    success=result.get("ok"),
+                    status="SUCCESS" if result.get("ok") else "ERROR",
+                )
+                self._json(200 if result.get("ok") else 502, {"ok": bool(result.get("ok")), "result": result})
+                return
+            if path == "/api/admin/egress-proxy/secret/clear":
+                admin = self._admin()
+                config = set_egress_proxy_settings({"clear_secret": True}, actor_user_id=str(admin.get("id", "")))
+                log_event("admin.egress_proxy.secret_cleared", user_id=admin.get("id"), status="SUCCESS")
+                self._json(200, {"ok": True, "egress_proxy": config})
                 return
             if path.startswith("/api/admin/entitlements/"):
                 admin = self._admin()
@@ -3912,6 +5650,28 @@ class Handler(SimpleHTTPRequestHandler):
                     raise ApiError(400, str(exc)) from exc
                 self._json(200, {"ok": True, "vpn_routing": config})
                 return
+            if path == "/api/admin/vpn-routing/import-key":
+                admin = self._admin()
+                body = self._body()
+                try:
+                    result = save_vpn_import_uri(str(body.get("vpn_uri", "")))
+                except ValueError as exc:
+                    raise ApiError(400, str(exc)) from exc
+                with DB_LOCK, db() as conn:
+                    conn.execute("INSERT INTO audit(action,details,created_at) VALUES(?,?,?)", ("vpn.import_key", json.dumps({"actor": admin.get("id"), "fingerprint": result["key_fingerprint"]}, ensure_ascii=False), now_ts()))
+                    conn.commit()
+                log_event("admin.vpn.import_key", user_id=admin.get("id"), fingerprint=result["key_fingerprint"], status="SUCCESS")
+                self._json(200, {"ok": True, "vpn_status": result})
+                return
+            if path == "/api/admin/vpn-routing/import-key/clear":
+                admin = self._admin()
+                clear_vpn_import_uri()
+                with DB_LOCK, db() as conn:
+                    conn.execute("INSERT INTO audit(action,details,created_at) VALUES(?,?,?)", ("vpn.import_key.clear", json.dumps({"actor": admin.get("id")}, ensure_ascii=False), now_ts()))
+                    conn.commit()
+                log_event("admin.vpn.import_key.clear", user_id=admin.get("id"), status="SUCCESS")
+                self._json(200, {"ok": True, "vpn_status": vpn_import_status()})
+                return
             if path == "/api/admin/deployments/fingerprint":
                 self._admin()
                 body = self._body()
@@ -3944,7 +5704,7 @@ class Handler(SimpleHTTPRequestHandler):
                     conn.commit()
                 self._json(200 if body.get("id") else 201, {"ok": True, "target": get_deployment_target(target_id)})
                 return
-            if path.startswith("/api/admin/deployments/") and path.split("/")[-1] in {"bootstrap", "preflight", "deploy", "rollback"}:
+            if path.startswith("/api/admin/deployments/") and path.split("/")[-1] in {"bootstrap", "preflight", "deploy", "rollback", "vpn-apply", "vpn-apply-server"}:
                 self._admin()
                 parts = path.strip("/").split("/")
                 if len(parts) != 5:

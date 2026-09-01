@@ -560,10 +560,20 @@ def create_document_bytes(fmt: str, content: Any, *, font_path: str = "/usr/shar
 
 
 class ArtifactService:
-    def __init__(self, db_path: Path, root: Path, *, max_bytes: int = 20 * 1024 * 1024):
+    def __init__(
+        self,
+        db_path: Path,
+        root: Path,
+        *,
+        max_bytes: int = 20 * 1024 * 1024,
+        max_files_per_user: int = 500,
+        max_total_bytes_per_user: int = 512 * 1024 * 1024,
+    ):
         self.db_path = Path(db_path)
         self.root = Path(root)
         self.max_bytes = int(max_bytes)
+        self.max_files_per_user = max(1, int(max_files_per_user))
+        self.max_total_bytes_per_user = max(self.max_bytes, int(max_total_bytes_per_user))
         self.lock = threading.RLock()
         self.root.mkdir(parents=True, exist_ok=True)
 
@@ -622,6 +632,29 @@ class ArtifactService:
             result["text"] = item.get("extracted_text") or ""
         return result
 
+    def usage(self, user_id: str) -> dict[str, int]:
+        with self.lock, self._db() as conn:
+            row = conn.execute(
+                "SELECT COUNT(*) AS file_count, COALESCE(SUM(size),0) AS total_bytes FROM artifacts WHERE user_id=?",
+                (user_id,),
+            ).fetchone()
+        return {
+            "file_count": int(row["file_count"] if row and row["file_count"] is not None else 0),
+            "total_bytes": int(row["total_bytes"] if row and row["total_bytes"] is not None else 0),
+        }
+
+    def _enforce_user_quota(self, conn: sqlite3.Connection, user_id: str, incoming_bytes: int) -> None:
+        row = conn.execute(
+            "SELECT COUNT(*) AS file_count, COALESCE(SUM(size),0) AS total_bytes FROM artifacts WHERE user_id=?",
+            (user_id,),
+        ).fetchone()
+        file_count = int(row["file_count"] if row and row["file_count"] is not None else 0)
+        total_bytes = int(row["total_bytes"] if row and row["total_bytes"] is not None else 0)
+        if file_count >= self.max_files_per_user:
+            raise ArtifactError("workspace file limit reached")
+        if total_bytes + int(incoming_bytes) > self.max_total_bytes_per_user:
+            raise ArtifactError("workspace storage limit reached")
+
     def _insert_bytes(self, user_id: str, name: str, fmt: str, data: bytes, *, kind: str, parent_id: str | None = None, version: int = 1) -> dict[str, Any]:
         validate_blob(data, fmt, self.max_bytes)
         artifact_id = uuid.uuid4().hex
@@ -642,6 +675,7 @@ class ArtifactService:
         ts = now_ts()
         mime = MIME_BY_FORMAT[fmt]
         with self.lock, self._db() as conn:
+            self._enforce_user_quota(conn, user_id, len(data))
             conn.execute(
                 "INSERT INTO artifacts(id,tenant_id,user_id,parent_id,version,kind,original_name,format,mime,storage_key,size,sha256,extracted_text,metadata_json,validation_status,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (artifact_id, "personal", user_id, parent_id, version, kind, display_name, fmt, mime, storage_key, len(data), digest, text, json.dumps(metadata, ensure_ascii=False), "verified", ts, ts),

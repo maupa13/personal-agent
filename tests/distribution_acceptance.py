@@ -74,15 +74,18 @@ if "Unsafe manifest path" not in verify or "Duplicate manifest path" not in veri
 if "foreach($line in Get-Content -LiteralPath $manifestPath)" not in installer or "Get-ChildItem -LiteralPath $PackageRoot -Force" in installer:
     errors.append('installer must stage signed manifest payload only')
 
-# Simulate the exact user layout: a valid package extracted into a root that also contains
-# a stale, syntactically broken old release. That stale script is intentionally unsigned.
+# Simulate the exact user layout: a valid package extracted into a root that may also contain
+# unrelated unsigned neighbors. Those files must stay outside verification scope.
 manifest_paths=[]
 for line in (root/'SHA256SUMS.txt').read_text(encoding='utf-8').splitlines():
     if not line.strip(): continue
     parts=line.split('  ',1)
     if len(parts)==2: manifest_paths.append(parts[1].replace('\\','/'))
-stale='personal-agent-rus-v0.7.0-orchestrator-vps-deployment-release/scripts/pa.ps1'
-if stale in manifest_paths: errors.append('stale legacy release unexpectedly entered signed payload')
+for unexpected in (
+    'personal-agent-rus-v0.7.0-orchestrator-vps-deployment-release/scripts/pa.ps1',
+    'app/scripts/pa.ps1',
+):
+    if unexpected in manifest_paths: errors.append('legacy mirror unexpectedly entered signed payload: '+unexpected)
 if 'VERIFY-PACKAGE.ps1' not in manifest_paths or 'INSTALL-OR-UPDATE.ps1' not in manifest_paths:
     errors.append('canonical installer/verifier must themselves be signed payload entries')
 runtime=(root/'scripts'/'pa.ps1').read_text(encoding='ascii')

@@ -1,6 +1,0 @@
-{
-  "generated_at": 1786310272,
-  "platform": "Linux-6.18.35-x86_64-with-glibc2.41",
-  "python": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
-  "note": "Local deterministic evidence; real VPS/Windows/LAN/payment gates remain environment-bound."
-}

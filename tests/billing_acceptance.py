@@ -43,6 +43,10 @@ def main():
         # Admin sets quota without deploy/restart and assigns Medium. Remote usage then succeeds and consumes quota.
         _,plan,_=req(base+'/api/admin/billing/plans/MEDIUM',method='POST',body={'remote_token_limit':1000,'remote_cost_limit_rub':50},token=token,expect=200);assert plan['plan']['price_rub']==500 and plan['plan']['remote_token_limit']==1000
         _,users,_=req(base+'/api/admin/users',token=token,expect=200);uid=next(u['id'] for u in users['users'] if u['email']=='bill@example.test')
+        _,balance,_=req(base+'/api/admin/billing/balance',method='POST',body={'user_id':uid,'delta_rub':200,'reason':'theme purchase test'},token=token,expect=200);assert balance['balance']['balance_rub']==200
+        _,theme,_=req(base+'/api/billing/themes/purchase',method='POST',body={'theme_id':'ocean'},headers={'Cookie':cookie,'X-CSRF-Token':csrf},expect=200);assert theme['owned'] and theme['balance']['balance_rub']==101
+        _,owned_again,_=req(base+'/api/billing/themes/purchase',method='POST',body={'theme_id':'ocean'},headers={'Cookie':cookie,'X-CSRF-Token':csrf},expect=200);assert owned_again['already_owned'] and owned_again['balance']['balance_rub']==101
+        _,snap,_=req(base+'/api/billing/me',headers={'Cookie':cookie,'X-CSRF-Token':csrf},expect=200);assert 'ocean' in snap['owned_themes'] and any(item['id']=='ocean' and item['owned'] for item in snap['themes'])
         req(base+f'/api/admin/users/{uid}/plan',method='POST',body={'plan_id':'MEDIUM'},token=token,expect=200)
         _,remote,_=req(base+'/api/chat',method='POST',body={'mode':'smart','messages':[{'role':'user','content':'remote now'}]},headers={'Cookie':cookie,'X-CSRF-Token':csrf},expect=200)
         assert remote['message']['content']=='PAR_OPENAI_COMPAT_OK' and remote['usage']['billing_class']=='PLATFORM_REMOTE' and remote['usage']['total_tokens']==30

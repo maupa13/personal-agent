@@ -12,7 +12,7 @@
 - Windows 11 reference PC;
 - Docker Desktop запущен;
 - текущий Personal Agent Rus уже установлен или распакован;
-- архив `personal-agent-rus-v0.7.0-orchestrator-vps-deployment-release.zip`;
+- актуальный release archive текущей версии Personal Agent;
 - существующие `.env`, данные и `.git` сохраняются.
 
 ### Важно

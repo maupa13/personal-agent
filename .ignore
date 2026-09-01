@@ -1,0 +1,12 @@
+.git/
+.idea/
+.pytest_cache/
+__pycache__/
+release-evidence/_tmp/
+app/release-evidence/_tmp/
+_tmp_proxy_acceptance/
+par-egress-proxy-*/
+logs/
+backups/
+config/
+not-commit/

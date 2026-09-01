@@ -511,3 +511,41 @@ class ScenarioService:
             conn.commit()
             out = conn.execute("SELECT * FROM site_profiles WHERE id=?", (profile_id,)).fetchone()
         result = dict(out); result["enabled"] = bool(int(result["enabled"])); return result
+
+    def add_site_profiles(self, raw_domains: str, *, category: str = "search", acquisition_order: str = "search,browser,static", egress_region: str = "auto") -> dict[str, Any]:
+        parts = [x.strip() for x in str(acquisition_order).strip().lower().split(",") if x.strip()]
+        if not parts or any(x not in {"search", "browser", "static"} for x in parts):
+            raise ScenarioError("invalid acquisition_order")
+        egress_region = str(egress_region).strip().lower()
+        if egress_region not in {"auto", "ru", "global"}:
+            raise ScenarioError("invalid egress_region")
+        category = re.sub(r"[^a-z0-9_-]", "", str(category).strip().lower())[:40] or "search"
+        domains = self._domain_list(raw_domains, limit=100)
+        created: list[dict[str, Any]] = []
+        ts = int(time.time())
+        with self.lock, self.db() as conn:
+            for domain in domains:
+                profile_id = re.sub(r"[^a-z0-9]+", "-", domain).strip("-")[:64] or domain.replace(".", "-")
+                base_id = profile_id
+                suffix = 2
+                while conn.execute("SELECT 1 FROM site_profiles WHERE id=?", (profile_id,)).fetchone():
+                    existing = conn.execute("SELECT * FROM site_profiles WHERE id=?", (profile_id,)).fetchone()
+                    if existing and str(existing["domain_pattern"]) == domain:
+                        item = dict(existing)
+                        item["enabled"] = bool(int(item["enabled"]))
+                        created.append(item)
+                        break
+                    profile_id = f"{base_id[:56]}-{suffix}"
+                    suffix += 1
+                else:
+                    conn.execute(
+                        "INSERT INTO site_profiles(id,domain_pattern,category,acquisition_order,egress_region,enabled,updated_at) VALUES(?,?,?,?,?,1,?)",
+                        (profile_id, domain, category, ",".join(parts), egress_region, ts),
+                    )
+                    item = conn.execute("SELECT * FROM site_profiles WHERE id=?", (profile_id,)).fetchone()
+                    if item:
+                        row = dict(item)
+                        row["enabled"] = bool(int(row["enabled"]))
+                        created.append(row)
+            conn.commit()
+        return {"created": created, "count": len(created)}

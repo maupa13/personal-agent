@@ -550,7 +550,7 @@ VPN подсистема еще не является полностью авт�
 ## 17. Связанные файлы
 
 - [IMPLEMENTATION-STATUS-2026-08-16.md](/C:/AI/RusPersonalAgent/docs/IMPLEMENTATION-STATUS-2026-08-16.md)
-- [billing_service.py](/C:/AI/RusPersonalAgent/app/services/core/app/billing_service.py)
-- [main.py](/C:/AI/RusPersonalAgent/app/services/core/app/main.py)
-- [admin.js](/C:/AI/RusPersonalAgent/app/services/core/app/static/admin.js)
-- [admin.html](/C:/AI/RusPersonalAgent/app/services/core/app/static/admin.html)
+- [billing_service.py](/C:/Sync/Projects/personal-agent/services/core/app/billing_service.py)
+- [main.py](/C:/Sync/Projects/personal-agent/services/core/app/main.py)
+- [admin.js](/C:/Sync/Projects/personal-agent/services/core/app/static/admin.js)
+- [admin.html](/C:/Sync/Projects/personal-agent/services/core/app/static/admin.html)

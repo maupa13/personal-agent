@@ -27,6 +27,11 @@ DEFAULT_ENTITLEMENTS: dict[str, dict[str, tuple[bool, int | None]]] = {
         "advanced_exports": (False, None),
         "automation": (False, None),
         "media": (False, None),
+        "theme_ocean": (False, None),
+        "theme_forest": (False, None),
+        "theme_sunset": (False, None),
+        "theme_sand": (False, None),
+        "theme_coral": (False, None),
         "max_concurrent_tasks": (True, 1),
         "storage_quota_mb": (True, 512),
         "max_file_size_mb": (True, 20),
@@ -48,6 +53,11 @@ DEFAULT_ENTITLEMENTS: dict[str, dict[str, tuple[bool, int | None]]] = {
         "advanced_exports": (True, None),
         "automation": (False, None),
         "media": (False, None),
+        "theme_ocean": (True, None),
+        "theme_forest": (True, None),
+        "theme_sunset": (False, None),
+        "theme_sand": (False, None),
+        "theme_coral": (False, None),
         "max_concurrent_tasks": (True, 3),
         "storage_quota_mb": (True, 2048),
         "max_file_size_mb": (True, 50),
@@ -69,6 +79,11 @@ DEFAULT_ENTITLEMENTS: dict[str, dict[str, tuple[bool, int | None]]] = {
         "advanced_exports": (True, None),
         "automation": (False, None),
         "media": (False, None),
+        "theme_ocean": (True, None),
+        "theme_forest": (True, None),
+        "theme_sunset": (True, None),
+        "theme_sand": (True, None),
+        "theme_coral": (True, None),
         "max_concurrent_tasks": (True, 6),
         "storage_quota_mb": (True, 8192),
         "max_file_size_mb": (True, 100),
@@ -110,7 +125,7 @@ class EntitlementService:
                 for key, (enabled, limit_value) in features.items():
                     conn.execute(
                         "INSERT OR IGNORE INTO plan_entitlements(plan_id,feature_key,enabled,limit_value,updated_at) VALUES(?,?,?,?,?)",
-                        (plan_id, key, int(enabled), limit_value, ts),
+                        (plan_id, key, bool(enabled), limit_value, ts),
                     )
             conn.commit()
 
@@ -153,7 +168,7 @@ class EntitlementService:
             conn.execute(
                 "INSERT INTO plan_entitlements(plan_id,feature_key,enabled,limit_value,updated_at) VALUES(?,?,?,?,?) "
                 "ON CONFLICT(plan_id,feature_key) DO UPDATE SET enabled=excluded.enabled,limit_value=excluded.limit_value,updated_at=excluded.updated_at",
-                (plan_id, feature_key, int(bool(enabled)), limit_value, int(time.time())),
+                (plan_id, feature_key, bool(enabled), limit_value, int(time.time())),
             )
             conn.commit()
         return {"plan_id": plan_id, "feature_key": feature_key, "enabled": bool(enabled), "limit": limit_value}
