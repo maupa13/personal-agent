@@ -82,10 +82,10 @@ function Ensure-Env {
     'PA_UI_PORT'='3100'
     'PA_BOOTSTRAP_MODEL'='qwen3:0.6b'
     'PA_OLLAMA_IMAGE'='ollama/ollama:0.32.6'
-    'PA_CORE_IMAGE'='personal-agent-core:1.0.0'
-    'PA_BROWSER_IMAGE'='personal-agent-browser:1.0.0'
+    'PA_CORE_IMAGE'='personal-agent-core:1.0.3'
+    'PA_BROWSER_IMAGE'='personal-agent-browser:1.0.3'
     'PA_SEARXNG_IMAGE'='searxng/searxng:2026.8.5-1689cb1b5'
-    'PA_CODE_WORKER_IMAGE'='personal-agent-code-worker:1.0.0'
+    'PA_CODE_WORKER_IMAGE'='personal-agent-code-worker:1.0.3'
     'PA_AUTH_MODE'='personal'
     'PA_REGISTRATION_POLICY'='open'
     'PA_DEBUG_DIAGNOSTICS'='1'
@@ -117,9 +117,9 @@ function Ensure-Env {
       $bytes=New-Object byte[] 32;$rng=[System.Security.Cryptography.RandomNumberGenerator]::Create();try{$rng.GetBytes($bytes)}finally{$rng.Dispose()}
       $values['PA_SEARXNG_SECRET']=-join($bytes|ForEach-Object{$_.ToString('x2')});$changed=$true
     }
-    if(([string]$values['PA_CORE_IMAGE']) -match '^(rus-personal-agent-core|personal-agent-core):'){ $values['PA_CORE_IMAGE']='personal-agent-core:1.0.0';$changed=$true }
-    if($values.Contains('PA_BROWSER_IMAGE') -and ([string]$values['PA_BROWSER_IMAGE']) -match '^personal-agent-browser:'){ $values['PA_BROWSER_IMAGE']='personal-agent-browser:1.0.0';$changed=$true }
-    if($values.Contains('PA_CODE_WORKER_IMAGE') -and ([string]$values['PA_CODE_WORKER_IMAGE']) -match '^personal-agent-code-worker:'){ $values['PA_CODE_WORKER_IMAGE']='personal-agent-code-worker:1.0.0';$changed=$true }
+    if(([string]$values['PA_CORE_IMAGE']) -match '^(rus-personal-agent-core|personal-agent-core):'){ $values['PA_CORE_IMAGE']='personal-agent-core:1.0.3';$changed=$true }
+    if($values.Contains('PA_BROWSER_IMAGE') -and ([string]$values['PA_BROWSER_IMAGE']) -match '^personal-agent-browser:'){ $values['PA_BROWSER_IMAGE']='personal-agent-browser:1.0.3';$changed=$true }
+    if($values.Contains('PA_CODE_WORKER_IMAGE') -and ([string]$values['PA_CODE_WORKER_IMAGE']) -match '^personal-agent-code-worker:'){ $values['PA_CODE_WORKER_IMAGE']='personal-agent-code-worker:1.0.3';$changed=$true }
     if($changed){
       @('# Personal Agent Rus local settings') + @($values.Keys|ForEach-Object{"$_=$($values[$_])"}) | Set-Content -LiteralPath $EnvFile -Encoding ASCII
       Pass 'Migrated local environment to the Personal Agent family contract.'
@@ -142,10 +142,10 @@ function Ensure-Env {
     "PA_SEARXNG_SECRET=$searchToken",
     'PA_BOOTSTRAP_MODEL=qwen3:0.6b',
     'PA_OLLAMA_IMAGE=ollama/ollama:0.32.6',
-    'PA_CORE_IMAGE=personal-agent-core:1.0.0',
-    'PA_BROWSER_IMAGE=personal-agent-browser:1.0.0',
+    'PA_CORE_IMAGE=personal-agent-core:1.0.3',
+    'PA_BROWSER_IMAGE=personal-agent-browser:1.0.3',
     'PA_SEARXNG_IMAGE=searxng/searxng:2026.8.5-1689cb1b5',
-    'PA_CODE_WORKER_IMAGE=personal-agent-code-worker:1.0.0',
+    'PA_CODE_WORKER_IMAGE=personal-agent-code-worker:1.0.3',
     'PA_AUTH_MODE=personal',
     'PA_REGISTRATION_POLICY=open',
     'PA_DEBUG_DIAGNOSTICS=1'
@@ -351,7 +351,7 @@ function Wait-Core {
 }
 function Assert-CoreImageCurrent {
   $expected=Get-EnvValue 'PA_CORE_IMAGE'
-  if(-not $expected){$expected='personal-agent-core:1.0.0'}
+  if(-not $expected){$expected='personal-agent-core:1.0.3'}
   $inspect=Invoke-DockerSafe -DockerArguments @('inspect','--format={{.Config.Image}}','par-rus-core') -Quiet
   if($inspect.ExitCode -ne 0){Fail 'Personal Agent Rus Core container is missing.'}
   $actual=([string]($inspect.Output | Select-Object -First 1)).Trim()
@@ -457,7 +457,7 @@ function Test-LiveBrowserJourney([string]$ArtifactsRoot) {
 }
 function Test-DeterministicBrowserSecurity([string]$ArtifactsRoot) {
   $bootstrap=Get-EnvValue 'PA_BOOTSTRAP_MODEL';if(-not $bootstrap){$bootstrap='qwen3:0.6b'}
-  $coreImage=Get-EnvValue 'PA_CORE_IMAGE';if(-not $coreImage){$coreImage='personal-agent-core:1.0.0'}
+  $coreImage=Get-EnvValue 'PA_CORE_IMAGE';if(-not $coreImage){$coreImage='personal-agent-core:1.0.3'}
   $tests=Join-Path $Root 'tests'
   $artifacts=Join-Path $ArtifactsRoot 'deterministic-security'
   $suffix="$PID-$([System.Guid]::NewGuid().ToString('N').Substring(0,8))"

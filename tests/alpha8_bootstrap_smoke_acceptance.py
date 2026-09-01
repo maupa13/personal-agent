@@ -10,7 +10,7 @@ def ok(i,n,c):
     assert c,n
     checks.append(i)
     print(f'[PASS] {i} - {n}')
-ok('REL-A8-001','release version is 1.0.0',manifest['version']=='1.0.0')
+ok('REL-A8-001','release version is 1.0.3',manifest['version']=='1.0.3')
 ok('PERF-A8-001','bootstrap smoke disables thinking', '"think": False' in main and 'payload["think"] = bool(spec["think"])' in main)
 ok('PERF-A8-002','bootstrap smoke uses bounded final-answer budget', '"num_predict": 32' in main and 'Reply exactly with: PAR_OK' in main)
 ok('OBS-A8-001','logical HTTP-200 failure prints reason and timings','content_length' in main and 'empty_final_content' in main and 'reason={2}' in ps and 'HTTP 200 but no final answer' in ps)

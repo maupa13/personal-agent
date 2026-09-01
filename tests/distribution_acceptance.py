@@ -89,11 +89,11 @@ for unexpected in (
 if 'VERIFY-PACKAGE.ps1' not in manifest_paths or 'INSTALL-OR-UPDATE.ps1' not in manifest_paths:
     errors.append('canonical installer/verifier must themselves be signed payload entries')
 runtime=(root/'scripts'/'pa.ps1').read_text(encoding='ascii')
-if "PA_CODE_WORKER_IMAGE']='personal-agent-code-worker:1.0.0'" not in runtime:
+if "PA_CODE_WORKER_IMAGE']='personal-agent-code-worker:1.0.3'" not in runtime:
     errors.append('existing code-worker image tag is not migrated during update')
 if "function Start-CodeWorkerOptional" not in runtime:
     errors.append('local installer/runtime lacks optional Code startup contract')
-for token,label in (("personal-agent-core:1.0.0",'Core'),("personal-agent-browser:1.0.0",'Browser'),("personal-agent-code-worker:1.0.0",'Code worker')):
+for token,label in (("personal-agent-core:1.0.3",'Core'),("personal-agent-browser:1.0.3",'Browser'),("personal-agent-code-worker:1.0.3",'Code worker')):
     if token not in runtime: errors.append(f'alpha4 current {label} image tag missing from lifecycle migration/defaults')
 
 # Windows PowerShell 5.1: Docker Compose emits normal build progress on stderr.
@@ -101,7 +101,7 @@ for token,label in (("personal-agent-core:1.0.0",'Core'),("personal-agent-browse
 for token in ("$previousErrorActionPreference=$ErrorActionPreference", "$ErrorActionPreference='Continue'", "$nativeExitCode=$LASTEXITCODE"):
     if token not in runtime: errors.append('PowerShell 5.1 native stderr fail-soft guard missing: '+token)
 manifest=json.loads((root/'product-manifest.json').read_text(encoding='utf-8'))
-if manifest.get('version')!='1.0.0': errors.append('manifest version mismatch')
+if manifest.get('version')!='1.0.3': errors.append('manifest version mismatch')
 if errors:
     print('\n'.join('[FAIL] '+e for e in errors));sys.exit(1)
 print('PAR_DISTRIBUTION_ACCEPTANCE PASS: canonical-root run-first staged-update config-preservation stable-launchers powershell51-safety no-destructive-install')
