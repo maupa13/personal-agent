@@ -921,6 +921,11 @@ def support_inbox_list(limit: int = 50) -> list[dict[str, Any]]:
                 "preview": _support_message_preview(message),
             })
         except Exception as exc:
+            preview = (
+                "Could not read message file: PermissionError"
+                if isinstance(exc, PermissionError)
+                else f"Could not parse message: {type(exc).__name__}"
+            )
             result.append({
                 "id": path.name,
                 "state": state,
@@ -928,7 +933,7 @@ def support_inbox_list(limit: int = 50) -> list[dict[str, Any]]:
                 "from": "",
                 "to": email_settings()["support_email"],
                 "subject": "(parse error)",
-                "preview": f"Could not parse message: {type(exc).__name__}",
+                "preview": preview,
             })
     return result
 
@@ -1636,6 +1641,25 @@ def request_json(url: str, payload: dict[str, Any] | None = None, timeout: int =
         return json.loads(raw) if raw else {}
 
 
+def describe_provider_discovery_error(exc: BaseException) -> str:
+    if isinstance(exc, urllib.error.HTTPError):
+        code = int(getattr(exc, "code", 0) or 0)
+        if code == 401:
+            return "HTTP 401: provider rejected the API key or the key is missing"
+        if code == 403:
+            return "HTTP 403: provider access denied; check API key, project permissions, billing, or outbound routing"
+        if code == 404:
+            return "HTTP 404: provider endpoint is reachable but the discovery path is missing"
+        if code == 429:
+            return "HTTP 429: provider rate limit or quota exceeded"
+        return f"HTTP {code}: provider discovery failed"
+    if isinstance(exc, urllib.error.URLError):
+        reason = getattr(exc, "reason", exc)
+        return f"network error: {reason}"
+    text = str(exc).strip()
+    return f"{type(exc).__name__}: {text}" if text else type(exc).__name__
+
+
 def request_reachable(url: str, timeout: float = 1.5) -> bool:
     """Cheap service-level reachability probe. Never trigger an external search."""
     headers = {"Accept": "*/*"}
@@ -1749,7 +1773,7 @@ def discover_inventory() -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
             inventory.extend(models)
             statuses.append({"provider_id": provider["id"], "healthy": True, "model_count": len(models), "error": None})
         except Exception as exc:
-            statuses.append({"provider_id": provider["id"], "healthy": False, "model_count": 0, "error": f"{type(exc).__name__}: {exc}"[:500]})
+            statuses.append({"provider_id": provider["id"], "healthy": False, "model_count": 0, "error": describe_provider_discovery_error(exc)[:500]})
     inventory.sort(key=lambda item: (str(item["provider_name"]).lower(), str(item["display_name"]).lower()))
     return inventory, statuses
 
@@ -5768,7 +5792,7 @@ class Handler(SimpleHTTPRequestHandler):
                 try:
                     models = discover_provider(provider or {})
                 except Exception as exc:
-                    raise ApiError(502, f"provider saved but discovery failed: {type(exc).__name__}: {exc}") from exc
+                    raise ApiError(502, f"provider saved but discovery failed: {describe_provider_discovery_error(exc)}") from exc
                 self._json(201, {"ok": True, "provider": {"id": provider_id, "name": name, "type": ptype, "base_url": base_url, "model_count": len(models), "has_secret": bool(secret_ref), "billing_class": billing_class, "cost_input_per_million_rub": cost_input, "cost_output_per_million_rub": cost_output}})
                 return
             if path.startswith("/api/admin/providers/") and path.endswith("/test"):
@@ -5780,7 +5804,7 @@ class Handler(SimpleHTTPRequestHandler):
                 try:
                     models = discover_provider(provider)
                 except Exception as exc:
-                    raise ApiError(502, f"provider connection failed: {type(exc).__name__}: {exc}") from exc
+                    raise ApiError(502, f"provider connection failed: {describe_provider_discovery_error(exc)}") from exc
                 self._json(200, {"ok": True, "provider_id": provider_id, "model_count": len(models)})
                 return
             if path == "/api/admin/models/pull":

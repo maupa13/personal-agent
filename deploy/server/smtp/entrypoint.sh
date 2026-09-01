@@ -19,6 +19,8 @@ DKIM_DNS_FILE="${DKIM_DIR}/${SMTP_DKIM_SELECTOR}.txt"
 mkdir -p "${DKIM_DIR}" /etc/opendkim /run/opendkim /var/mail/support/Maildir/{cur,new,tmp}
 chown -R opendkim:opendkim "${DKIM_BASE}" /run/opendkim
 chown -R support:support /var/mail/support
+find /var/mail/support/Maildir -type d -exec chmod 755 {} +
+find /var/mail/support/Maildir -type f -exec chmod 644 {} +
 
 if [[ "${SMTP_ENABLE_DKIM}" == "1" && ! -s "${DKIM_PRIVATE_KEY}" ]]; then
   rm -f "${DKIM_DIR}/${SMTP_DKIM_SELECTOR}.private" "${DKIM_DIR}/${SMTP_DKIM_SELECTOR}.txt"
