@@ -50,19 +50,23 @@ for call in (
     if call not in ps: errors.append(f'missing compose lifecycle contract: {call}')
 if 'function Wait-WebServices' not in ps or 'function Test-WebAcceptance' not in ps: errors.append('Web lifecycle/acceptance functions missing')
 if 'function Wait-CodeWorker' not in ps or 'function Start-CodeWorkerOptional' not in ps or 'function Test-CodeInternalSmoke' not in ps: errors.append('Code lifecycle/fail-soft/smoke functions missing')
-index=(root/'services/core/app/static/index.html').read_text(encoding='utf-8')
-user_js=(root/'services/core/app/static/app.js').read_text(encoding='utf-8')
-admin_html=(root/'services/core/app/static/admin.html').read_text(encoding='utf-8')
-admin_js=(root/'services/core/app/static/admin.js').read_text(encoding='utf-8')
+index=(root/'services/core/app/static/pages/index.html').read_text(encoding='utf-8')
+user_js=''.join((root/'services/core/app/static/js/app'/name).read_text(encoding='utf-8') for name in ('app-state.js','app-render.js','app-runtime.js','app-actions.js'))
+admin_html=(root/'services/core/app/static/pages/admin.html').read_text(encoding='utf-8')
+admin_js="".join((root/"services/core/app/static/js/admin"/name).read_text(encoding="utf-8") for name in ("admin-core.js","admin-extras.js"))
 core=(root/'services/core/app/main.py').read_text(encoding='utf-8')
 public=(index+user_js).lower()
+compact_user_js=re.sub(r'\s+','',user_js)
+compact_css=re.sub(r'\s+','',css) if 'css' in globals() else ''
+def has_app_version(html):
+    return re.search(r'<meta\s+name="app-version"\s+content="'+re.escape(VERSION)+r'"\s*/?>',html) is not None
 for token in ('qwen','ollama','model_id','par-rus-ollama'):
     if token in public: errors.append(f'public UI leak {token}')
 if 'innerHTML' in user_js: errors.append('USER UI must use safe DOM/textContent, not innerHTML')
 if 'innerHTML' in admin_js: errors.append('ADMIN UI must not use innerHTML for backend-controlled values')
 for html,name in ((index,'USER'),(admin_html,'ADMIN')):
     if f'?v={VERSION}' not in html: errors.append(f'versioned {name} static asset URLs missing')
-    if f'<meta name="app-version" content="{VERSION}">' not in html: errors.append(f'{name} UI version metadata mismatch')
+    if not has_app_version(html): errors.append(f'{name} UI version metadata mismatch')
 for token in ('conversation-list','chatSearch','settingsEntry','filesEntry','codeEntry','fileInput','artifactList','createArtifact','clearAllShortcut','chatMenuButton','Администрирование'):
     if token not in index: errors.append(f'Product Shell v2 control missing: {token}')
 for token in ('regenerateAt','renderRichText','exportCurrent','exportAll','renameCurrent','clearCurrent','clearAll','enforceUiVersion','intent_hint','message-sources','uploadSelectedFiles','renderArtifactList','createArtifactFromUi','file_ids','runCode','pollCodeJob','cancelCode'):
@@ -103,7 +107,7 @@ for token in ('scenario-grid','scenario-card','webSearchScope','webAllowedDomain
     if token not in user_js+index: errors.append(f'alpha3 USER scenario/site UI missing: {token}')
 for token in ('Сайты и поиск','siteProfiles','refreshSiteProfiles'):
     if token not in admin_html+admin_js: errors.append(f'alpha3 ADMIN site profile UI missing: {token}')
-guide=(root/'services/core/app/static/user-guide.html').read_text(encoding='utf-8')
+guide=(root/'services/core/app/static/pages/user-guide.html').read_text(encoding='utf-8')
 for token in ('С чего начать','Веб и сайты','не более двух'):
     if token not in guide: errors.append(f'alpha3 in-product guide missing: {token}')
 for rel in ('tests/scenario_acceptance.py','tests/alpha3-registry.json'):
@@ -124,10 +128,13 @@ for token in ('uiLanguage','responseLanguage','themeSelect','executionPolicy','t
     if token not in index+user_js: errors.append(f'alpha4 USER UX control missing: {token}')
 for token in ('OpenAI API · Responses','providerType','providerUrl','feedbackList','adminAuthStatus'):
     if token not in admin_html+admin_js: errors.append(f'alpha4 ADMIN UX control missing: {token}')
-css=(root/'services/core/app/static/styles.css').read_text(encoding='utf-8')
+css=(root/'services/core/app/static/css/styles.css').read_text(encoding='utf-8')
+compact_css=re.sub(r'\s+','',css)
 for token in ('html[data-theme="light"]','#webAllowedDomains,#webExcludedDomains,#artifactContent,#codeEditor','.sidebar.collapsed .folder-list','.settings-content .code-editor{width:100%'):
-    if token not in css: errors.append(f'alpha4 responsive/theme CSS contract missing: {token}')
-for rel in ('services/core/app/static/local-setup.html','services/core/app/static/admin-guide.html','tests/ux_admin_hardening_acceptance.py','tests/alpha4-registry.json'):
+    haystack=compact_css if any(ch in token for ch in '{}#,') else css
+    needle=re.sub(r'\s+','',token) if haystack is compact_css else token
+    if needle not in haystack: errors.append(f'alpha4 responsive/theme CSS contract missing: {token}')
+for rel in ('services/core/app/static/pages/local-setup.html','services/core/app/static/pages/admin-guide.html','tests/ux_admin_hardening_acceptance.py','tests/alpha4-registry.json'):
     if not (root/rel).exists(): errors.append(f'alpha4 distribution file missing: {rel}')
 try:
     a4=json.loads((root/'tests/alpha4-registry.json').read_text(encoding='utf-8'));a4ids={x.get('test_id') for x in a4.get('tests',[])}
@@ -146,14 +153,15 @@ for token in ('/api/conversations','/api/folders','/api/onboarding','/api/admin/
     if token not in core: errors.append(f'Productization Core API missing: {token}')
 for token in ('sidebarResizer','collapseSidebar','newFolder','folders','brandHelp','restartTour','modeButton','executionQuick','adminEntry','tourLayer'):
     if token not in index: errors.append(f'Productization USER shell control missing: {token}')
-for token in ('loadServerStore','loadConversation','startTour','renderTour',"key.toLowerCase()==='b'",'/api/conversations','/api/onboarding','actionSelect',"action==='move'","action==='archive'",'exportAll'):
-    if token not in user_js: errors.append(f'Productization USER behavior missing: {token}')
+for token in ('loadServerStore','loadConversation','startTour','renderTour','key.toLowerCase()==="b"','/api/conversations','/api/onboarding','actionSelect','action==="move"','action==="archive"','exportAll'):
+    haystack=compact_user_js if token in ('key.toLowerCase()==="b"','action==="move"','action==="archive"') else user_js
+    if token not in haystack: errors.append(f'Productization USER behavior missing: {token}')
 if 'localStorage.setItem(STORAGE_KEY' in user_js: errors.append('Conversations must not be canonically persisted to localStorage')
 for token in ('Логи и аудит','logLevel','logRequest','logCorrelation','adminAudit','Диагностика','downloadDiagnostics','adminTourButton','adminTourLayer'):
     if token not in admin_html: errors.append(f'Productization ADMIN shell control missing: {token}')
 for token in ('refreshLogs','refreshDiagnostics','downloadDiagnostics','startAdminTour','/api/admin/logs','/api/admin/audit','/api/admin/diagnostics'):
     if token not in admin_js: errors.append(f'Productization ADMIN behavior missing: {token}')
-for rel in ('services/core/app/static/favicon.svg','services/core/app/static/manifest.webmanifest','services/core/app/static/user-guide.html','services/core/app/static/why.html'):
+for rel in ('services/core/app/static/assets/icons/favicon.svg','services/core/app/static/manifest.webmanifest','services/core/app/static/pages/user-guide.html','services/core/app/static/pages/why.html'):
     if not (root/rel).exists(): errors.append(f'Browser/help asset missing: {rel}')
 admin_guide=(root/'docs/ADMIN-GUIDE.md').read_text(encoding='utf-8') if (root/'docs/ADMIN-GUIDE.md').exists() else ''
 for token in ('Пользователи и регистрация','Провайдеры','Маршрутизация','Structured logs и audit','Диагностика','Backup / restore / update','Безопасность'):
@@ -186,8 +194,8 @@ for token in ('Invoke-HttpProbe','HTTP smoke failed stage=','duration_ms=','requ
 for rel in ('tests/alpha6_search_debug_acceptance.py','tests/alpha6-registry.json','tests/browser_admin_journeys.py','tests/browser_journeys_runner.py','docs/PAYMENT-SETUP-YOOKASSA.md','docs/0.8.0-ALPHA6-SEARCH-INTEGRITY-DEBUG.md'):
     if not (root/rel).exists(): errors.append(f'alpha6 distribution file missing: {rel}')
 
-account_html=(root/'services/core/app/static/account.html').read_text(encoding='utf-8')
-auth_js=(root/'services/core/app/static/auth.js').read_text(encoding='utf-8')
+account_html=(root/'services/core/app/static/pages/account.html').read_text(encoding='utf-8')
+auth_js=(root/'services/core/app/static/js/auth.js').read_text(encoding='utf-8')
 for token in ('billingAccount','currentPlan','showTokens','planCatalog'):
     if token not in account_html: errors.append(f'Billing account control missing: {token}')
 for token in ('/api/billing/me','/api/billing/plans','/api/billing/preferences'):

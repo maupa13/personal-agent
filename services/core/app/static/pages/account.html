@@ -1,0 +1,194 @@
+﻿<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="app-version" content="1.0.3" />
+    <meta
+      name="description"
+      content="Личный кабинет Родного Агента: баланс, промокоды, YooMoney, темы, подписки, сессии и безопасность."
+    />
+    <title>Профиль — Родной Агент</title>
+    <link rel="icon" href="/static/assets/icons/favicon.svg" />
+    <link rel="manifest" href="/static/manifest.webmanifest" />
+    <meta name="theme-color" content="#0b0c0f" />
+    <link rel="stylesheet" href="/static/css/styles.css?v=1.0.3" />
+  </head>
+  <body class="auth-page" data-auth-page="account">
+    <main class="auth-shell">
+      <section class="auth-card">
+        <button
+          class="locale-toggle"
+          id="localeToggle"
+          type="button"
+          aria-label="Switch language"
+        >
+          EN
+        </button>
+        <a class="auth-brand" href="/">
+          <span class="brand-mark"> PA </span>
+          <span>
+            <strong class="localized-brand"> Родной Агент </strong>
+            <small class="localized-edition"> Версия </small>
+          </span>
+        </a>
+        <span class="eyebrow"> ПРОФИЛЬ </span>
+        <h1 id="accountTitle">Профиль</h1>
+        <div id="accountInfo" class="account-info">Загрузка…</div>
+        <p id="accountVerification" class="muted"></p>
+        <section id="billingAccount" class="account-billing" hidden>
+          <div class="account-plan-head">
+            <div>
+              <span class="eyebrow"> ПОДПИСКА </span>
+              <h2 id="currentPlan">—</h2>
+            </div>
+            <span id="currentPlanPrice" class="count-badge"> — </span>
+          </div>
+          <p id="planDescription" class="muted"></p>
+          <div class="usage-box">
+            <strong id="balanceTitle"> Баланс запросов </strong>
+            <div id="balanceSummary" class="usage-summary"></div>
+            <p id="balanceState" class="job-state"></p>
+          </div>
+          <div class="usage-box">
+            <strong id="usageTitle"> Использование AI </strong>
+            <div id="usageSummary" class="usage-summary"></div>
+            <label class="token-toggle" id="showTokensLabel">
+              <input id="showTokens" type="checkbox" />
+              Показывать токены в ответах
+            </label>
+          </div>
+          <div id="planCatalog" class="plan-catalog"></div>
+          <p id="billingState" class="job-state"></p>
+          <div class="usage-box">
+            <strong> Доступно по тарифу </strong>
+            <div id="entitlementSummary" class="entitlement-summary"></div>
+          </div>
+          <div class="usage-box">
+            <strong> Темы интерфейса </strong>
+            <p id="themeIntro" class="muted">
+              Базовые темы доступны всем. Дополнительные темы можно купить с
+              баланса и затем выбрать в настройках интерфейса.
+            </p>
+            <div id="themeCatalog" class="plan-catalog"></div>
+            <p id="themeState" class="job-state"></p>
+          </div>
+          <div class="usage-box">
+            <strong> Пополнение баланса </strong>
+            <p id="topupIntro" class="muted">
+              Пользователи пополняют баланс через YooMoney или промокод.
+              Супер-администратор может увеличить баланс вручную из панели Admin
+              и должен видеть источник операции.
+            </p>
+            <div class="account-note">
+              <strong id="topupBlockedTitle"> YooMoney в браузере </strong>
+              <span id="topupBlockedDetail">
+                Встроенная панель YooMoney может блокироваться браузером или
+                провайдером. Откройте оплату в новой вкладке, затем вернитесь
+                сюда и отправьте reference платежа для зачисления.
+              </span>
+            </div>
+            <div class="panel-actions">
+              <a
+                id="topupOpenLink"
+                class="secondary-button"
+                href="https://yoomoney.ru/fundraise/1JMGPM46A4L.260816"
+                target="_blank"
+                rel="noopener"
+              >
+                Открыть YooMoney в новой вкладке
+              </a>
+            </div>
+            <div class="account-note">
+              <strong id="topupStepsTitle"> Как пополнить баланс </strong>
+              <span id="topupStepsDetail">
+                1. Откройте YooMoney. 2. Выполните оплату. 3. Вернитесь на эту
+                страницу и отправьте reference для ручного зачисления.
+              </span>
+            </div>
+            <div class="provider-form" style="margin-top: 12px">
+              <label>
+                Сумма пополнения
+                <input
+                  id="topupAmountRub"
+                  type="number"
+                  min="1"
+                  step="1"
+                  placeholder="500"
+                />
+              </label>
+              <label>
+                Номер платежа / reference
+                <input
+                  id="topupPaymentReference"
+                  autocomplete="off"
+                  placeholder="receipt-2026-08-16-001"
+                />
+              </label>
+              <label>
+                Комментарий
+                <input
+                  id="topupNote"
+                  autocomplete="off"
+                  placeholder="Номер перевода, имя или комментарий"
+                />
+              </label>
+              <button id="requestTopup" class="primary-button" type="button">
+                Сообщить об оплате
+              </button>
+            </div>
+            <p id="topupState" class="job-state"></p>
+            <div id="topupHistory" class="usage-admin-list"></div>
+          </div>
+          <div class="usage-box">
+            <strong> Промокод </strong>
+            <div class="provider-form">
+              <label>
+                Код промокода
+                <input
+                  id="promoCodeInput"
+                  autocomplete="off"
+                  placeholder="ABC123"
+                />
+              </label>
+              <button id="redeemPromoCode" class="primary-button" type="button">
+                Активировать
+              </button>
+            </div>
+            <p id="promoState" class="job-state"></p>
+          </div>
+        </section>
+        <section id="sessionSection" class="account-billing" hidden>
+          <div class="account-plan-head">
+            <div>
+              <span class="eyebrow"> БЕЗОПАСНОСТЬ </span>
+              <h2>Активные сессии</h2>
+            </div>
+            <button
+              id="revokeOtherSessions"
+              class="secondary-button"
+              type="button"
+            >
+              Выйти на других устройствах
+            </button>
+          </div>
+          <div id="sessionList" class="session-list"></div>
+          <p id="sessionState" class="job-state"></p>
+        </section>
+        <button id="logoutBtnUser" class="secondary-button" type="button">
+          Выйти
+        </button>
+        <div class="auth-links">
+          <a href="/"> ← В Родной Агент </a>
+        </div>
+        <div class="legal-links">
+          <a href="/terms"> Пользовательское соглашение </a>
+          <a href="/privacy"> Политика конфиденциальности </a>
+          <a href="/cookies"> Cookies </a>
+          <a href="/disclaimer"> Дисклеймер </a>
+        </div>
+      </section>
+    </main>
+    <script src="/static/js/auth.js?v=1.0.3"></script>
+  </body>
+</html>

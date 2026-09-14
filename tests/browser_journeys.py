@@ -5,12 +5,12 @@ from playwright.sync_api import expect, sync_playwright
 
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 STATIC=ROOT/'services'/'core'/'app'/'static'
-INDEX=re.sub(r'<script src="/static/app\.js\?v=[^"]+"></script>','',(STATIC/'index.html').read_text(encoding='utf-8'))
-INDEX=re.sub(r'<link rel="stylesheet" href="/static/styles\.css\?v=[^"]+">','',INDEX)
-ADMIN=re.sub(r'<script src="/static/admin\.js\?v=[^"]+"></script>','',(STATIC/'admin.html').read_text(encoding='utf-8'))
-ACCOUNT=re.sub(r'<script src="/static/auth\.js\?v=[^"]+"></script>','',(STATIC/'account.html').read_text(encoding='utf-8'))
-ACCOUNT=re.sub(r'<link rel="stylesheet" href="/static/styles\.css\?v=[^"]+">','',ACCOUNT)
-APP=(STATIC/'app.js').read_text(encoding='utf-8');ADMIN_JS=(STATIC/'admin.js').read_text(encoding='utf-8');AUTH_JS=(STATIC/'auth.js').read_text(encoding='utf-8');CSS=(STATIC/'styles.css').read_text(encoding='utf-8')
+INDEX=re.sub(r'<script src="/static/js/app/[^"]+"></script>','',(STATIC/'pages/index.html').read_text(encoding='utf-8'))
+INDEX=re.sub(r'<link rel="stylesheet" href="/static/css/styles\.css\?v=[^"]+"[^>]*>','',INDEX)
+ADMIN=re.sub(r'<script src="/static/js/admin[^"]+"></script>','',(STATIC/'pages/admin.html').read_text(encoding='utf-8'))
+ACCOUNT=re.sub(r'<script src="/static/js/auth\.js\?v=[^"]+"></script>','',(STATIC/'pages/account.html').read_text(encoding='utf-8'))
+ACCOUNT=re.sub(r'<link rel="stylesheet" href="/static/css/styles\.css\?v=[^"]+"[^>]*>','',ACCOUNT)
+APP="".join((STATIC/"js/app"/name).read_text(encoding="utf-8") for name in ("app-state.js","app-render.js","app-runtime.js","app-actions.js"));ADMIN_JS="".join((STATIC/"js/admin"/name).read_text(encoding="utf-8") for name in ("admin-core.js","admin-extras.js"));AUTH_JS=(STATIC/'js/auth.js').read_text(encoding='utf-8');CSS=(STATIC/'css/styles.css').read_text(encoding='utf-8')
 
 BACKEND_STUB=r'''
 window.__backend={

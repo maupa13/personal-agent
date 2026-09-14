@@ -3,11 +3,11 @@ from __future__ import annotations
 import json
 import os
 import pathlib
+import re
 import socket
 import subprocess
 import tempfile
 import shutil
-import os
 import time
 from contextlib import contextmanager
 import urllib.request
@@ -129,18 +129,19 @@ def main() -> int:
         logger.event("rotation.test", request_id="req-1")
         check((log_dir / "core.jsonl.1").exists() and logger.path.exists(), "OBS-004", "structured logs rotate instead of growing without bound")
 
-    user_js = (ROOT / "services/core/app/static/app.js").read_text(encoding="utf-8")
-    index = (ROOT / "services/core/app/static/index.html").read_text(encoding="utf-8")
-    admin = (ROOT / "services/core/app/static/admin.html").read_text(encoding="utf-8")
+    user_js = "".join((ROOT / "services/core/app/static/js/app" / name).read_text(encoding="utf-8") for name in ("app-state.js", "app-render.js", "app-runtime.js", "app-actions.js"))
+    index = (ROOT / "services/core/app/static/pages/index.html").read_text(encoding="utf-8")
+    admin = (ROOT / "services/core/app/static/pages/admin.html").read_text(encoding="utf-8")
     manifest = json.loads((ROOT / "services/core/app/static/manifest.webmanifest").read_text(encoding="utf-8"))
 
     check("localStorage.setItem(STORAGE_KEY" not in user_js and "/api/conversations" in user_js, "CONV-003-CONTRACT", "browser cannot use localStorage as canonical conversation store")
     check(all(token in index for token in ("sidebarResizer", "collapseSidebar", "newFolder", "brandHelp", "tourLayer", "modeButton")), "UX-001", "resizable/collapsible shell and guided USER tour controls ship together")
-    check("key.toLowerCase()==='b'" in user_js and "key.toLowerCase()==='n'" in user_js and "key.toLowerCase()==='k'" in user_js, "UX-003", "Ctrl+B/Ctrl+N/Ctrl+K contracts are implemented")
+    compact_user_js = re.sub(r"\s+", "", user_js)
+    check('key.toLowerCase()==="b"' in compact_user_js and 'key.toLowerCase()==="n"' in compact_user_js and 'key.toLowerCase()==="k"' in compact_user_js, "UX-003", "Ctrl+B/Ctrl+N/Ctrl+K contracts are implemented")
     check("adminEntry" in index and 'id="adminEntry"' in index, "UX-007", "Admin navigation has a role-controlled UI target")
     check(all(token in admin for token in ("Логи и аудит", "Диагностика", "adminTourButton", "adminTourLayer")), "ONB-101", "Admin Console ships a separate guided tour and diagnostics surfaces")
     check(manifest.get("name") == "Родной Агент" and manifest.get("short_name") == "Родной Агент", "UX-010", "browser application identity manifest is localized and complete")
-    check((ROOT / "services/core/app/static/favicon.svg").exists(), "UX-010-FAVICON", "browser favicon ships with product identity")
+    check((ROOT / "services/core/app/static/assets/icons/favicon.svg").exists(), "UX-010-FAVICON", "browser favicon ships with product identity")
 
     # OBS-002 component proof: the real Browser worker preserves trace identity at its HTTP boundary.
     sock = socket.socket(); sock.bind(("127.0.0.1", 0)); browser_port = sock.getsockname()[1]; sock.close()

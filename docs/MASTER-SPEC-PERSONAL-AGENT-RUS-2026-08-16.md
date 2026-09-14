@@ -552,5 +552,5 @@ VPN подсистема еще не является полностью авт�
 - [IMPLEMENTATION-STATUS-2026-08-16.md](/C:/AI/RusPersonalAgent/docs/IMPLEMENTATION-STATUS-2026-08-16.md)
 - [billing_service.py](/C:/Sync/Projects/personal-agent/services/core/app/billing_service.py)
 - [main.py](/C:/Sync/Projects/personal-agent/services/core/app/main.py)
-- [admin.js](/C:/Sync/Projects/personal-agent/services/core/app/static/admin.js)
-- [admin.html](/C:/Sync/Projects/personal-agent/services/core/app/static/admin.html)
+- [admin.js](/C:/Sync/Projects/personal-agent/services/core/app/static/js/admin/admin-core.js)
+- [admin.html](/C:/Sync/Projects/personal-agent/services/core/app/static/pages/admin.html)

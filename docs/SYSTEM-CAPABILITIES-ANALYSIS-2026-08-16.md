@@ -164,6 +164,6 @@ What remains manual:
 
 - Billing and balances: [billing_service.py](/C:/Sync/Projects/personal-agent/services/core/app/billing_service.py)
 - Admin API and routes: [main.py](/C:/Sync/Projects/personal-agent/services/core/app/main.py)
-- Admin UI billing panel: [admin.js](/C:/Sync/Projects/personal-agent/services/core/app/static/admin.js)
-- Admin shell and buttons: [admin.html](/C:/Sync/Projects/personal-agent/services/core/app/static/admin.html)
+- Admin UI billing panel: [admin.js](/C:/Sync/Projects/personal-agent/services/core/app/static/js/admin/admin-core.js)
+- Admin shell and buttons: [admin.html](/C:/Sync/Projects/personal-agent/services/core/app/static/pages/admin.html)
 - Status summary: [IMPLEMENTATION-STATUS-2026-08-16.md](/C:/AI/RusPersonalAgent/docs/IMPLEMENTATION-STATUS-2026-08-16.md)

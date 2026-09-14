@@ -9,17 +9,17 @@
   "lang": "ru-RU",
   "icons": [
     {
-      "src": "/favicon-32.png",
+      "src": "/static/assets/icons/favicon-32.png",
       "sizes": "32x32",
       "type": "image/png"
     },
     {
-      "src": "/apple-touch-icon.png",
+      "src": "/static/assets/icons/apple-touch-icon.png",
       "sizes": "180x180",
       "type": "image/png"
     },
     {
-      "src": "/favicon.svg",
+      "src": "/static/assets/icons/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml"
     }

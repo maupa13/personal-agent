@@ -5,12 +5,12 @@ import pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 STATIC = ROOT / "services/core/app/static"
-INDEX = (STATIC / "index.html").read_text(encoding="utf-8")
-APP = (STATIC / "app.js").read_text(encoding="utf-8")
-CSS = (STATIC / "styles.css").read_text(encoding="utf-8")
-ADMIN = (STATIC / "admin.html").read_text(encoding="utf-8")
-ADMIN_JS = (STATIC / "admin.js").read_text(encoding="utf-8")
-AUTH_JS = (STATIC / "auth.js").read_text(encoding="utf-8")
+INDEX = (STATIC / "pages/index.html").read_text(encoding="utf-8")
+APP = "".join((STATIC / "js/app" / name).read_text(encoding="utf-8") for name in ("app-state.js", "app-render.js", "app-runtime.js", "app-actions.js"))
+CSS = (STATIC / "css/styles.css").read_text(encoding="utf-8")
+ADMIN = (STATIC / "pages/admin.html").read_text(encoding="utf-8")
+ADMIN_JS = "".join((STATIC / "js/admin" / name).read_text(encoding="utf-8") for name in ("admin-core.js", "admin-extras.js"))
+AUTH_JS = (STATIC / "js/auth.js").read_text(encoding="utf-8")
 MANIFEST = json.loads((STATIC / "manifest.webmanifest").read_text(encoding="utf-8"))
 PRODUCT = json.loads((ROOT / "product-manifest.json").read_text(encoding="utf-8"))
 

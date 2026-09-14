@@ -6,7 +6,7 @@ def ok(t,n,f): f();checks.append(t);print(f"[PASS] {t} - {n}")
 installer=(ROOT/'INSTALL-OR-UPDATE.ps1').read_text(encoding='utf-8')
 ps=(ROOT/'scripts/pa.ps1').read_text(encoding='utf-8')
 main=(ROOT/'services/core/app/main.py').read_text(encoding='utf-8')
-app=(ROOT/'services/core/app/static/app.js').read_text(encoding='utf-8')
+app="".join((ROOT/'services/core/app/static/js/app'/name).read_text(encoding='utf-8') for name in ('app-state.js','app-render.js','app-runtime.js','app-actions.js'))
 manifest=json.loads((ROOT/'product-manifest.json').read_text(encoding='utf-8'))
 
 def version_identity():

@@ -59,9 +59,9 @@ def main() -> int:
     check(all(token in migration for token in ("CREATE TABLE IF NOT EXISTS users", "CREATE TABLE IF NOT EXISTS conversations", "CREATE TABLE IF NOT EXISTS plan_entitlements", "idx_conversations_user_updated")), "PG-FOUNDATION-003", "PostgreSQL migration contains identity, conversation and entitlement indexes")
 
     main_py = (CORE_APP / "main.py").read_text(encoding="utf-8")
-    ui_js = (CORE_APP / "static/app.js").read_text(encoding="utf-8")
-    auth_js = (CORE_APP / "static/auth.js").read_text(encoding="utf-8")
-    admin_js = (CORE_APP / "static/admin.js").read_text(encoding="utf-8")
+    ui_js = "".join((CORE_APP / "static/js/app" / name).read_text(encoding="utf-8") for name in ("app-state.js", "app-render.js", "app-runtime.js", "app-actions.js"))
+    auth_js = (CORE_APP / "static/js/auth.js").read_text(encoding="utf-8")
+    admin_js = "".join((CORE_APP / "static/js/admin" / name).read_text(encoding="utf-8") for name in ("admin-core.js", "admin-extras.js"))
     lan_ps = (ROOT / "scripts/lan.ps1").read_text(encoding="utf-8")
     check("require_entitlement(user, \"research\")" in main_py and "ENTITLEMENTS.mode_allowed" in main_py, "PLAN-001-BACKEND", "Backend enforces capability and mode entitlements")
     check("mode_${mode.id}" in ui_js and "entitlementEnabled" in ui_js, "PLAN-002", "USER mode selector derives from effective entitlements")

@@ -18,11 +18,11 @@ def repo_tmp(prefix: str):
 
 STATIC=ROOT/'services/core/app/static'
 MAIN=(ROOT/'services/core/app/main.py').read_text(encoding='utf-8')
-APP=(STATIC/'app.js').read_text(encoding='utf-8')
-INDEX=(STATIC/'index.html').read_text(encoding='utf-8')
-ADMIN=(STATIC/'admin.html').read_text(encoding='utf-8')
-ADMIN_JS=(STATIC/'admin.js').read_text(encoding='utf-8')
-CSS=(STATIC/'styles.css').read_text(encoding='utf-8')
+APP="".join((STATIC/"js/app"/name).read_text(encoding="utf-8") for name in ("app-state.js","app-render.js","app-runtime.js","app-actions.js"))
+INDEX=(STATIC/'pages/index.html').read_text(encoding='utf-8')
+ADMIN=(STATIC/'pages/admin.html').read_text(encoding='utf-8')
+ADMIN_JS="".join((STATIC/"js/admin"/name).read_text(encoding="utf-8") for name in ("admin-core.js","admin-extras.js"))
+CSS=(STATIC/'css/styles.css').read_text(encoding='utf-8')
 
 spec=importlib.util.spec_from_file_location('experience_service', ROOT/'services/core/app/experience_service.py')
 mod=importlib.util.module_from_spec(spec); assert spec.loader; spec.loader.exec_module(mod)

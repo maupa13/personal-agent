@@ -29,9 +29,9 @@ def ok(test_id,name,fn):
     fn();checks.append(test_id);print(f'[PASS] {test_id} - {name}')
 
 main=(APP/'main.py').read_text(encoding='utf-8')
-appjs=(APP/'static/app.js').read_text(encoding='utf-8')
-css=(APP/'static/styles.css').read_text(encoding='utf-8')
-admin=(APP/'static/admin.html').read_text(encoding='utf-8')+(APP/'static/admin.js').read_text(encoding='utf-8')
+appjs="".join((APP/'static/js/app'/name).read_text(encoding='utf-8') for name in ('app-state.js','app-render.js','app-runtime.js','app-actions.js'))
+css=(APP/'static/css/styles.css').read_text(encoding='utf-8')
+admin=(APP/'static/pages/admin.html').read_text(encoding='utf-8')+"".join((APP/'static/js/admin'/name).read_text(encoding='utf-8') for name in ('admin-core.js','admin-extras.js'))
 ps=(ROOT/'scripts/pa.ps1').read_text(encoding='ascii')
 
 def source_contract():
