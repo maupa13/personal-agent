@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Родной Агент — помощник для текстов, поиска, файлов и задач. Попробуйте два простых запроса без регистрации." />
+  <title>Родной Агент — попробуйте без регистрации</title>
+  <link rel="icon" href="/static/assets/icons/favicon.svg" />
+  <link rel="stylesheet" href="/static/css/styles.css?v=1.0.3-repair1" />
+</head>
+<body class="guide-page">
+  <main class="guide-shell welcome-shell">
+    <nav class="welcome-nav" aria-label="Навигация"><strong>Родной Агент</strong><a href="/login">Войти</a></nav>
+    <h1>Помощник для повседневных задач</h1>
+    <p class="guide-lead">Объяснить сложное, написать письмо, подготовить план. В платных тарифах — поиск с источниками, работа с файлами, исследования и разработка.</p>
+    <div class="panel-actions"><a class="primary-button" href="#demo">Попробовать без регистрации</a><a class="secondary-button" href="/register">Создать бесплатный аккаунт</a></div>
+    <section id="demo" class="welcome-demo">
+      <h2>Два запроса, чтобы познакомиться</h2>
+      <p class="muted">Бесплатная демонстрация отвечает на простые вопросы. Без файлов, веб-поиска и истории переписки. Доступно два запроса в сутки с одного браузера или IP.</p>
+      <div class="panel-actions" id="demoExamples"><button type="button" class="secondary-button">Объясни, что такое радуга</button><button type="button" class="secondary-button">Напиши короткое приглашение на чай</button></div>
+      <form id="demoForm">
+        <label for="demoMessage">Ваш вопрос</label>
+        <textarea id="demoMessage" rows="3" maxlength="1000" placeholder="Например: предложи три идеи для семейного вечера" required></textarea>
+        <div class="panel-actions"><button class="primary-button" id="demoSend" type="submit">Отправить</button><span id="demoRemaining" class="muted" aria-live="polite"></span></div>
+      </form>
+      <p id="demoStatus" role="status"></p>
+      <div id="demoAnswer" class="demo-answer" aria-live="polite" hidden></div>
+      <p>Для продолжения <a href="/register">создайте бесплатный аккаунт</a>. Регистрация сохраняет ваши диалоги.</p>
+    </section>
+    <h2>Что доступно</h2>
+    <div class="why-grid">
+      <article><h3>Без регистрации · 0 ₽</h3><p>Два коротких текстовых запроса в сутки. Без файлов и инструментов.</p></article>
+      <article><h3>Лайт · 0 ₽</h3><p>Обычный чат с локальной моделью и история диалогов. Без файлов, веб-поиска и удалённого AI.</p></article>
+      <article><h3>Медиум · 500 ₽ / 30 дней</h3><p>Удалённый AI, поиск, исследования, чтение и создание файлов, разработка. Лимиты AI показаны в профиле.</p></article>
+      <article><h3>Про · 1 000 ₽ / 30 дней</h3><p>Все возможности Медиума, больше места и параллельных задач, расширенные темы и приоритет поддержки.</p></article>
+    </div>
+    <p class="muted">Платные тарифы можно оплатить с баланса. Пополнение через заявку на перевод или промокод; зачисление перевода подтверждает администратор.</p>
+    <p><a href="/static/pages/user-guide.html">Как пользоваться</a> · <a href="/privacy">Конфиденциальность</a> · <a href="/terms">Условия</a> · <a href="mailto:support@rodnoi-agent.ru">Поддержка</a></p>
+  </main>
+  <script src="/static/js/demo.js?v=1.0.3-repair1"></script>
+</body>
+</html>

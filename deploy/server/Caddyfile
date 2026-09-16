@@ -4,7 +4,7 @@
 	request_body @upload {
 		max_size {$PA_FILE_MAX_BYTES}
 	}
-	@jsonapi path /api/chat /api/tasks /api/research /api/web/search /api/web/read /api/files/create /api/auth/*
+	@jsonapi path /api/demo/chat /api/chat /api/tasks /api/research /api/web/search /api/web/read /api/files/create /api/auth/*
 	request_body @jsonapi {
 		max_size 8MB
 	}

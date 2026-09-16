@@ -22,6 +22,7 @@ from db_compat import connect_app_db
 
 PLAN_PRICES_RUB = {"LIGHT": 0, "MEDIUM": 500, "PRO": 1000}
 PLAN_NAMES = {"LIGHT": "Лайт", "MEDIUM": "Медиум", "PRO": "Про"}
+PLAN_REMOTE_TOKENS = {"LIGHT": 0, "MEDIUM": 100_000, "PRO": 500_000}
 PLAN_SUPPORT = {"LIGHT": "community", "MEDIUM": "standard", "PRO": "priority"}
 BILLING_CLASSES = {"LOCAL", "BYOK", "PLATFORM_REMOTE", "PRIVATE_REMOTE"}
 SUBSCRIPTION_STATES = {"TRIAL", "ACTIVE", "PAST_DUE", "GRACE_PERIOD", "CANCEL_AT_PERIOD_END", "CANCELLED", "EXPIRED"}
@@ -236,11 +237,11 @@ class BillingService:
             )
             ts = now_ts()
             for plan_id in ("LIGHT", "MEDIUM", "PRO"):
-                # Safe-by-default: platform-funded remote AI is disabled until an admin sets a budget.
+                # Bounded paid allowances; existing administrator settings are preserved.
                 conn.execute(
                     "INSERT INTO plans(id,display_name,price_rub,support_level,local_unlimited,remote_token_limit,remote_cost_limit_microrub,enabled,updated_at) "
-                    "VALUES(?,?,?,?,TRUE,0,0,TRUE,?) ON CONFLICT(id) DO UPDATE SET display_name=excluded.display_name,price_rub=excluded.price_rub,support_level=excluded.support_level,local_unlimited=TRUE",
-                    (plan_id, PLAN_NAMES[plan_id], PLAN_PRICES_RUB[plan_id], PLAN_SUPPORT[plan_id], ts),
+                    "VALUES(?,?,?,?,TRUE,?,?,TRUE,?) ON CONFLICT(id) DO UPDATE SET display_name=excluded.display_name,price_rub=excluded.price_rub,support_level=excluded.support_level,local_unlimited=TRUE",
+                    (plan_id, PLAN_NAMES[plan_id], PLAN_PRICES_RUB[plan_id], PLAN_SUPPORT[plan_id], PLAN_REMOTE_TOKENS[plan_id], PLAN_PRICES_RUB[plan_id] * 1_000_000, ts),
                 )
             conn.commit()
 
@@ -720,7 +721,7 @@ class BillingService:
 
     def ensure_subscription(self, user_id: str, *, role: str = "USER") -> dict[str, Any]:
         user_id = str(user_id)
-        if user_id == "local-owner" or str(role).upper() == "ADMIN":
+        if user_id == "local-owner" or str(role).upper() in {"OWNER", "ADMIN"}:
             start, end = month_window()
             return {
                 "user_id": user_id,
@@ -735,6 +736,11 @@ class BillingService:
             }
         with self.lock, self.db() as conn:
             row = conn.execute("SELECT * FROM subscriptions WHERE user_id=?", (user_id,)).fetchone()
+            if row and row["payment_provider"] == "balance" and int(row["period_end"]) <= now_ts():
+                start, end = month_window()
+                conn.execute("UPDATE subscriptions SET plan_id='LIGHT',status='ACTIVE',period_start=?,period_end=?,auto_renew=0,payment_provider=NULL,updated_at=? WHERE user_id=?", (start, end, now_ts(), user_id))
+                conn.commit()
+                row = conn.execute("SELECT * FROM subscriptions WHERE user_id=?", (user_id,)).fetchone()
             if not row:
                 start, end = month_window()
                 conn.execute(
@@ -928,6 +934,30 @@ class BillingService:
         if not isinstance(obj, dict):
             raise BillingError("payment API returned invalid payload")
         return obj
+
+    def subscribe_from_balance(self, user: dict[str, Any], plan_id: str) -> dict[str, Any]:
+        plan_id = str(plan_id).upper()
+        if plan_id not in {"MEDIUM", "PRO"}:
+            raise BillingError("Выберите Медиум или Про")
+        if str(user.get("role", "")).upper() in {"OWNER", "ADMIN"}:
+            raise BillingError("Владельцу и администратору доступны все возможности без покупки тарифа")
+        user_id = str(user["id"])
+        ts = now_ts()
+        with self.lock, self.db() as conn:
+            row = conn.execute("SELECT * FROM subscriptions WHERE user_id=?", (user_id,)).fetchone()
+            if row and row["plan_id"] in {"MEDIUM", "PRO"} and int(row["period_end"]) > ts:
+                if row["plan_id"] == plan_id:
+                    return {"already_active": True, "plan_id": plan_id, "balance": self._balance_from_connection(conn, user_id)}
+                raise BillingError("Текущий оплаченный период ещё действует. Смените тариф после его окончания")
+            balance = self._write_balance_entry(conn, user_id=user_id, delta_microrub=-PLAN_PRICES_RUB[plan_id] * 1_000_000,
+                source="subscription_purchase", source_ref=uuid.uuid4().hex, note=f"Тариф {PLAN_NAMES[plan_id]} на 30 дней")
+            conn.execute(
+                "INSERT INTO subscriptions(user_id,plan_id,status,period_start,period_end,auto_renew,payment_provider,payment_method_id,cancel_at_period_end,updated_at) "
+                "VALUES(?,?,'ACTIVE',?,?,0,'balance',NULL,0,?) ON CONFLICT(user_id) DO UPDATE SET plan_id=excluded.plan_id,status='ACTIVE',period_start=excluded.period_start,period_end=excluded.period_end,auto_renew=0,payment_provider='balance',payment_method_id=NULL,cancel_at_period_end=0,updated_at=excluded.updated_at",
+                (user_id, plan_id, ts, ts + 30 * 86400, ts),
+            )
+            conn.commit()
+        return {"plan_id": plan_id, "balance": balance, "period_end": ts + 30 * 86400}
 
     def create_checkout(self, user: dict[str, Any], plan_id: str) -> dict[str, Any]:
         plan_id = str(plan_id).upper()

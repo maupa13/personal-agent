@@ -61,9 +61,9 @@ services:
       PA_USER_TOUR_VERSION: 1
       PA_ADMIN_TOUR_VERSION: 1
       PA_OLLAMA_URL: http://ollama:11434
-      PA_SEARXNG_URL: ""
-      PA_BROWSER_URL: ""
-      PA_CODE_SOCKET: ""
+      PA_SEARXNG_URL: http://searxng:8080
+      PA_BROWSER_URL: http://browser:8000
+      PA_CODE_SOCKET: /run/personal-agent-code/code-worker.sock
       PA_LAN_ENABLED: ${PA_LAN_ENABLED:-0}
       PA_LAN_PUBLIC_URL: ${PA_LAN_PUBLIC_URL:-}
       PA_BOOTSTRAP_MODEL: ${PA_BOOTSTRAP_MODEL:-qwen3:0.6b}
@@ -71,8 +71,12 @@ services:
       PA_OPENAI_API_KEY: ${PA_OPENAI_API_KEY:-}
       PA_OPENAI_BASE_URL: ${PA_OPENAI_BASE_URL:-https://api.openai.com/v1}
       PA_OPENAI_PROVIDER_TYPE: ${PA_OPENAI_PROVIDER_TYPE:-openai_responses}
+      PA_OPENAI_BILLING_CLASS: ${PA_OPENAI_BILLING_CLASS:-PLATFORM_REMOTE}
       PA_OPENAI_PROVIDER_ID: ${PA_OPENAI_PROVIDER_ID:-openai}
       PA_OPENAI_PROVIDER_NAME: ${PA_OPENAI_PROVIDER_NAME:-OpenAI}
+      PA_LLM_EGRESS_PROXY_URL: ${PA_LLM_EGRESS_PROXY_URL:-}
+      PA_LLM_EGRESS_HOSTS: ${PA_LLM_EGRESS_HOSTS:-api.openai.com,generativelanguage.googleapis.com,api.deepseek.com}
+      PA_TRUSTED_PROXY_IPS: ${PA_TRUSTED_PROXY_IPS:-172.30.0.4}
       PA_EGRESS_HTTP_PROXY: ${PA_EGRESS_HTTP_PROXY:-}
       PA_EGRESS_HTTPS_PROXY: ${PA_EGRESS_HTTPS_PROXY:-}
       PA_EGRESS_NO_PROXY: ${PA_EGRESS_NO_PROXY:-127.0.0.1,localhost,::1,ollama,searxng,browser,core,smtp,caddy}
@@ -92,6 +96,7 @@ services:
       PA_VPN_NAT_INTERFACE: ${PA_VPN_NAT_INTERFACE:-eth0}
       PA_VPN_UPSTREAM_NAME: ${PA_VPN_UPSTREAM_NAME:-OpenAPI}
     volumes:
+      - par-vps-code-ipc:/run/personal-agent-code:ro
       - par-vps-data:/data
       - par-vps-support-mail:/data/support-mail:ro
     expose:
@@ -114,6 +119,45 @@ services:
         condition: service_healthy
       ollama-bootstrap:
         condition: service_completed_successfully
+  searxng:
+    image: ${PA_SEARXNG_IMAGE:-searxng/searxng:2026.8.5-1689cb1b5}
+    restart: unless-stopped
+    environment:
+      SEARXNG_SECRET: ${PA_SEARXNG_SECRET:?PA_SEARXNG_SECRET must be set in .env.vps}
+    volumes:
+      - ./searxng/settings.yml:/etc/searxng/settings.yml:ro
+    networks: [app_net]
+    mem_limit: 512m
+  browser:
+    build:
+      context: ./services/browser
+    restart: unless-stopped
+    shm_size: 256m
+    environment:
+      PA_BROWSER_HOST: 0.0.0.0
+      PA_BROWSER_PORT: 8000
+    networks: [app_net]
+    mem_limit: 1g
+  code-worker:
+    build:
+      context: ./services/code-worker
+    restart: unless-stopped
+    network_mode: none
+    read_only: true
+    tmpfs:
+      - /work:rw,nosuid,nodev,size=256m,mode=0711
+    volumes:
+      - par-vps-code-ipc:/ipc
+    environment:
+      PA_CODE_SOCKET: /ipc/code-worker.sock
+      PA_CODE_WORK_ROOT: /work
+      PA_CODE_SOCKET_GID: '10001'
+    cap_drop: [ALL]
+    cap_add: [CHOWN, SETUID, SETGID, KILL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 128
+    mem_limit: 512m
+    cpus: 1.0
   smtp:
     build:
       context: ./deploy/server/smtp
@@ -203,8 +247,10 @@ services:
       core:
         condition: service_healthy
     networks:
-      - app_net
+      app_net:
+        ipv4_address: 172.30.0.4
 volumes:
+  par-vps-code-ipc:
   par-vps-data:
   par-vps-smtp-spool:
   par-vps-smtp-state:

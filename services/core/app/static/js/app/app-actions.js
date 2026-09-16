@@ -19,8 +19,7 @@ async function init() {
     }
     if (!enforceUiVersion(state.system.version)) return;
     if (state.system?.auth?.mode === "accounts" && !state.auth?.user) {
-      const next = location.pathname + location.search + location.hash;
-      location.replace(`/login?next=${encodeURIComponent(next)}`);
+      location.replace("/welcome");
       return;
     }
     $("#version").textContent = `v${state.system.version}`;
@@ -73,8 +72,21 @@ async function init() {
       state.webPreferences = null;
       renderWebPreferences();
     }
+    const paidTools = {web: "web", files: "files_read", code: "code", "task-report": "long_tasks"};
+    for (const [tool, feature] of Object.entries(paidTools)) {
+      const button = document.querySelector(`[data-tool="${tool}"]`);
+      if (button && !entitlementEnabled(feature)) {
+        button.disabled = true;
+        button.title = L("???????? ? ?????? ? ???", "Available on Medium and Pro");
+        button.classList.add("locked");
+      }
+    }
+    if ($("#attachBtn") && !entitlementEnabled("files_read")) {
+      $("#attachBtn").disabled = true;
+      $("#attachBtn").title = L("????? ???????? ? ?????? ? ???", "Files are available on Medium and Pro");
+    }
     await loadServerStore();
-    await loadArtifacts();
+    if (entitlementEnabled("files_read")) await loadArtifacts();
     await health();
     await maybeStartTour();
   } catch (error) {

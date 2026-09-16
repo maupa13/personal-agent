@@ -31,7 +31,7 @@ const AUTH_I18N = {
     profileInfoPersonal:
       "Локальный personal-профиль. Регистрация не требуется.",
     profileInfoServer: "{email} · {role} · {mode}",
-    requestBalanceTitle: "Баланс запросов",
+    requestBalanceTitle: "Лимиты AI",
     requestBalanceReady:
       "Локальные модели без лимита. Удалённый лимит: {tokens}. Остаток по стоимости: {rub}.",
     requestBalanceNoRemote:
@@ -152,7 +152,7 @@ const AUTH_I18N = {
     profileInfoPersonal:
       "Local personal profile. Registration is not required.",
     profileInfoServer: "{email} · {role} · {mode}",
-    requestBalanceTitle: "Request balance",
+    requestBalanceTitle: "AI allowance",
     requestBalanceReady:
       "Local models are unlimited. Remote quota: {tokens}. Cost remaining: {rub}.",
     requestBalanceNoRemote:
@@ -548,8 +548,8 @@ function updateStaticProfileCopy() {
     ($("#topupStepsTitle").textContent = t.topupStepsTitle);
   $("#topupStepsDetail") &&
     ($("#topupStepsDetail").textContent = t.topupStepsDetail);
-  $("#themeIntro") && ($("#themeIntro").textContent = t.themesUnavailable);
-  $("#themeState") && ($("#themeState").textContent = t.themesUnavailable);
+  $("#themeIntro") && ($("#themeIntro").textContent = AT("Выберите тему и нажмите «Применить». Покупка оплачивается с баланса один раз.", "Choose a theme and apply it. Purchases are charged to your balance once."));
+
 }
 
 function applyAuthLanguage(lang = authLang(), state = null) {
@@ -748,6 +748,7 @@ function renderPlanCatalog(plans, current) {
   const host = $("#planCatalog");
   if (!host) return;
   host.replaceChildren();
+  if (current === "ADMIN") return;
   for (const plan of plans) {
     const card = document.createElement("article");
     card.className = "plan-card";
@@ -760,7 +761,7 @@ function renderPlanCatalog(plans, current) {
       ? `${plan.price_rub} ₽/${AT("мес", "mo")}`
       : AT("Бесплатно", "Free");
     const copy = document.createElement("small");
-    copy.textContent = `${AT("Локально без лимита", "Unlimited local")} · ${AT("поддержка", "support")}: ${plan.support_level}`;
+    copy.textContent = plan.id === "LIGHT" ? AT("Обычный чат без файлов и веб-поиска", "Simple chat without files or web search") : AT("Чат, веб-поиск, исследование, файлы и разработка", "Chat, web search, research, files and development");
     card.append(title, price, copy);
     if (plan.id !== current) {
       const button = document.createElement("button");
@@ -769,8 +770,33 @@ function renderPlanCatalog(plans, current) {
       button.textContent = plan.price_rub
         ? AT("Подключить", "Choose plan")
         : AT("Перейти на Лайт", "Switch to Light");
+      const configured = window.__billingSnapshot?.payment?.configured;
+      button.disabled = !!plan.price_rub && !configured;
+      if (button.disabled) button.textContent = AT("Оплата картой пока недоступна", "Card payment unavailable");
       button.onclick = () => changePlan(plan.id);
       card.append(button);
+      if (plan.price_rub) {
+        const walletButton = document.createElement("button");
+        walletButton.type = "button";
+        walletButton.className = "primary-button";
+        walletButton.textContent = AT(`Оплатить с баланса · ${plan.price_rub} ₽`, `Pay from balance · ${plan.price_rub} ₽`);
+        const enough = Number(window.__billingSnapshot?.balance?.balance_rub || 0) >= plan.price_rub;
+        walletButton.disabled = !enough || ["MEDIUM", "PRO"].includes(current);
+        if (!enough) walletButton.textContent = AT(`Пополните баланс до ${plan.price_rub} ₽`, `Top up your balance to ${plan.price_rub} ₽`);
+        walletButton.onclick = async () => {
+          walletButton.disabled = true;
+          try {
+            await api("/api/billing/subscribe-balance", {method: "POST", body: JSON.stringify({plan_id: plan.id})});
+            await loadBilling();
+            renderEntitlements(window.__billingSnapshot);
+            $("#billingState").textContent = AT("Тариф подключён на 30 дней. Автосписания отключены.", "Plan activated for 30 days. Automatic payments are off.");
+          } catch (error) {
+            $("#billingState").textContent = error.message;
+            walletButton.disabled = false;
+          }
+        };
+        card.append(walletButton);
+      }
     }
     host.append(card);
   }
@@ -875,6 +901,8 @@ function renderUsage(snapshot) {
 }
 
 function renderRequestBalance(snapshot) {
+  $("#walletAmount").textContent = formatRub(snapshot.balance?.balance_rub || 0);
+  $("#walletTitle").textContent = AT("Баланс счёта", "Account balance");
   const quota = snapshot.quota || {};
   const summary = $("#balanceSummary");
   const state = $("#balanceState");
@@ -882,10 +910,10 @@ function renderRequestBalance(snapshot) {
   const tokenRemaining = quota.platform_remote_tokens_remaining;
   const costRemaining = quota.platform_remote_cost_rub_remaining;
   if (tokenRemaining === null && costRemaining === null) {
-    summary.textContent = T().requestBalanceNoRemote;
+    summary.textContent = AT("Локальный и удалённый AI — без ограничений тарифа.", "Local and remote AI have no plan limits.");
     state.textContent = AT(
-      "Доступны локальные запросы и BYOK.",
-      "Local requests and BYOK are available.",
+      "Доступ владельца / администратора. Расходы провайдера учитываются отдельно.",
+      "Owner / administrator access. Provider charges are accounted separately.",
     );
     state.className = "job-state";
     return;
@@ -898,8 +926,8 @@ function renderRequestBalance(snapshot) {
     (tokenRemaining !== null && tokenRemaining <= 0) ||
     (costRemaining !== null && costRemaining <= 0)
   ) {
-    state.textContent = T().requestBalanceExceeded;
-    state.className = "job-state failed";
+    state.textContent = AT("Обычный чат доступен. Лимит удалённого AI не включён в тариф или уже использован; баланс счёта показан отдельно.", "Simple chat is available. Remote AI is not included or its allowance is used up; your account balance is shown separately.");
+    state.className = "job-state";
   } else {
     state.textContent = AT(
       "Лимиты активны и обновляются по расчётному периоду тарифа.",
@@ -960,27 +988,36 @@ function setupBillingActions() {
       themeCatalog.append(note);
     } else {
       for (const theme of themes) {
+        const available = theme.owned || !!window.__billingSnapshot?.entitlements?.features?.[`theme_${theme.id}`]?.enabled;
         const row = document.createElement("div");
-        row.className = "plan-row";
+        row.className = "theme-row";
         const copy = document.createElement("div");
         copy.append(
           Object.assign(document.createElement("strong"), {
             textContent: theme.name,
           }),
           Object.assign(document.createElement("small"), {
-            textContent: theme.owned
-              ? T().themeOwned
+            textContent: available
+              ? (theme.owned ? T().themeOwned : AT("???????? ? ?????", "Included in your plan"))
               : `${Number(theme.price_rub || 0).toFixed(0)} ₽ · ${T().themePurchase}`,
           }),
         );
         const button = document.createElement("button");
         button.type = "button";
         button.className = "secondary-button";
-        button.textContent = theme.owned ? T().themeOwned : T().themeBuy;
-        button.disabled = !!theme.owned;
+        button.textContent = available ? AT("Применить", "Apply") : `${T().themeBuy} · ${theme.price_rub} ₽`;
         button.onclick = async () => {
           const stateNode = $("#themeState");
           try {
+            button.disabled = true;
+            if (available) {
+              await api("/api/preferences/experience", {method: "POST", body: JSON.stringify({theme: theme.id})});
+              localStorage.setItem("par-theme-preference", theme.id);
+              setAuthTheme();
+              stateNode.textContent = AT("Тема применена", "Theme applied");
+              stateNode.className = "job-state completed";
+              return;
+            }
             const result = await api("/api/billing/themes/purchase", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -996,6 +1033,8 @@ function setupBillingActions() {
               stateNode.textContent = error.message;
               stateNode.className = "job-state failed";
             }
+          } finally {
+            button.disabled = false;
           }
         };
         row.append(copy, button);
@@ -1058,10 +1097,13 @@ function setupBillingActions() {
 }
 
 async function loadBilling() {
-  const [snapshot, plans] = await Promise.all([
+  const [snapshot, plans, experience] = await Promise.all([
     api("/api/billing/me"),
     api("/api/billing/plans"),
+    api("/api/preferences/experience"),
   ]);
+  localStorage.setItem("par-theme-preference", experience.preferences?.theme || "system");
+  setAuthTheme();
   const box = $("#billingAccount");
   box.hidden = false;
   const plan = snapshot.plan;

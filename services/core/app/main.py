@@ -25,6 +25,8 @@ import zlib
 import urllib.error
 import urllib.parse
 import urllib.request
+from llm_egress import TRANSPORT as LLM_EGRESS
+from demo_service import DemoService
 import uuid
 import zipfile
 from email import policy
@@ -210,6 +212,7 @@ ARTIFACTS = ArtifactService(
     max_total_bytes_per_user=FILE_MAX_TOTAL_BYTES,
 )
 CODE_WORKER = CodeWorkerClient(CODE_SOCKET)
+DEMO = DemoService(DB_PATH)
 BILLING = BillingService(DB_PATH, SECRETS_DIR, test_mode=TEST_MODE)
 TASKS = TaskStore(DB_PATH)
 CONVERSATIONS = ConversationStore(DB_PATH)
@@ -446,6 +449,8 @@ def _should_bypass_proxy(url: str, bypass_list: tuple[str, ...]) -> bool:
 
 
 def urlopen_with_egress(req: urllib.request.Request, *, timeout: float):
+    if LLM_EGRESS.handles(req.full_url):
+        return LLM_EGRESS.open(req, timeout)
     proxy_config, bypass_list = _effective_proxy_config()
     if _should_bypass_proxy(req.full_url, bypass_list) or not proxy_config:
         opener = DIRECT_URL_OPENER
@@ -1942,6 +1947,10 @@ def run_inference(route: dict[str, str], messages: list[dict[str, str]], spec: d
 
 def execute_inference_for_user(user: dict[str, Any], route: dict[str, str], messages: list[dict[str, str]], spec: dict[str, Any], *, source: str) -> tuple[str, dict[str, Any], dict[str, str], str | None, dict[str, Any]]:
     preferences = experience_preferences(user)
+    if not entitlement_snapshot(user)["features"]["remote_ai"]["enabled"]:
+        route = {"provider_id": DEFAULT_PROVIDER_ID, "model_id": BOOTSTRAP_MODEL}
+        preferences = dict(preferences, execution_policy="local_only")
+        spec = dict(spec, think=False, num_predict=min(int(spec["num_predict"]), 512))
     route, policy_notice = choose_route_for_execution_policy(user, route, str(preferences.get("execution_policy") or "auto"))
     messages = apply_response_preferences(messages, preferences)
     provider = get_provider(route["provider_id"])
@@ -3017,7 +3026,15 @@ def turnstile_enabled() -> bool:
 
 
 def client_ip(handler: Any) -> str:
-    return handler.client_address[0] if getattr(handler, "client_address", None) else ""
+    peer = handler.client_address[0] if getattr(handler, "client_address", None) else ""
+    trusted = {x.strip() for x in os.getenv("PA_TRUSTED_PROXY_IPS", "").split(",") if x.strip()}
+    if peer in trusted:
+        forwarded = handler.headers.get("X-Forwarded-For", "").split(",")[-1].strip()
+        try:
+            return str(ipaddress.ip_address(forwarded))
+        except ValueError:
+            pass
+    return peer
 
 
 def auth_honeypot_triggered(body: dict[str, Any]) -> bool:
@@ -3884,7 +3901,67 @@ class Handler(SimpleHTTPRequestHandler):
             raise ApiError(401, "authentication required")
         if self.command.upper() not in {"GET", "HEAD", "OPTIONS"}:
             self._require_csrf()
+        path = urlparse(self.path).path
+        for prefix, feature in (("/api/files", "files_read"), ("/api/web/", "web"), ("/api/research", "research"), ("/api/code", "code"), ("/api/tasks", "long_tasks")):
+            if path.startswith(prefix):
+                require_entitlement(user, feature)
         return user
+
+    def _demo_visitor(self):
+        cookie = http.cookies.SimpleCookie()
+        try:
+            cookie.load(self.headers.get("Cookie", ""))
+        except http.cookies.CookieError:
+            pass
+        value = cookie.get("pa_demo")
+        token = value.value if value else ""
+        if not re.fullmatch(r"[A-Za-z0-9_-]{40,64}", token):
+            token = secrets.token_urlsafe(32)
+        return token
+
+    def _demo(self):
+        if AUTH_MODE != "accounts":
+            raise ApiError(404, "Демонстрация доступна в серверной версии")
+        visitor, ip = self._demo_visitor(), client_ip(self)
+        headers = {"Set-Cookie": f"pa_demo={visitor}; HttpOnly; SameSite=Lax; Path=/; Max-Age=86400" + ("; Secure" if SECURE_COOKIES else "")}
+        if self.command == "GET":
+            self._json(200, {"ok": True, "remaining": DEMO.remaining(visitor, ip), "limit": DEMO.LIMIT}, headers)
+            return
+        origin = self.headers.get("Origin")
+        if origin and origin.rstrip("/") != self._request_origin().rstrip("/"):
+            raise ApiError(403, "Недопустимый источник запроса")
+        if not self.headers.get("Content-Type", "").lower().startswith("application/json"):
+            raise ApiError(415, "Ожидается JSON")
+        body = self._body()
+        if set(body) - {"message"}:
+            raise ApiError(400, "Демо поддерживает только текст, без файлов и инструментов")
+        message = body.get("message")
+        if not isinstance(message, str) or not 1 <= len(message.strip()) <= 1000:
+            raise ApiError(400, "Введите от 1 до 1000 символов")
+        if not DEMO.slots.acquire(blocking=False):
+            raise ApiError(429, "Демонстрация занята. Попробуйте через минуту")
+        request_id = None
+        success = False
+        try:
+            DEMO.remaining(visitor, ip)
+            request_id = DEMO.reserve(visitor, ip)
+            if not request_id:
+                raise ApiError(429, "Два пробных запроса использованы. Создайте бесплатный аккаунт или вернитесь завтра")
+            text, _, _ = run_inference(
+                {"provider_id": DEFAULT_PROVIDER_ID, "model_id": BOOTSTRAP_MODEL},
+                [{"role": "system", "content": "Ты помощник. Отвечай кратко по-русски. У тебя нет доступа к веб-поиску, файлам и актуальным данным."}, {"role": "user", "content": message.strip()}],
+                {"temperature": 0.3, "num_predict": 256, "think": False},
+            )
+            if not text:
+                raise ApiError(503, "Демонстрация временно недоступна. Запрос не списан")
+            success = True
+            self._json(200, {"ok": True, "answer": text, "remaining": DEMO.remaining(visitor, ip)}, headers)
+        except (urllib.error.URLError, TimeoutError) as exc:
+            raise ApiError(503, "Демонстрация временно недоступна. Запрос не списан") from exc
+        finally:
+            if request_id:
+                DEMO.finish(request_id, success)
+            DEMO.slots.release()
 
     def _public_system(self) -> dict[str, Any]:
         code_ready = False
@@ -3939,6 +4016,9 @@ class Handler(SimpleHTTPRequestHandler):
         parsed = urlparse(self.path)
         path = parsed.path
         try:
+            if path == "/api/demo/chat":
+                self._demo()
+                return
             if path == "/api/health":
                 # Keep the Docker health path cheap and internal-only. In particular,
                 # never execute a SearXNG search here: container health checks run
@@ -4417,6 +4497,8 @@ class Handler(SimpleHTTPRequestHandler):
         rewrites = {
             "/": "/pages/index.html",
             "/index.html": "/pages/index.html",
+            "/welcome": "/pages/welcome.html",
+            "/demo": "/pages/welcome.html",
             "/admin": "/pages/admin.html",
             "/admin/": "/pages/admin.html",
             "/admin.html": "/pages/admin.html",
@@ -4461,6 +4543,9 @@ class Handler(SimpleHTTPRequestHandler):
             "/robots.txt",
             "/sitemap.xml",
         }
+        if path == "/" and AUTH_MODE == "accounts" and not current_user(self.headers):
+            self.path = "/pages/welcome.html"
+            return True
         if path in rewrites:
             self.path = rewrites[path]
             return True
@@ -4522,6 +4607,9 @@ class Handler(SimpleHTTPRequestHandler):
         self._begin_trace()
         path = urlparse(self.path).path
         try:
+            if path == "/api/demo/chat":
+                self._demo()
+                return
             if path == "/api/conversations":
                 user = self._user()
                 body = self._body()
@@ -4868,6 +4956,10 @@ class Handler(SimpleHTTPRequestHandler):
                 except ValueError as exc:
                     raise ApiError(400, str(exc)) from exc
                 latest_text = latest_user_text(raw_messages)
+                if body.get("file_ids") or body.get("attachments"):
+                    require_entitlement(user, "files_read")
+                if not ent.get("web", {}).get("enabled") and (intent_hint != "auto" or scenario_id or web_intent(latest_text, intent_hint)):
+                    raise ApiError(403, "На бесплатном тарифе доступен обычный чат. Поиск, исследования и файлы доступны в Медиум и Про")
                 scenario = SCENARIOS.prepare(user_id=str(user["id"]), conversation_id=conversation_id, text=latest_text, explicit_scenario_id=scenario_id)
                 if scenario.get("action") == "clarify":
                     clarification_text = str(scenario.get("message") or "Уточните, пожалуйста, важные параметры задачи.")
@@ -4946,7 +5038,8 @@ class Handler(SimpleHTTPRequestHandler):
                 except ApiError:
                     raise
                 except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError) as exc:
-                    raise ApiError(502, "AI-провайдер сейчас недоступен") from exc
+                    log_event("inference.failed", level="ERROR", provider_id=route.get("provider_id"), model_id=route.get("model_id"), error_type=type(exc).__name__, provider_status=getattr(exc, "code", None))
+                    raise ApiError(502, "AI-провайдер сейчас недоступен. Повторите запрос чуть позже") from exc
                 if not text:
                     raise ApiError(502, "AI не вернул ответ")
                 if intent and _web_answer_needs_retry(text):
@@ -5167,11 +5260,25 @@ class Handler(SimpleHTTPRequestHandler):
             if path == "/api/billing/themes/purchase":
                 user = self._user()
                 body = self._body()
+                theme_id = str(body.get("theme_id", "")).strip().lower()
+                feature = THEME_ENTITLEMENTS.get(theme_id)
+                if feature and entitlement_snapshot(user)["features"].get(feature, {}).get("enabled"):
+                    self._json(200, {"ok": True, "theme": theme_id, "owned": True, "already_owned": True, "included": True, "balance": BILLING.balance(str(user["id"]))})
+                    return
                 try:
-                    result = BILLING.purchase_theme(user_id=str(user["id"]), theme_id=str(body.get("theme_id", "")))
+                    result = BILLING.purchase_theme(user_id=str(user["id"]), theme_id=theme_id)
                 except BillingError as exc:
                     raise ApiError(400, str(exc)) from exc
                 log_event("billing.theme_purchased", user_id=user["id"], theme_id=result["theme"], amount_rub=result["price_rub"])
+                self._json(200, {"ok": True, **result})
+                return
+            if path == "/api/billing/subscribe-balance":
+                user = self._user()
+                body = self._body()
+                try:
+                    result = BILLING.subscribe_from_balance(user, str(body.get("plan_id", "")))
+                except BillingError as exc:
+                    raise ApiError(400, str(exc)) from exc
                 self._json(200, {"ok": True, **result})
                 return
             if path == "/api/billing/checkout":
@@ -5963,6 +6070,7 @@ def main() -> None:
     if REGISTRATION_POLICY not in {"open", "approval_required", "closed"}:
         raise SystemExit("PA_REGISTRATION_POLICY must be open, approval_required or closed")
     init_db()
+    DEMO.init_schema()
     log_event("core.starting", runtime_profile=RUNTIME_PROFILE, auth_mode=AUTH_MODE, registration_policy=REGISTRATION_POLICY)
     TASK_RUNTIME = TaskRuntime(TASKS, task_runner)
     TASK_RUNTIME.resume_recoverable()

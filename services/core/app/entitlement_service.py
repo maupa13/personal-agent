@@ -15,10 +15,10 @@ DEFAULT_ENTITLEMENTS: dict[str, dict[str, tuple[bool, int | None]]] = {
         "mode_auto": (True, None),
         "mode_fast": (True, None),
         "mode_smart": (False, None),
-        "web": (True, None),
+        "web": (False, None),
         "research": (False, None),
         "deep_research": (False, None),
-        "files_read": (True, None),
+        "files_read": (False, None),
         "files_create": (False, None),
         "code": (False, None),
         "long_tasks": (False, None),
@@ -152,7 +152,12 @@ class EntitlementService:
             result["storage_quota_mb"]["limit"] = None
             result["max_file_size_mb"]["limit"] = None
             return result
-        return self.for_plan(plan_id)
+        result = self.for_plan(plan_id)
+        # LIGHT is the text-only product tier, including databases created before this policy.
+        if str(plan_id).upper() == "LIGHT":
+            for key in ("web", "research", "deep_research", "files_read", "files_create", "code", "long_tasks", "remote_ai", "advanced_exports"):
+                result[key] = {"enabled": False, "limit": None}
+        return result
 
     def update(self, plan_id: str, feature_key: str, *, enabled: bool, limit_value: int | None = None) -> dict[str, Any]:
         plan_id = str(plan_id).upper()

@@ -33,7 +33,7 @@ def main() -> int:
         light = ent.for_plan("LIGHT")
         medium = ent.for_plan("MEDIUM")
         pro = ent.for_plan("PRO")
-        check(light["chat"]["enabled"] and light["web"]["enabled"], "PLAN-001", "Light keeps useful chat/web baseline")
+        check(light["chat"]["enabled"] and not light["web"]["enabled"] and not light["files_read"]["enabled"], "PLAN-001", "Light offers text chat without web/files")
         check(not light["code"]["enabled"] and not light["mode_smart"]["enabled"], "PLAN-003", "Light does not expose paid smart/code capabilities")
         check(medium["code"]["enabled"] and medium["research"]["enabled"], "PLAN-001-MEDIUM", "Medium enables research/code")
         check(pro["deep_research"]["enabled"] and pro["priority_queue"]["enabled"], "PLAN-001-PRO", "Pro carries advanced entitlements")

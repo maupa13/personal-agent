@@ -5025,3 +5025,15 @@ html[data-ui-scale="large"] .result-card {
     transform: none !important;
   }
 }
+
+.wallet-box { padding: 22px; border: 1px solid var(--line); border-radius: 16px; background: var(--panel2); margin-bottom: 20px; }
+#walletAmount { font-size: clamp(30px, 6vw, 44px); font-weight: 700; margin-top: 8px; }
+.theme-row { display:flex; gap:16px; align-items:center; justify-content:space-between; border:1px solid var(--line); border-radius:12px; padding:14px; }
+.theme-row > div { display:grid; gap:6px; }
+.theme-row small { color:var(--muted); }
+
+.welcome-nav { display:flex; justify-content:space-between; align-items:center; margin-bottom:42px; }
+.welcome-demo { margin:40px 0; padding:24px; background:var(--panel); border:1px solid var(--line); border-radius:18px; }
+.welcome-demo textarea { display:block; width:100%; margin:10px 0 14px; min-height:100px; }
+.demo-answer { white-space:pre-wrap; border-left:3px solid var(--accent); padding:18px; margin:16px 0; background:var(--panel2); }
+.welcome-shell .panel-actions { flex-wrap:wrap; }
