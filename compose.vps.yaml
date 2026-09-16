@@ -76,7 +76,7 @@ services:
       PA_OPENAI_PROVIDER_NAME: ${PA_OPENAI_PROVIDER_NAME:-OpenAI}
       PA_LLM_EGRESS_PROXY_URL: ${PA_LLM_EGRESS_PROXY_URL:-}
       PA_LLM_EGRESS_HOSTS: ${PA_LLM_EGRESS_HOSTS:-api.openai.com,generativelanguage.googleapis.com,api.deepseek.com}
-      PA_TRUSTED_PROXY_IPS: ${PA_TRUSTED_PROXY_IPS:-172.30.0.4}
+      PA_TRUSTED_PROXY_IPS: ${PA_TRUSTED_PROXY_IPS:-172.30.0.254}
       PA_EGRESS_HTTP_PROXY: ${PA_EGRESS_HTTP_PROXY:-}
       PA_EGRESS_HTTPS_PROXY: ${PA_EGRESS_HTTPS_PROXY:-}
       PA_EGRESS_NO_PROXY: ${PA_EGRESS_NO_PROXY:-127.0.0.1,localhost,::1,ollama,searxng,browser,core,smtp,caddy}
@@ -248,7 +248,7 @@ services:
         condition: service_healthy
     networks:
       app_net:
-        ipv4_address: 172.30.0.4
+        ipv4_address: 172.30.0.254
 volumes:
   par-vps-code-ipc:
   par-vps-data:
