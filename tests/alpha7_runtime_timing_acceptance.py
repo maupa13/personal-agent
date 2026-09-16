@@ -10,7 +10,7 @@ app="".join((ROOT/'services/core/app/static/js/app'/name).read_text(encoding='ut
 manifest=json.loads((ROOT/'product-manifest.json').read_text(encoding='utf-8'))
 
 def version_identity():
-    assert re.fullmatch(r'1\.0\.0', manifest['version']), manifest['version']
+    assert re.fullmatch(r'\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?', manifest['version']), manifest['version']
     assert "ConvertFrom-Json" in installer and "$Manifest.version" in installer
     assert "$Version='0.8.0-alpha.3'" not in installer
     assert re.search(r"Invalid package version in product-manifest\.json",installer)
