@@ -1,0 +1,11 @@
+[Unit]
+Description=Periodic Finland egress health check
+
+[Timer]
+OnBootSec=60
+OnUnitActiveSec=120
+RandomizedDelaySec=15
+Unit=vps-egress-health.service
+
+[Install]
+WantedBy=timers.target

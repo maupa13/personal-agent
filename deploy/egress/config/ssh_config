@@ -1,0 +1,19 @@
+Host vps-egress-finland
+    HostName 89.125.3.243
+    User vps-egress
+    Port 22
+    AddressFamily inet
+    IdentityFile /opt/vps-egress/secrets/id_ed25519
+    UserKnownHostsFile /opt/vps-egress/config/known_hosts
+    StrictHostKeyChecking yes
+    IdentitiesOnly yes
+    BatchMode yes
+    ExitOnForwardFailure yes
+    ConnectTimeout 5
+    ConnectionAttempts 1
+    ServerAliveInterval 10
+    ServerAliveCountMax 2
+    TCPKeepAlive yes
+    LocalForward 127.0.0.1:18981 127.0.0.1:18888
+    LocalForward 172.30.0.1:18981 127.0.0.1:18888
+    LogLevel ERROR

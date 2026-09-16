@@ -1,0 +1,10 @@
+[Unit]
+Description=Verify Finland egress without paid API generation
+After=vps-egress-tunnel.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/vps-egress/scripts/health.sh
+TimeoutStartSec=55
+NoNewPrivileges=true
+PrivateTmp=true

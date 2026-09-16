@@ -1,0 +1,25 @@
+[Unit]
+Description=Selective API egress to Finland via SSH
+After=network-online.target docker.service
+Wants=network-online.target
+Requires=docker.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=vps-egress
+Group=vps-egress
+ExecStartPre=+/opt/vps-egress/scripts/firewall.sh
+ExecStart=/usr/bin/ssh -F /opt/vps-egress/config/ssh_config -NT vps-egress-finland
+Restart=always
+RestartSec=3
+TimeoutStopSec=10
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+RestrictAddressFamilies=AF_INET AF_UNIX
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target
