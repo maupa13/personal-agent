@@ -90,6 +90,8 @@ def main():
                     for width in [390, 1280]:
                         page.set_viewport_size({"width": width, "height": 900})
                         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), width
+                    page.goto(base)
+                    page.wait_for_function("() => document.querySelector('#accountEntry .account-label').textContent.includes('351')")
                     assert not errors, errors
                     browser.close()
                 print("PASS BROWSER: wallet amount, themes applied/persisted, mobile/desktop layout, no JS errors")

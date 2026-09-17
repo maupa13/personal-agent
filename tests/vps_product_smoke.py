@@ -30,6 +30,8 @@ def call(path, body=None, method=None):
 
 
 def check(name, fn):
+    if len(sys.argv) > 1 and name not in sys.argv[1:]:
+        return
     started = time.monotonic()
     try:
         detail = fn()

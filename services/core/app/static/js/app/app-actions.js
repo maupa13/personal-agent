@@ -30,6 +30,16 @@ async function init() {
         account.href = "/account";
         account.querySelector(".account-label").textContent =
           state.auth.user.display_name || L("Аккаунт", "Account");
+        try {
+          const billing = await api("/api/billing/me");
+          const amount = new Intl.NumberFormat(langKey() === "en" ? "en-US" : "ru-RU", {
+            style: "currency", currency: "RUB", maximumFractionDigits: 2,
+          }).format(billing.balance?.balance_rub || 0);
+          account.querySelector(".account-label").textContent += ` · ${amount}`;
+          account.title = L("Баланс счёта: ", "Account balance: ") + amount;
+        } catch (_) {
+          // Keep access to the profile when the billing request is unavailable.
+        }
       } else if (state.system?.auth?.mode === "accounts") {
         account.href = "/login";
         account.querySelector(".account-label").textContent = L(
@@ -77,13 +87,13 @@ async function init() {
       const button = document.querySelector(`[data-tool="${tool}"]`);
       if (button && !entitlementEnabled(feature)) {
         button.disabled = true;
-        button.title = L("???????? ? ?????? ? ???", "Available on Medium and Pro");
+        button.title = L("Доступно в Медиум и Про", "Available on Medium and Pro");
         button.classList.add("locked");
       }
     }
     if ($("#attachBtn") && !entitlementEnabled("files_read")) {
       $("#attachBtn").disabled = true;
-      $("#attachBtn").title = L("????? ???????? ? ?????? ? ???", "Files are available on Medium and Pro");
+      $("#attachBtn").title = L("Файлы доступны в Медиум и Про", "Files are available on Medium and Pro");
     }
     await loadServerStore();
     if (entitlementEnabled("files_read")) await loadArtifacts();

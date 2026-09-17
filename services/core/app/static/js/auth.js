@@ -998,7 +998,7 @@ function setupBillingActions() {
           }),
           Object.assign(document.createElement("small"), {
             textContent: available
-              ? (theme.owned ? T().themeOwned : AT("???????? ? ?????", "Included in your plan"))
+              ? (theme.owned ? T().themeOwned : AT("Включена в тариф", "Included in your plan"))
               : `${Number(theme.price_rub || 0).toFixed(0)} ₽ · ${T().themePurchase}`,
           }),
         );
