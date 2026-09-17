@@ -1,0 +1,12 @@
+{"test": "health", "status": "PASS", "detail": {"product": "Personal Agent Rus", "version": "1.0.3", "edition": "rus", "runtime_profile": "server", "ready": true, "engine": "optional", "inference": "provider-required", "web_search": "ready", "browser": "ready", "code": "ready"}, "seconds": 0.03}
+{"test": "chat_auto", "status": "PASS", "detail": {"mode": "auto", "nonempty": true}, "seconds": 3.17}
+{"test": "chat_fast", "status": "PASS", "detail": {"mode": "fast", "nonempty": true}, "seconds": 3.71}
+{"test": "chat_smart", "status": "PASS", "detail": {"mode": "smart", "nonempty": true}, "seconds": 4.71}
+{"test": "chat_auto", "status": "PASS", "detail": {"mode": "auto", "nonempty": true}, "seconds": 3.53}
+{"test": "files_eight_formats_and_analysis", "status": "PASS", "detail": {"verified_formats": ["txt", "md", "json", "csv", "pdf", "docx", "xlsx", "pptx"], "openai_file_analysis": true}, "seconds": 12.58}
+{"test": "code_python", "status": "PASS", "detail": {"language": "python", "completed": true}, "seconds": 0.47}
+{"test": "code_java", "status": "PASS", "detail": {"language": "java", "completed": true}, "seconds": 2.65}
+{"test": "code_powershell", "status": "PASS", "detail": {"language": "powershell", "completed": true}, "seconds": 1.16}
+{"test": "web_search", "status": "PASS", "detail": {"sources": 3}, "seconds": 3.07}
+{"test": "web_read", "status": "PASS", "detail": {"strategy": "static", "characters": 5602}, "seconds": 0.28}
+{"test": "research_with_sources", "status": "FAIL", "error_type": "HTTPError", "http_status": 502, "error": "Не удалось получить проверяемые веб-источники для этого запроса", "seconds": 0.89}

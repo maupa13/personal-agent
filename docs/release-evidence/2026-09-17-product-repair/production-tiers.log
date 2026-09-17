@@ -1,0 +1,3 @@
+PASS production LIGHT: real local answer, files and search denied
+PASS production MEDIUM: real OpenAI answer, remote token quota debited, wallet unchanged
+PASS cleanup: temporary tier account removed

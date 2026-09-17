@@ -97,6 +97,8 @@ def search():
 def read():
     value = call("/api/web/read", {"url": "https://www.python.org/about/"})
     assert len(value["page"]["text"]) > 500
+    assert "Python" in value["page"]["text"]
+    assert value["page"]["text"].count("\ufffd") < len(value["page"]["text"]) // 100
     return {"strategy": value["page"]["strategy"], "characters": len(value["page"]["text"])}
 
 

@@ -1,0 +1,3 @@
+{"test": "web_read", "status": "PASS", "detail": {"strategy": "static", "characters": 4531}, "seconds": 1.51}
+{"test": "research_with_sources", "status": "PASS", "detail": {"sources": 3, "nonempty": true}, "seconds": 30.12}
+{"test": "research_report_task", "status": "PASS", "detail": {"completed": true, "verified_exports": ["md", "xlsx", "pdf"], "sources": 2}, "seconds": 33.31}
