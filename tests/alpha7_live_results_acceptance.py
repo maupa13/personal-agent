@@ -5,6 +5,7 @@ import tempfile
 import os
 import shutil
 import time
+import re
 from contextlib import contextmanager
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -31,10 +32,10 @@ def ok(test_id: str, name: str, fn) -> None:
     fn(); checks.append(test_id); print(f"[PASS] {test_id} - {name}")
 
 main = (APP / "main.py").read_text(encoding="utf-8")
-appjs = (APP / "static" / "app.js").read_text(encoding="utf-8")
-css = (APP / "static" / "styles.css").read_text(encoding="utf-8")
-index = (APP / "static" / "index.html").read_text(encoding="utf-8")
-admin = (APP / "static" / "admin.html").read_text(encoding="utf-8")
+appjs = "\n".join((APP / "static" / "js" / "app" / name).read_text(encoding="utf-8") for name in ("app-state.js", "app-render.js", "app-runtime.js", "app-actions.js"))
+css = (APP / "static" / "css" / "styles.css").read_text(encoding="utf-8")
+index = (APP / "static" / "pages" / "index.html").read_text(encoding="utf-8")
+admin = re.sub(r"\s+", " ", (APP / "static" / "pages" / "admin.html").read_text(encoding="utf-8"))
 
 
 def min_seven_contract():
@@ -76,9 +77,10 @@ ok("NEWS-A7-001", "generic news asks once; Main and saved interests become conci
 
 
 def selection_contract():
-    assert "state.scenarioId=null;if(kind==='preset'){state.intentHint='auto'" in appjs
-    assert "state.preset='none';localStorage.setItem(PRESET_KEY,'none');state.intentHint=item.id" not in appjs
-    assert "state.scenarioId=item.id;state.preset='none';state.intentHint='auto'" in appjs
+    compact = re.sub(r"\s+", "", appjs).replace('"', "'")
+    assert "state.scenarioId=null;if(kind==='preset'){state.intentHint='auto'" in compact
+    assert "state.preset='none';localStorage.setItem(PRESET_KEY,'none');state.intentHint=item.id" not in compact
+    assert "state.scenarioId=item.id;state.preset='none';state.intentHint='auto'" in compact
     assert ".scenario-card.active" in css and ".starter-card.active" in css
     assert ":focus-visible" in css
 ok("UX-SELECT-A7-001", "scenario and quick-action selection are mutually exclusive and focus is distinct", selection_contract)

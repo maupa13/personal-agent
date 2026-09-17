@@ -2071,16 +2071,43 @@ class SafeRedirectHandler(urllib.request.HTTPRedirectHandler):
         return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
+def decode_web_body(raw: bytes, encoding: str, max_bytes: int) -> bytes:
+    """Decode only supported HTTP encodings, bounding decompressed data too."""
+    encoding = str(encoding or "identity").strip().lower()
+    if encoding in {"", "identity"}:
+        if len(raw) > max_bytes:
+            raise ValueError("Страница превышает допустимый размер web-fetch")
+        return raw
+    if encoding not in {"gzip", "x-gzip", "deflate"}:
+        raise ValueError("Неподдерживаемое сжатие web-страницы")
+    windows = (16 + zlib.MAX_WBITS,) if encoding in {"gzip", "x-gzip"} else (zlib.MAX_WBITS, -zlib.MAX_WBITS)
+    for index, window in enumerate(windows):
+        try:
+            decoder = zlib.decompressobj(window)
+            decoded = decoder.decompress(raw, max_bytes + 1)
+        except zlib.error as exc:
+            if index + 1 < len(windows):
+                continue
+            raise ValueError("Повреждённый сжатый ответ web-страницы") from exc
+        if len(decoded) > max_bytes or decoder.unconsumed_tail:
+            raise ValueError("Распакованная страница превышает допустимый размер web-fetch")
+        if not decoder.eof or decoder.unused_data:
+            raise ValueError("Неполный или составной сжатый ответ web-страницы")
+        return decoded
+    raise ValueError("Не удалось распаковать web-страницу")
+
+
 def fetch_static_url(value: str, timeout: int = 20) -> dict[str, Any]:
     url = validate_public_url(value)
     opener = urllib.request.build_opener(SafeRedirectHandler())
-    req = urllib.request.Request(url, headers={"User-Agent": WEB_USER_AGENT, "Accept": "text/html,application/xhtml+xml,text/plain;q=0.9,*/*;q=0.2"})
+    req = urllib.request.Request(url, headers={"User-Agent": WEB_USER_AGENT, "Accept": "text/html,application/xhtml+xml,text/plain;q=0.9,*/*;q=0.2", "Accept-Encoding": "gzip, deflate"})
     with opener.open(req, timeout=timeout) as resp:
         final_url = validate_public_url(resp.geturl())
         content_type = str(resp.headers.get("Content-Type", "")).lower()
         raw = resp.read(WEB_MAX_BYTES + 1)
         if len(raw) > WEB_MAX_BYTES:
             raise ValueError("Страница превышает допустимый размер web-fetch")
+        raw = decode_web_body(raw, resp.headers.get("Content-Encoding", ""), WEB_MAX_BYTES)
         charset = resp.headers.get_content_charset() or "utf-8"
         text_raw = raw.decode(charset, errors="replace")
     if "html" not in content_type and "text" not in content_type and content_type:
@@ -2103,7 +2130,7 @@ def fetch_static_url(value: str, timeout: int = 20) -> dict[str, Any]:
             if len(links) >= 120:
                 break
     else:
-        title, text, links = "", re.sub(r"\s+", " ", text_raw).strip(), []
+        title, text, links = "", re.sub(r"[ \t]+", " ", text_raw).strip(), []
     return {"url": final_url, "title": title or urllib.parse.urlparse(final_url).netloc, "text": text[:120000], "links": links, "strategy": "static", "content_type": content_type}
 
 
@@ -2313,7 +2340,7 @@ def _clean_web_excerpt(value: str, max_chars: int = 5200) -> str:
         seen.add(key)
         # Homepages often expose giant menu/region lists as one comma-separated
         # line. Those are poor evidence and caused the model to echo navigation.
-        if len(line) > 900 and line.count(",") >= 12:
+        if len(line) > 900 and line.count(",") >= 12 and len(re.findall(r"[.!?](?:\s|$)", line)) < 2:
             continue
         if len(line) > 1200:
             line = line[:1200].rsplit(" ", 1)[0] + "…"

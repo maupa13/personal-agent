@@ -19,7 +19,7 @@ with app.db() as conn:
 assert owner, "active owner required"
 token, _ = app.create_session(owner["id"], ip="127.0.0.1", user_agent="Product repair acceptance")
 headers = {"Cookie": "pa_session=" + token, "X-CSRF-Token": app.csrf_token_for_session(token), "Content-Type": "application/json"}
-artifacts, jobs, results = [], [], []
+artifacts, jobs, tasks, results = [], [], [], []
 
 
 def call(path, body=None, method=None):
@@ -38,6 +38,8 @@ def check(name, fn):
         result = {"test": name, "status": "PASS", "detail": detail}
     except Exception as exc:
         result = {"test": name, "status": "FAIL", "error_type": type(exc).__name__}
+        if isinstance(exc, AssertionError):
+            result["reason"] = str(exc)[:250]
         if isinstance(exc, urllib.error.HTTPError):
             result["http_status"] = exc.code
             try:
@@ -104,6 +106,22 @@ def research():
     return {"sources": len(value["sources"]), "nonempty": True}
 
 
+def report_task():
+    task = call("/api/tasks", {"type": "research_report", "question": "Краткий отчёт о возможностях Python по https://www.python.org/about/ и https://docs.python.org/3/tutorial/", "formats": ["md", "xlsx", "pdf"]})["task"]
+    tasks.append(task["id"])
+    deadline = time.monotonic() + 180
+    while time.monotonic() < deadline:
+        task = call("/api/tasks/" + task["id"])["task"]
+        if task["status"] in {"COMPLETED", "FAILED", "CANCELLED"}:
+            break
+        time.sleep(1)
+    assert task["status"] == "COMPLETED", task.get("error")
+    files = task["result"]["artifacts"]
+    assert {item["name"].rsplit(".", 1)[-1] for item in files} == {"md", "xlsx", "pdf"}
+    assert all(item["validation_status"] == "verified" for item in files)
+    return {"completed": True, "verified_exports": ["md", "xlsx", "pdf"], "sources": len(task["result"]["sources"])}
+
+
 try:
     before = call("/api/billing/me")
     assert before["subscription"]["billing_exempt"]
@@ -117,8 +135,24 @@ try:
     check("web_search", search)
     check("web_read", read)
     check("research_with_sources", research)
+    check("research_report_task", report_task)
     assert call("/api/billing/me")["balance"] == before["balance"], "smoke must not alter the wallet"
 finally:
+    for task_id in tasks:
+        task = call("/api/tasks/" + task_id)["task"]
+        if task["status"] not in {"COMPLETED", "FAILED", "CANCELLED"}:
+            call("/api/tasks/" + task_id + "/cancel", {})
+            print(json.dumps({"cleanup": "task cancellation requested", "status": "PARTIAL"}), flush=True)
+            continue
+        for step in task.get("steps", []):
+            artifact_id = (step.get("output") or {}).get("artifact_id")
+            if artifact_id and artifact_id not in artifacts:
+                artifacts.append(artifact_id)
+        with app.db() as conn:
+            conn.execute("DELETE FROM task_events WHERE task_id=?", (task_id,))
+            conn.execute("DELETE FROM task_steps WHERE task_id=?", (task_id,))
+            conn.execute("DELETE FROM tasks WHERE id=? AND user_id=?", (task_id, owner["id"]))
+            conn.commit()
     for artifact in artifacts:
         try:
             call("/api/files/" + artifact, method="DELETE")
